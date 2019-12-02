@@ -1,10 +1,8 @@
 require 'pry'
 
-lines = open('input.txt', 'rb') do |io|
-	io.read
-end
+lines = ARGF.each_line.to_a
 
-components = lines.split.map(&:to_f)
+components = lines.map(&:to_f)
 
 fuel_requirements = components.map do |component|
 	(component / 3).floor - 2.0
@@ -29,4 +27,3 @@ end
 total = new_fuel_requirements.inject(:+)
 
 puts "Part 2: #{total.to_i}"
-
