@@ -1,37 +1,7 @@
 use std::io::BufRead;
 
 mod part1 {
-	pub fn intcode_0(pgm: &[usize]) -> usize {
-		let mut memory: Vec<usize> = pgm.to_vec();
-		let mut idx = 0;
-
-		loop {
-			if idx > memory.len() {
-				break memory[0];
-			}
-
-			match memory[idx] {
-				1 => {
-					let a = memory[memory[idx + 1]];
-					let b = memory[memory[idx + 2]];
-					let output = memory[idx + 3];
-
-					memory[output] = a + b;
-					idx += 4;
-				}
-				2 => {
-					let a = memory[memory[idx + 1]];
-					let b = memory[memory[idx + 2]];
-					let output = memory[idx + 3];
-
-					memory[output] = a * b;
-					idx += 4;
-				}
-				99 => break memory[0],
-				_ => unimplemented!(),
-			}
-		}
-	}
+	pub use d2019_02::intcode_0;
 
 	#[cfg(test)]
 	mod tests {
@@ -46,8 +16,8 @@ mod part1 {
 
 mod part2 {
 	pub fn solve_for_value(pgm: &[usize], expected: usize) -> [usize; 2] {
-		let nouns: Vec<usize> = (1..100).collect();
-		let verbs: Vec<usize> = (1..100).collect();
+		let nouns: Vec<usize> = (0..100).collect();
+		let verbs: Vec<usize> = (0..100).collect();
 
 		for noun in &nouns {
 			for verb in &verbs {
