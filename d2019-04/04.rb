@@ -22,54 +22,50 @@
 bounds = ARGF.each_line.to_a.map(&:strip).first.split('-').map(&:to_i)
 range = Range.new(bounds.first, bounds.last)
 
-def six_digit?(n)
-	Math.log(n, 10).floor + 1 == 6
-end
+class Integer
+	def six_digit?
+		digits.count == 6
+	end
 
-def has_two_adjacent_digits?(n)
-	digits = n.digits
-
-	digits.each_with_index.any? do |digit, idx|
-		if idx-1 >= 0
-			digits[idx-1] == digit
-		else
-			false
+	def two_adjacent_digits?
+		digits = self.digits
+		digits.each_with_index.any? do |digit, idx|
+			if idx-1 >= 0
+				digits[idx-1] == digit
+			else
+				false
+			end
 		end
 	end
-end
 
-def monotonic?(n)
-	digits = n.digits.reverse
+	def exactly_two_adjacent_digits?
+		digits = self.digits
+		counts = digits.map{|digit| digits.count(digit)}
+		counts.any? {|ct| ct == 2}
+	end
 
-	digits.each_with_index.all? do |digit, idx|
-		if idx-1 >= 0
-			digits[idx - 1] <= digit
-		else
-			true
+	def monotonic?
+		digits = self.digits.reverse
+		digits.each_with_index.all? do |digit, idx|
+			if idx-1 >= 0
+				digits[idx-1] <= digit
+			else
+				true
+			end
 		end
 	end
-end
-
-def counts_le_2?(n)
-	digits = n.digits
-	counts = digits.map{|digit| digits.count(digit)}
-	counts.any? {|ct| ct == 2}
 end
 
 actual_range = range.filter do |x|
-	monotonic? x
+	x.monotonic?
 end.filter do |x|
-	result = has_two_adjacent_digits? x
-	# puts "Tossing out #{x}, does not have two adjacent digits" unless result
-	result
+	x.two_adjacent_digits?
 end
 
 puts "Part 1: #{actual_range.count}"
 
 stricter = actual_range.filter do |x|
-	result = counts_le_2? x
-	# puts "Tossing out #{x}, since it has more than 2 repetitions" unless result
-	result
+	x.exactly_two_adjacent_digits?
 end
 
 puts "Part 2: #{stricter.count}"
