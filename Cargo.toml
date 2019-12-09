@@ -1,6 +1,7 @@
 [workspace]
 
 members = [
+	"common",
 	"d2018-01",
 	"d2018-02",
 	"d2018-03",
