@@ -141,4 +141,18 @@ fn main() {
 				.collect()
 		})
 		.collect();
+
+	// Part One: Compute value left at position 0.
+	{
+		let program = {
+			let mut program = program.clone();
+			program[1] = 12;
+			program[2] = 2;
+			program
+		};
+
+		let mut intcode: one::intcode::Intcode = one::intcode::Intcode::from(program);
+		let final_memory = intcode.run();
+		println!("Part One: {}", final_memory[0]);
+	}
 }
