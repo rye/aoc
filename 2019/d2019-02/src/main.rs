@@ -7,6 +7,18 @@ mod one {
 			Halt,
 		}
 
+		impl From<i32> for Opcode {
+			fn from(raw: i32) -> Opcode {
+				use Opcode::*;
+				match raw {
+					1 => Add,
+					2 => Mul,
+					99 => Halt,
+					_ => panic!(),
+				}
+			}
+		}
+
 		#[derive(Debug)]
 		pub struct Intcode {
 			inner: Vec<i32>,
