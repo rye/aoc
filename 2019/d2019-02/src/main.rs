@@ -57,7 +57,7 @@ mod one {
 						self.head += 4;
 						Some(())
 					}
-					_ => todo!()
+					Opcode::Halt => None,
 				}
 			}
 
