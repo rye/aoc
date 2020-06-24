@@ -1,6 +1,6 @@
 mod one {
 	pub fn fuel_required_for_module(mass: u32) -> u32 {
-		todo!()
+		(mass / 3) - 2
 	}
 
 	#[test]
