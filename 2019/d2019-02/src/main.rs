@@ -38,7 +38,19 @@ mod one {
 			}
 
 			pub fn step(&mut self) -> Option<()> {
-				todo!()
+				let current_opcode: Opcode = Opcode::from(self.inner[self.head]);
+
+				match current_opcode {
+					Opcode::Add => {
+						let pos_a = self.inner[self.head + 1];
+						let pos_b = self.inner[self.head + 2];
+						let pos_out = self.inner[self.head + 3];
+						self.inner[pos_out as usize] = self.inner[pos_a as usize] + self.inner[pos_b as usize];
+						self.head += 4;
+						Some(())
+					}
+					_ => todo!()
+				}
 			}
 
 			pub fn run(&mut self) -> Vec<i32> {
