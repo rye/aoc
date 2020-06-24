@@ -62,7 +62,11 @@ mod one {
 			}
 
 			pub fn run(&mut self) -> Vec<i32> {
-				todo!()
+				loop {
+					if let None = self.step() {
+						break self.inner.to_owned();
+					}
+				}
 			}
 
 			pub fn data(&self) -> &Vec<i32> {
