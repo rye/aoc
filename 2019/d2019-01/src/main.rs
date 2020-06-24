@@ -24,6 +24,27 @@ mod one {
 	}
 }
 
+mod two {
+	pub fn fuel_required_for_module(mass: u32) -> u32 {
+		todo!()
+	}
+
+	#[test]
+	fn fuel_14() {
+		assert_eq!(fuel_required_for_module(14), 2);
+	}
+
+	#[test]
+	fn fuel_1969() {
+		assert_eq!(fuel_required_for_module(1969), 966);
+	}
+
+	#[test]
+	fn fuel_100756() {
+		assert_eq!(fuel_required_for_module(100756), 50346);
+	}
+}
+
 fn main() {
 	use std::io::BufRead;
 
@@ -43,5 +64,16 @@ fn main() {
 		}
 
 		println!("Part One: {}", fuel_weight_sum);
+	}
+
+	// Part Two: Compute the sum of the *total* fuel requirements for each module.
+	{
+		let mut fuel_weight_sum = 0;
+
+		for module_weight in &module_weights {
+			fuel_weight_sum += two::fuel_required_for_module(*module_weight);
+		}
+
+		println!("Part Two: {}", fuel_weight_sum);
 	}
 }
