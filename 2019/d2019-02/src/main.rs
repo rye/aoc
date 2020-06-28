@@ -61,7 +61,7 @@ mod one {
 			pub fn run(&mut self) -> &Vec<i32> {
 				loop {
 					if let None = self.step() {
-						break self.data()
+						break self.data();
 					}
 				}
 			}
@@ -180,6 +180,6 @@ fn main() {
 			}
 		}
 
-		println!("Part Two: {}", pair.0*100 + pair.1);
+		println!("Part Two: {}", pair.0 * 100 + pair.1);
 	}
 }
