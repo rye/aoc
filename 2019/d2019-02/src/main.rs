@@ -31,10 +31,7 @@ mod one {
 			}
 
 			pub fn from_data(inner: Vec<i32>) -> Self {
-				Self {
-					inner,
-					head: 0_usize,
-				}
+				Self::new(inner, 0_usize)
 			}
 
 			pub fn step(&mut self) -> Option<()> {
