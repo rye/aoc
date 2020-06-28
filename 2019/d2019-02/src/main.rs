@@ -58,10 +58,10 @@ mod one {
 				}
 			}
 
-			pub fn run(&mut self) -> Vec<i32> {
+			pub fn run(&mut self) -> &Vec<i32> {
 				loop {
 					if let None = self.step() {
-						break self.inner.to_owned();
+						break self.data()
 					}
 				}
 			}
@@ -99,25 +99,25 @@ mod one {
 		#[test]
 		fn pgm_5_a() {
 			let mut program: Intcode = Intcode::from(vec![1, 0, 0, 0, 99]);
-			assert_eq!(program.run(), vec![2, 0, 0, 0, 99]);
+			assert_eq!(program.run(), &vec![2, 0, 0, 0, 99]);
 		}
 
 		#[test]
 		fn pgm_5_b() {
 			let mut program: Intcode = Intcode::from(vec![2, 3, 0, 3, 99]);
-			assert_eq!(program.run(), vec![2, 3, 0, 6, 99]);
+			assert_eq!(program.run(), &vec![2, 3, 0, 6, 99]);
 		}
 
 		#[test]
 		fn pgm_6() {
 			let mut program: Intcode = Intcode::from(vec![2, 4, 4, 5, 99, 0]);
-			assert_eq!(program.run(), vec![2, 4, 4, 5, 99, 9801]);
+			assert_eq!(program.run(), &vec![2, 4, 4, 5, 99, 9801]);
 		}
 
 		#[test]
 		fn pgm_9() {
 			let mut program: Intcode = Intcode::from(vec![1, 1, 1, 4, 99, 5, 6, 0, 99]);
-			assert_eq!(program.run(), vec![30, 1, 1, 4, 2, 5, 6, 0, 99]);
+			assert_eq!(program.run(), &vec![30, 1, 1, 4, 2, 5, 6, 0, 99]);
 		}
 	}
 }
