@@ -152,4 +152,34 @@ fn main() {
 		let final_memory = intcode.run();
 		println!("Part One: {}", final_memory[0]);
 	}
+
+	// Part Two: Figure out what pair of inputs produces the output 19690720.
+	{
+		let mut done = false;
+		let mut pair = (0, 0);
+
+		for noun in 0..=100 {
+			for verb in 0..=100 {
+				let program = {
+					let mut program = program.clone();
+					program[1] = noun;
+					program[2] = verb;
+					program
+				};
+
+				let output = one::intcode::Intcode::from(program).run()[0];
+
+				if output == 19690720 {
+					done = true;
+					pair = (noun, verb);
+					break;
+				}
+			}
+			if done {
+				break;
+			}
+		}
+
+		println!("Part Two: {}", pair.0*100 + pair.1);
+	}
 }
