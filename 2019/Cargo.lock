@@ -100,3 +100,7 @@ version = "0.1.0"
 name = "d2019-25"
 version = "0.1.0"
 
+[[package]]
+name = "intcode"
+version = "0.1.0"
+
