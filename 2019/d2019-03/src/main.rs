@@ -28,6 +28,39 @@ mod one {
 		}
 	}
 
+	#[derive(Debug, PartialEq)]
+	pub enum Direction {
+		Up,
+		Down,
+		Left,
+		Right,
+	}
+
+	impl From<Direction> for Vec2d {
+		fn from(d: Direction) -> Vec2d {
+			match d {
+				Direction::Up => Vec2d(0, 1),
+				Direction::Down => Vec2d(0, -1),
+				Direction::Left => Vec2d(-1, 0),
+				Direction::Right => Vec2d(1, 0),
+			}
+		}
+	}
+
+	impl TryFrom<char> for Direction {
+		type Error = SegmentParseError;
+
+		fn try_from(c: char) -> Result<Self, Self::Error> {
+			match c {
+				'U' => Ok(Direction::Up),
+				'D' => Ok(Direction::Down),
+				'L' => Ok(Direction::Left),
+				'R' => Ok(Direction::Right),
+				_ => Err(SegmentParseError::InvalidDirection),
+			}
+		}
+	}
+
 	#[cfg(test)]
 	mod tests {}
 }
