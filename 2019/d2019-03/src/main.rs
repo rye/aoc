@@ -1,6 +1,12 @@
-mod one {}
+mod one {
+	#[cfg(test)]
+	mod tests {}
+}
 
-mod two {}
+mod two {
+	#[cfg(test)]
+	mod tests {}
+}
 
 fn main() {
 	println!("Hello, world!");
