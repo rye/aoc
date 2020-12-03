@@ -23,7 +23,8 @@ fn main() {
 		};
 
 		let mut intcode: intcode::Intcode = intcode::Intcode::from(program);
-		let final_memory = intcode.run().data();
+		intcode = intcode.run();
+		let final_memory = intcode.data();
 		println!("Part One: {}", final_memory[0]);
 	}
 

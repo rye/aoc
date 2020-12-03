@@ -207,7 +207,7 @@ impl Intcode {
 		}
 	}
 
-	pub fn run(&mut self) -> &mut Self {
+	pub fn run(mut self) -> Self {
 		loop {
 			if self.step().is_none() {
 				break self;
