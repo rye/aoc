@@ -1,7 +1,11 @@
+use std::collections::VecDeque;
+
 #[derive(Debug)]
 pub enum Opcode {
 	Add,
 	Mul,
+	Input,
+	Output,
 	Halt,
 }
 
@@ -11,6 +15,8 @@ impl From<i32> for Opcode {
 		match raw {
 			1 => Add,
 			2 => Mul,
+			3 => Input,
+			4 => Output,
 			99 => Halt,
 			_ => panic!(),
 		}
@@ -21,15 +27,40 @@ impl From<i32> for Opcode {
 pub struct Intcode {
 	inner: Vec<i32>,
 	head: usize,
+	interactive: bool,
+	input: VecDeque<i32>,
+	output: VecDeque<i32>,
 }
 
 impl Intcode {
 	pub fn new(inner: Vec<i32>, head: usize) -> Self {
-		Self { inner, head }
+		let (input, output) = (VecDeque::new(), VecDeque::new());
+
+		Self {
+			inner,
+			head,
+			interactive: true,
+			input,
+			output,
+		}
 	}
 
 	pub fn from_data(inner: Vec<i32>) -> Self {
 		Self::new(inner, 0_usize)
+	}
+
+	pub fn input(mut self, value: i32) -> Self {
+		self.input.push_back(value);
+
+		if self.interactive {
+			self.interactive = false;
+		}
+
+		self
+	}
+
+	pub fn output(&mut self) -> Option<i32> {
+		self.output.pop_front()
 	}
 
 	pub fn step(&mut self) -> Option<()> {
@@ -52,6 +83,51 @@ impl Intcode {
 				self.head += 4;
 				Some(())
 			}
+
+			Opcode::Input => {
+				let pos_in = self.inner[self.head + 1];
+
+				// If the user has supplied us with an input in the queue, use it.
+				// Otherwise, prompt for an input.
+				if self.interactive {
+					use std::io::{stdin, stdout, Write};
+
+					let mut input: String = String::new();
+					print!("<= ");
+					let _ = stdout().flush();
+
+					stdin().read_line(&mut input).expect("invalid input");
+					let input: i32 = input.parse::<i32>().expect("invalid input");
+					self.inner[pos_in as usize] = input;
+				} else {
+					if let Some(input) = self.input.pop_front() {
+						self.inner[pos_in as usize] = input;
+					} else {
+						panic!(
+							"Attempted to take input in non-interactive mode without anything in input buffer"
+						);
+					}
+				}
+
+				self.head += 2;
+
+				Some(())
+			}
+
+			Opcode::Output => {
+				let pos_out = self.inner[self.head + 1];
+
+				if self.interactive {
+					println!("=> {}", self.inner[pos_out as usize]);
+				} else {
+					self.output.push_back(self.inner[pos_out as usize]);
+				}
+
+				self.head += 2;
+
+				Some(())
+			}
+
 			Opcode::Halt => None,
 		}
 	}
@@ -78,6 +154,30 @@ impl From<Vec<i32>> for Intcode {
 #[cfg(test)]
 mod tests {
 	use super::Intcode;
+
+	#[test]
+	fn pgm_input_output() {
+		let mut program: Intcode = Intcode::from(vec![3, 0, 4, 0, 99]);
+
+		// First, we should be able to set the input.
+		assert_eq!(program.data(), &vec![3, 0, 4, 0, 99]);
+		program = program.input(573);
+		assert_eq!(program.data(), &vec![3, 0, 4, 0, 99]);
+
+		// After one step, the value we input should be stored in the data, and we
+		// shouldn't have any output.
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(program.data(), &vec![573, 0, 4, 0, 99]);
+		assert_eq!(program.output(), None);
+
+		// Stepping once more, we should now have an output.
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(program.data(), &vec![573, 0, 4, 0, 99]);
+		assert_eq!(program.output(), Some(573));
+
+		// Stepping once again should halt the program.
+		assert_eq!(program.step(), None);
+	}
 
 	#[test]
 	fn pgm_12() {
