@@ -6,6 +6,10 @@ pub enum Opcode {
 	Mul,
 	Input,
 	Output,
+	JumpIfTrue,
+	JumpIfFalse,
+	LessThan,
+	Equals,
 	Halt,
 }
 
@@ -16,11 +20,17 @@ impl From<i32> for Opcode {
 		// We should not get values >= 100.
 		assert_eq!(raw % 100, raw);
 
+		dbg!(raw);
+
 		match raw {
 			1 => Add,
 			2 => Mul,
 			3 => Input,
 			4 => Output,
+			5 => JumpIfTrue,
+			6 => JumpIfFalse,
+			7 => LessThan,
+			8 => Equals,
 			99 => Halt,
 			_ => panic!(),
 		}
@@ -195,11 +205,91 @@ impl Intcode {
 				if self.interactive {
 					println!("=> {}", value);
 				} else {
+					println!("=> {}", value);
+
 					self.output.push_back(value);
 				}
 
 				self.head += 2;
 
+				Some(())
+			}
+
+			Opcode::JumpIfTrue => {
+				let param_a = self.inner[self.head + 1];
+				let param_b = self.inner[self.head + 2];
+
+				let a = match parameter_modes.0 {
+					ParameterMode::Position => self.inner[param_a as usize],
+					ParameterMode::Immediate => param_a,
+				};
+
+				let b = param_b;
+
+				if a != 0 {
+					self.head = b as usize;
+				} else {
+					self.head += 3;
+				}
+
+				Some(())
+			}
+
+			Opcode::JumpIfFalse => {
+				let param_a = self.inner[self.head + 1];
+				let param_b = self.inner[self.head + 2];
+
+				let a = match parameter_modes.0 {
+					ParameterMode::Position => self.inner[param_a as usize],
+					ParameterMode::Immediate => param_a,
+				};
+
+				let b = param_b;
+
+				if a == 0 {
+					self.head = b as usize;
+				} else {
+					self.head += 3;
+				}
+
+				Some(())
+			}
+
+			Opcode::LessThan => {
+				let param_a = self.inner[self.head + 1];
+				let param_b = self.inner[self.head + 2];
+				let param_outpos = self.inner[self.head + 3];
+
+				let a = match parameter_modes.0 {
+					ParameterMode::Position => self.inner[param_a as usize],
+					ParameterMode::Immediate => param_a,
+				};
+				let b = match parameter_modes.1 {
+					ParameterMode::Position => self.inner[param_b as usize],
+					ParameterMode::Immediate => param_b,
+				};
+
+				self.inner[param_outpos as usize] = (a < b).into();
+				self.head += 4;
+				Some(())
+			}
+
+			Opcode::Equals => {
+				let param_a = self.inner[self.head + 1];
+				let param_b = self.inner[self.head + 2];
+				let param_outpos = self.inner[self.head + 3];
+
+				let a = match parameter_modes.0 {
+					ParameterMode::Position => self.inner[param_a as usize],
+					ParameterMode::Immediate => param_a,
+				};
+				let b = match parameter_modes.1 {
+					ParameterMode::Position => self.inner[param_b as usize],
+					ParameterMode::Immediate => param_b,
+				};
+
+				self.inner[param_outpos as usize] = (a == b).into();
+				self.head += 4;
 				Some(())
 			}
 
@@ -351,6 +441,102 @@ mod tests {
 	}
 
 	#[test]
+	fn pgm_position_input_8_equal_8() {
+		let mut program: Intcode = Intcode::from(vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]);
+		program = program.input(8);
+
+		assert_eq!(program.data(), &vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(program.data(), &vec![3, 9, 8, 9, 10, 9, 4, 9, 99, 8, 8]);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(program.data(), &vec![3, 9, 8, 9, 10, 9, 4, 9, 99, 1, 8]);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(program.data(), &vec![3, 9, 8, 9, 10, 9, 4, 9, 99, 1, 8]);
+		assert_eq!(program.output(), Some(1));
+
+		assert_eq!(program.step(), None);
+	}
+
+	#[test]
+	fn pgm_position_input_7_not_equal_8() {
+		let mut program: Intcode = Intcode::from(vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]);
+		program = program.input(7);
+
+		assert_eq!(program.data(), &vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(program.data(), &vec![3, 9, 8, 9, 10, 9, 4, 9, 99, 7, 8]);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(program.data(), &vec![3, 9, 8, 9, 10, 9, 4, 9, 99, 0, 8]);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(program.data(), &vec![3, 9, 8, 9, 10, 9, 4, 9, 99, 0, 8]);
+		assert_eq!(program.output(), Some(0));
+
+		assert_eq!(program.step(), None);
+	}
+
+	#[test]
+	fn pgm_position_input_8_lt_8() {
+		let input = 8;
+		let expected_output = (input < 8).into();
+		let mut program: Intcode = Intcode::from(vec![3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8]);
+		program = program.input(input);
+
+		assert_eq!(program.data(), &vec![3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8]);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(program.data(), &vec![3, 9, 7, 9, 10, 9, 4, 9, 99, input, 8]);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(
+			program.data(),
+			&vec![3, 9, 7, 9, 10, 9, 4, 9, 99, expected_output, 8]
+		);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(
+			program.data(),
+			&vec![3, 9, 7, 9, 10, 9, 4, 9, 99, expected_output, 8]
+		);
+		assert_eq!(program.output(), Some(expected_output));
+
+		assert_eq!(program.step(), None);
+	}
+
+	#[test]
+	fn pgm_position_input_7_lt_8() {
+		let input = 7;
+		let expected_output = (input < 8).into();
+		let mut program: Intcode = Intcode::from(vec![3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8]);
+		program = program.input(input);
+
+		assert_eq!(program.data(), &vec![3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8]);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(program.data(), &vec![3, 9, 7, 9, 10, 9, 4, 9, 99, input, 8]);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(
+			program.data(),
+			&vec![3, 9, 7, 9, 10, 9, 4, 9, 99, expected_output, 8]
+		);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(
+			program.data(),
+			&vec![3, 9, 7, 9, 10, 9, 4, 9, 99, expected_output, 8]
+		);
+		assert_eq!(program.output(), Some(expected_output));
+
+		assert_eq!(program.step(), None);
+	}
+
+	#[test]
 	fn pgm_12() {
 		let mut program: Intcode = Intcode::from(vec![1, 9, 10, 3, 2, 3, 11, 0, 99, 30, 40, 50]);
 		assert_eq!(
@@ -371,25 +557,25 @@ mod tests {
 
 	#[test]
 	fn pgm_5_a() {
-		let mut program: Intcode = Intcode::from(vec![1, 0, 0, 0, 99]);
+		let program: Intcode = Intcode::from(vec![1, 0, 0, 0, 99]);
 		assert_eq!(program.run().data(), &vec![2, 0, 0, 0, 99]);
 	}
 
 	#[test]
 	fn pgm_5_b() {
-		let mut program: Intcode = Intcode::from(vec![2, 3, 0, 3, 99]);
+		let program: Intcode = Intcode::from(vec![2, 3, 0, 3, 99]);
 		assert_eq!(program.run().data(), &vec![2, 3, 0, 6, 99]);
 	}
 
 	#[test]
 	fn pgm_6() {
-		let mut program: Intcode = Intcode::from(vec![2, 4, 4, 5, 99, 0]);
+		let program: Intcode = Intcode::from(vec![2, 4, 4, 5, 99, 0]);
 		assert_eq!(program.run().data(), &vec![2, 4, 4, 5, 99, 9801]);
 	}
 
 	#[test]
 	fn pgm_9() {
-		let mut program: Intcode = Intcode::from(vec![1, 1, 1, 4, 99, 5, 6, 0, 99]);
+		let program: Intcode = Intcode::from(vec![1, 1, 1, 4, 99, 5, 6, 0, 99]);
 		assert_eq!(program.run().data(), &vec![30, 1, 1, 4, 2, 5, 6, 0, 99]);
 	}
 }
