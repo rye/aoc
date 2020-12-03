@@ -157,7 +157,7 @@ impl Intcode {
 			}
 
 			Opcode::Input => {
-				let pos_in = self.inner[self.head + 1];
+				let location = self.inner[self.head + 1];
 
 				// If the user has supplied us with an input in the queue, use it.
 				// Otherwise, prompt for an input.
@@ -170,9 +170,9 @@ impl Intcode {
 
 					stdin().read_line(&mut input).expect("invalid input");
 					let input: i32 = input.parse::<i32>().expect("invalid input");
-					self.inner[pos_in as usize] = input;
+					self.inner[location as usize] = input;
 				} else if let Some(input) = self.input.pop_front() {
-					self.inner[pos_in as usize] = input;
+					self.inner[location as usize] = input;
 				} else {
 					panic!(
 						"Attempted to take input in non-interactive mode without anything in input buffer"
@@ -185,12 +185,17 @@ impl Intcode {
 			}
 
 			Opcode::Output => {
-				let pos_out = self.inner[self.head + 1];
+				let param = self.inner[self.head + 1];
+
+				let value = match parameter_modes.0 {
+					ParameterMode::Position => self.inner[param as usize],
+					ParameterMode::Immediate => param,
+				};
 
 				if self.interactive {
-					println!("=> {}", self.inner[pos_out as usize]);
+					println!("=> {}", value);
 				} else {
-					self.output.push_back(self.inner[pos_out as usize]);
+					self.output.push_back(value);
 				}
 
 				self.head += 2;
