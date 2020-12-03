@@ -134,7 +134,7 @@ impl Intcode {
 
 	pub fn run(&mut self) -> &Vec<i32> {
 		loop {
-			if let None = self.step() {
+			if self.step().is_none() {
 				break self.data();
 			}
 		}
