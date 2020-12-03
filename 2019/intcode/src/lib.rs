@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Opcode {
 	Add,
 	Mul,
@@ -12,6 +12,10 @@ pub enum Opcode {
 impl From<i32> for Opcode {
 	fn from(raw: i32) -> Opcode {
 		use Opcode::*;
+
+		// We should not get values >= 100.
+		assert_eq!(raw % 100, raw);
+
 		match raw {
 			1 => Add,
 			2 => Mul,
@@ -19,6 +23,43 @@ impl From<i32> for Opcode {
 			4 => Output,
 			99 => Halt,
 			_ => panic!(),
+		}
+	}
+}
+
+#[derive(Debug, PartialEq)]
+pub enum ParameterMode {
+	Position,
+	Immediate,
+}
+
+impl From<i32> for ParameterMode {
+	fn from(raw: i32) -> ParameterMode {
+		match raw {
+			0 => Self::Position,
+			1 => Self::Immediate,
+			_ => unimplemented!(),
+		}
+	}
+}
+
+#[derive(Debug, PartialEq)]
+pub struct Instruction {
+	opcode: Opcode,
+	parameter_modes: (ParameterMode, ParameterMode, ParameterMode),
+}
+
+impl From<i32> for Instruction {
+	fn from(raw: i32) -> Instruction {
+		let opcode = Opcode::from(raw % 100);
+		let mode_0: ParameterMode = ((raw / 100) % 10).into();
+		let mode_1: ParameterMode = ((raw / 1000) % 10).into();
+		let mode_2: ParameterMode = ((raw / 10000) % 10).into();
+		let parameter_modes = (mode_0, mode_1, mode_2);
+
+		Instruction {
+			opcode,
+			parameter_modes,
 		}
 	}
 }
@@ -64,22 +105,53 @@ impl Intcode {
 	}
 
 	pub fn step(&mut self) -> Option<()> {
-		let current_opcode: Opcode = Opcode::from(self.inner[self.head]);
+		let instruction: Instruction = Instruction::from(self.inner[self.head]);
+		let opcode: Opcode = instruction.opcode;
+		let parameter_modes: (ParameterMode, ParameterMode, ParameterMode) =
+			instruction.parameter_modes;
 
-		match current_opcode {
+		match opcode {
 			Opcode::Add => {
-				let pos_a = self.inner[self.head + 1];
-				let pos_b = self.inner[self.head + 2];
-				let pos_out = self.inner[self.head + 3];
-				self.inner[pos_out as usize] = self.inner[pos_a as usize] + self.inner[pos_b as usize];
+				let param_a = self.inner[self.head + 1];
+				let param_b = self.inner[self.head + 2];
+				let param_outpos = self.inner[self.head + 3];
+
+				// Ensure no illegal output parameter in immediate mode.
+				assert!(parameter_modes.2 != ParameterMode::Immediate);
+
+				let a = match parameter_modes.0 {
+					ParameterMode::Position => self.inner[param_a as usize],
+					ParameterMode::Immediate => param_a,
+				};
+
+				let b = match parameter_modes.1 {
+					ParameterMode::Position => self.inner[param_b as usize],
+					ParameterMode::Immediate => param_b,
+				};
+
+				self.inner[param_outpos as usize] = a + b;
 				self.head += 4;
 				Some(())
 			}
 			Opcode::Mul => {
-				let pos_a = self.inner[self.head + 1];
-				let pos_b = self.inner[self.head + 2];
-				let pos_out = self.inner[self.head + 3];
-				self.inner[pos_out as usize] = self.inner[pos_a as usize] * self.inner[pos_b as usize];
+				let param_a = self.inner[self.head + 1];
+				let param_b = self.inner[self.head + 2];
+				let param_outpos = self.inner[self.head + 3];
+
+				// Ensure no illegal output parameter in immediate mode.
+				assert!(parameter_modes.2 != ParameterMode::Immediate);
+
+				let a = match parameter_modes.0 {
+					ParameterMode::Position => self.inner[param_a as usize],
+					ParameterMode::Immediate => param_a,
+				};
+
+				let b = match parameter_modes.1 {
+					ParameterMode::Position => self.inner[param_b as usize],
+					ParameterMode::Immediate => param_b,
+				};
+
+				self.inner[param_outpos as usize] = a * b;
 				self.head += 4;
 				Some(())
 			}
@@ -99,14 +171,12 @@ impl Intcode {
 					stdin().read_line(&mut input).expect("invalid input");
 					let input: i32 = input.parse::<i32>().expect("invalid input");
 					self.inner[pos_in as usize] = input;
+				} else if let Some(input) = self.input.pop_front() {
+					self.inner[pos_in as usize] = input;
 				} else {
-					if let Some(input) = self.input.pop_front() {
-						self.inner[pos_in as usize] = input;
-					} else {
-						panic!(
-							"Attempted to take input in non-interactive mode without anything in input buffer"
-						);
-					}
+					panic!(
+						"Attempted to take input in non-interactive mode without anything in input buffer"
+					);
 				}
 
 				self.head += 2;
@@ -153,14 +223,79 @@ impl From<Vec<i32>> for Intcode {
 
 #[cfg(test)]
 mod tests {
-	use super::Intcode;
+	use super::{Instruction, Intcode};
+
+	#[cfg(test)]
+	mod instruction {
+		use super::super::{Opcode, ParameterMode};
+		use super::Instruction;
+
+		#[test]
+		fn standard_add_correct() {
+			assert_eq!(
+				Instruction::from(1),
+				Instruction {
+					opcode: Opcode::Add,
+					parameter_modes: (
+						ParameterMode::Position,
+						ParameterMode::Position,
+						ParameterMode::Position
+					)
+				}
+			)
+		}
+
+		#[test]
+		fn standard_mul_correct() {
+			assert_eq!(
+				Instruction::from(2),
+				Instruction {
+					opcode: Opcode::Mul,
+					parameter_modes: (
+						ParameterMode::Position,
+						ParameterMode::Position,
+						ParameterMode::Position
+					)
+				}
+			)
+		}
+
+		#[test]
+		fn standard_input_correct() {
+			assert_eq!(
+				Instruction::from(3),
+				Instruction {
+					opcode: Opcode::Input,
+					parameter_modes: (
+						ParameterMode::Position,
+						ParameterMode::Position,
+						ParameterMode::Position
+					)
+				}
+			)
+		}
+
+		#[test]
+		fn standard_output_correct() {
+			assert_eq!(
+				Instruction::from(4),
+				Instruction {
+					opcode: Opcode::Output,
+					parameter_modes: (
+						ParameterMode::Position,
+						ParameterMode::Position,
+						ParameterMode::Position
+					)
+				}
+			)
+		}
+	}
 
 	#[test]
 	fn pgm_input_output() {
 		let mut program: Intcode = Intcode::from(vec![3, 0, 4, 0, 99]);
 
 		// First, we should be able to set the input.
-		assert_eq!(program.data(), &vec![3, 0, 4, 0, 99]);
 		program = program.input(573);
 		assert_eq!(program.data(), &vec![3, 0, 4, 0, 99]);
 
@@ -176,6 +311,37 @@ mod tests {
 		assert_eq!(program.output(), Some(573));
 
 		// Stepping once again should halt the program.
+		assert_eq!(program.step(), None);
+	}
+
+	#[test]
+	fn pgm_add_immediate() {
+		let mut program: Intcode = Intcode::from(vec![1101, 100, -1, 4, 0]);
+
+		assert_eq!(program.data(), &vec![1101, 100, -1, 4, 0]);
+
+		// Stepping, opcode 1101 should add the 100 and -1 and store the result, 99,
+		// in position 4.
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(program.data(), &vec![1101, 100, -1, 4, 99]);
+
+		// Next step should terminate the program.
+		assert_eq!(program.step(), None);
+	}
+
+	#[test]
+	fn pgm_multiply_immediate() {
+		let mut program: Intcode = Intcode::from(vec![1002, 4, 3, 4, 33]);
+
+		assert_eq!(program.data(), &vec![1002, 4, 3, 4, 33]);
+
+		// Stepping, opcode 1002 should multiply the value at address 4
+		// by the literal value 3 and store it in position 4, so it effectively
+		// multiplies the last position by 3, setting it to the halt instruction.
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(program.data(), &vec![1002, 4, 3, 4, 99]);
+
+		// Next step should terminate the program.
 		assert_eq!(program.step(), None);
 	}
 
