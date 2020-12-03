@@ -442,40 +442,56 @@ mod tests {
 
 	#[test]
 	fn pgm_position_input_8_equal_8() {
+		let input = 8;
+		let expected_output = (input == 8).into();
 		let mut program: Intcode = Intcode::from(vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]);
-		program = program.input(8);
+		program = program.input(input);
 
 		assert_eq!(program.data(), &vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]);
 
 		assert_eq!(program.step(), Some(()));
-		assert_eq!(program.data(), &vec![3, 9, 8, 9, 10, 9, 4, 9, 99, 8, 8]);
+		assert_eq!(program.data(), &vec![3, 9, 8, 9, 10, 9, 4, 9, 99, input, 8]);
 
 		assert_eq!(program.step(), Some(()));
-		assert_eq!(program.data(), &vec![3, 9, 8, 9, 10, 9, 4, 9, 99, 1, 8]);
+		assert_eq!(
+			program.data(),
+			&vec![3, 9, 8, 9, 10, 9, 4, 9, 99, expected_output, 8]
+		);
 
 		assert_eq!(program.step(), Some(()));
-		assert_eq!(program.data(), &vec![3, 9, 8, 9, 10, 9, 4, 9, 99, 1, 8]);
-		assert_eq!(program.output(), Some(1));
+		assert_eq!(
+			program.data(),
+			&vec![3, 9, 8, 9, 10, 9, 4, 9, 99, expected_output, 8]
+		);
+		assert_eq!(program.output(), Some(expected_output));
 
 		assert_eq!(program.step(), None);
 	}
 
 	#[test]
 	fn pgm_position_input_7_not_equal_8() {
+		let input = 7;
+		let expected_output = (input == 8).into();
 		let mut program: Intcode = Intcode::from(vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]);
-		program = program.input(7);
+		program = program.input(input);
 
 		assert_eq!(program.data(), &vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]);
 
 		assert_eq!(program.step(), Some(()));
-		assert_eq!(program.data(), &vec![3, 9, 8, 9, 10, 9, 4, 9, 99, 7, 8]);
+		assert_eq!(program.data(), &vec![3, 9, 8, 9, 10, 9, 4, 9, 99, input, 8]);
 
 		assert_eq!(program.step(), Some(()));
-		assert_eq!(program.data(), &vec![3, 9, 8, 9, 10, 9, 4, 9, 99, 0, 8]);
+		assert_eq!(
+			program.data(),
+			&vec![3, 9, 8, 9, 10, 9, 4, 9, 99, expected_output, 8]
+		);
 
 		assert_eq!(program.step(), Some(()));
-		assert_eq!(program.data(), &vec![3, 9, 8, 9, 10, 9, 4, 9, 99, 0, 8]);
-		assert_eq!(program.output(), Some(0));
+		assert_eq!(
+			program.data(),
+			&vec![3, 9, 8, 9, 10, 9, 4, 9, 99, expected_output, 8]
+		);
+		assert_eq!(program.output(), Some(expected_output));
 
 		assert_eq!(program.step(), None);
 	}
@@ -530,6 +546,118 @@ mod tests {
 		assert_eq!(
 			program.data(),
 			&vec![3, 9, 7, 9, 10, 9, 4, 9, 99, expected_output, 8]
+		);
+		assert_eq!(program.output(), Some(expected_output));
+
+		assert_eq!(program.step(), None);
+	}
+
+	#[test]
+	fn pgm_immediate_input_8_equal_8() {
+		let input = 8;
+		let expected_output = (input == 8).into();
+		let mut program: Intcode = Intcode::from(vec![3, 3, 1108, -1, 8, 3, 4, 3, 99]);
+		program = program.input(input);
+
+		assert_eq!(program.data(), &vec![3, 3, 1108, -1, 8, 3, 4, 3, 99]);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(program.data(), &vec![3, 3, 1108, input, 8, 3, 4, 3, 99]);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(
+			program.data(),
+			&vec![3, 3, 1108, expected_output, 8, 3, 4, 3, 99]
+		);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(
+			program.data(),
+			&vec![3, 3, 1108, expected_output, 8, 3, 4, 3, 99]
+		);
+		assert_eq!(program.output(), Some(expected_output));
+
+		assert_eq!(program.step(), None);
+	}
+
+	#[test]
+	fn pgm_immediate_input_7_equal_8() {
+		let input = 7;
+		let expected_output = (input == 8).into();
+		let mut program: Intcode = Intcode::from(vec![3, 3, 1108, -1, 8, 3, 4, 3, 99]);
+		program = program.input(input);
+
+		assert_eq!(program.data(), &vec![3, 3, 1108, -1, 8, 3, 4, 3, 99]);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(program.data(), &vec![3, 3, 1108, input, 8, 3, 4, 3, 99]);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(
+			program.data(),
+			&vec![3, 3, 1108, expected_output, 8, 3, 4, 3, 99]
+		);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(
+			program.data(),
+			&vec![3, 3, 1108, expected_output, 8, 3, 4, 3, 99]
+		);
+		assert_eq!(program.output(), Some(expected_output));
+
+		assert_eq!(program.step(), None);
+	}
+
+	#[test]
+	fn pgm_immediate_input_8_lt_8() {
+		let input = 8;
+		let expected_output = (input < 8).into();
+		let mut program: Intcode = Intcode::from(vec![3, 3, 1107, -1, 8, 3, 4, 3, 99]);
+		program = program.input(input);
+
+		assert_eq!(program.data(), &vec![3, 3, 1107, -1, 8, 3, 4, 3, 99]);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(program.data(), &vec![3, 3, 1107, input, 8, 3, 4, 3, 99]);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(
+			program.data(),
+			&vec![3, 3, 1107, expected_output, 8, 3, 4, 3, 99]
+		);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(
+			program.data(),
+			&vec![3, 3, 1107, expected_output, 8, 3, 4, 3, 99]
+		);
+		assert_eq!(program.output(), Some(expected_output));
+
+		assert_eq!(program.step(), None);
+	}
+
+	#[test]
+	fn pgm_immediate_input_7_lt_8() {
+		let input = 7;
+		let expected_output = (input < 8).into();
+		let mut program: Intcode = Intcode::from(vec![3, 3, 1107, -1, 8, 3, 4, 3, 99]);
+		program = program.input(input);
+
+		assert_eq!(program.data(), &vec![3, 3, 1107, -1, 8, 3, 4, 3, 99]);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(program.data(), &vec![3, 3, 1107, input, 8, 3, 4, 3, 99]);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(
+			program.data(),
+			&vec![3, 3, 1107, expected_output, 8, 3, 4, 3, 99]
+		);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(
+			program.data(),
+			&vec![3, 3, 1107, expected_output, 8, 3, 4, 3, 99]
 		);
 		assert_eq!(program.output(), Some(expected_output));
 
