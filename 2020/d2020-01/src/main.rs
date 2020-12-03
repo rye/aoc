@@ -1,8 +1,8 @@
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 use std::io::{stdin, BufRead};
 
 /// Find a pair of elements in `list` that sum to `target`.
-fn find_pair(list: &HashSet<i64>, target: &i64) -> Option<(i64, i64)> {
+fn find_pair(list: &BTreeSet<i64>, target: &i64) -> Option<(i64, i64)> {
 	for item in list {
 		if list.contains(&(target - item)) {
 			return Some((*item, target - item));
@@ -12,7 +12,7 @@ fn find_pair(list: &HashSet<i64>, target: &i64) -> Option<(i64, i64)> {
 }
 
 /// Find a triple of elements in `list` that sum to `target`.
-fn find_triple(list: &HashSet<i64>, target: &i64) -> Option<(i64, i64, i64)> {
+fn find_triple(list: &BTreeSet<i64>, target: &i64) -> Option<(i64, i64, i64)> {
 	for item in list {
 		if let Some(pair) = find_pair(list, &(target - item)) {
 			return Some((*item, pair.0, pair.1));
@@ -27,7 +27,7 @@ fn main() {
 
 	use util::Lines;
 
-	let list: HashSet<i64> = (Lines::from(stdin.lines())).into();
+	let list: BTreeSet<i64> = (Lines::from(stdin.lines())).into();
 
 	let pair = find_pair(&list, &2020_i64);
 
@@ -44,9 +44,9 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-	use std::collections::HashSet;
+	use std::collections::BTreeSet;
 
-	fn sample() -> HashSet<i64> {
+	fn sample() -> BTreeSet<i64> {
 		vec![1721, 979, 366, 299, 675, 1456].drain(..).collect()
 	}
 
@@ -64,7 +64,7 @@ mod tests {
 
 		#[test]
 		fn empty_list_correct() {
-			let list = HashSet::new();
+			let list = BTreeSet::new();
 			let target = 2020_i64;
 			assert_eq!(find_pair(&list, &target), None)
 		}
@@ -84,7 +84,7 @@ mod tests {
 
 		#[test]
 		fn empty_list_correct() {
-			let list = HashSet::new();
+			let list = BTreeSet::new();
 			let target = 2020_i64;
 			assert_eq!(find_triple(&list, &target), None)
 		}
