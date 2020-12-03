@@ -37,6 +37,23 @@ fn main() {
 
 	// Part Two: Compute diagnostic code for System ID 5
 	{
-		println!("Part Two: {:?}", ());
+		let program = program.clone();
+		let mut intcode: intcode::Intcode = intcode::Intcode::from(program);
+		intcode = intcode.input(5);
+		intcode = intcode.run();
+
+		let mut outputs: Vec<i32> = Vec::new();
+
+		loop {
+			if let Some(output) = intcode.output() {
+				outputs.push(output);
+			} else {
+				break;
+			}
+		}
+
+		println!("{:?}", outputs);
+
+		println!("Part Two: {}", outputs.last().expect("expected an output"));
 	}
 }
