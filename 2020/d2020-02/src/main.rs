@@ -80,3 +80,6 @@ fn main() {
 
 	println!("Part Two: {:?}", result_deux.len());
 }
+
+#[cfg(test)]
+mod tests {}
