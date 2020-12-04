@@ -1,14 +1,12 @@
-use std::io::{stdin, BufRead};
+use std::io::{stdin, BufRead, Read};
 
 fn main() {
-	let stdin = stdin();
-	let stdin = stdin.lock();
+	let data: String = {
+		let mut string: String = String::new();
+		stdin().read_to_string(&mut string);
+		string
+	};
 
-	let _data: Vec<String> = stdin
-		.lines()
-		.filter_map(Result::ok)
-		.map(|line| line)
-		.collect();
 
 	println!("Part One: {:?}", ());
 
