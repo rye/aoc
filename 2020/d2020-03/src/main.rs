@@ -4,10 +4,10 @@ fn main() {
 	let stdin = stdin();
 	let stdin = stdin.lock();
 
-	let data: Vec<String> = stdin
+	let data: Vec<Vec<char>> = stdin
 		.lines()
 		.filter_map(Result::ok)
-		.map(|line| line)
+		.map(|line| line.chars().collect())
 		.collect();
 
 	{
@@ -18,8 +18,7 @@ fn main() {
 		let data = data.clone();
 
 		loop {
-			let chars: Vec<char> = data[y].chars().collect();
-			let c: char = chars[x];
+			let c: char = data[y][x];
 
 			if c == '#' {
 				trees += 1;
@@ -30,8 +29,8 @@ fn main() {
 			} else {
 				x += 3;
 				y += 1;
-				if x >= chars.len() {
-					x %= chars.len();
+				if x >= data[y].len() {
+					x %= data[y].len();
 				}
 			}
 		}
@@ -50,8 +49,7 @@ fn main() {
 			let mut tree_hits = 0;
 
 			loop {
-				let chars: Vec<char> = data[y].chars().collect();
-				let c: char = chars[x];
+				let c: char = data[y][x];
 
 				if c == '#' {
 					tree_hits += 1;
@@ -62,8 +60,8 @@ fn main() {
 				} else {
 					x += slope.0;
 					y += slope.1;
-					if x >= chars.len() {
-						x %= chars.len();
+					if x >= data[y].len() {
+						x %= data[y].len();
 					}
 				}
 			}
