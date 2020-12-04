@@ -1,3 +1,4 @@
+use std::collections::{HashMap, HashSet};
 use std::io::{stdin, BufRead, Read};
 
 fn main() {
@@ -7,10 +8,33 @@ fn main() {
 		string
 	};
 
+	let passports: Vec<&str> = data.split("\n\n").map(|line| line).collect();
 
-	println!("Part One: {:?}", ());
+	let passports: Vec<Vec<&str>> = passports
+		.iter()
+		.map(|line| line.split_whitespace().collect())
+		.collect();
 
-	println!("Part Two: {:?}", ());
+	let passports: Vec<HashMap<&str, &str>> = passports
+		.iter()
+		.map(|pairs| {
+			pairs
+				.iter()
+				.map(|pair| {
+					let results: Vec<&str> = pair.split(":").collect();
+					(results[0], results[1])
+				})
+				.collect()
+		})
+		.collect();
+
+	{
+		println!("Part One: {:?}", ());
+	}
+
+	{
+		println!("Part Two: {:?}", ());
+	}
 }
 
 #[cfg(test)]
