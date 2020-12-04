@@ -29,7 +29,26 @@ fn main() {
 		.collect();
 
 	{
-		println!("Part One: {:?}", ());
+		let valid_passports: Vec<&HashMap<&str, &str>> = passports
+			.iter()
+			.filter(|passport| {
+				match (
+					passport.get("byr"),
+					passport.get("iyr"),
+					passport.get("eyr"),
+					passport.get("hgt"),
+					passport.get("hcl"),
+					passport.get("ecl"),
+					passport.get("pid"),
+					passport.get("cid"),
+				) {
+					(Some(_), Some(_), Some(_), Some(_), Some(_), Some(_), Some(_), _) => true,
+					_ => false,
+				}
+			})
+			.collect();
+
+		println!("Part One: {:?}", valid_passports.len());
 	}
 
 	{
