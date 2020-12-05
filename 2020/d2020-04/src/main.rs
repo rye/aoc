@@ -26,6 +26,14 @@ fn has_required_fields(passport: &HashMap<&str, &str>) -> bool {
 	)
 }
 
+fn valid_birth_year(s: &str) -> bool {
+	if let Ok(year) = s.parse::<usize>() {
+		(1920..=2002).contains(&year)
+	} else {
+		false
+	}
+}
+
 fn main() {
 	let data: String = {
 		let mut string: String = String::new();
@@ -94,11 +102,7 @@ fn main() {
 					passport.get("cid"),
 				) {
 					(Some(byr), Some(iyr), Some(eyr), Some(hgt), Some(hcl), Some(ecl), Some(pid), _) => {
-						let byr_ok: bool = if let Ok(byr) = byr.parse::<usize>() {
-							1920 <= byr && byr <= 2002
-						} else {
-							false
-						};
+						let byr_ok: bool = valid_birth_year(byr);
 
 						let iyr_ok: bool = if let Ok(iyr) = iyr.parse::<usize>() {
 							2010 <= iyr && iyr <= 2020
