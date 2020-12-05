@@ -23,7 +23,8 @@ fn main() {
 		};
 
 		let mut intcode: intcode::Intcode = intcode::Intcode::from(program);
-		let final_memory = intcode.run();
+		intcode = intcode.run();
+		let final_memory = intcode.data();
 		println!("Part One: {}", final_memory[0]);
 	}
 
@@ -41,7 +42,7 @@ fn main() {
 					program
 				};
 
-				let output = intcode::Intcode::from(program).run()[0];
+				let output = intcode::Intcode::from(program).run().data()[0];
 
 				if output == 19690720 {
 					done = true;
