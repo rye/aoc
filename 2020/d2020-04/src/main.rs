@@ -50,6 +50,25 @@ fn valid_expiry_year(s: &str) -> bool {
 	}
 }
 
+fn valid_height(s: &str) -> bool {
+	if let Some(first_letter_offset) = s.chars().position(|c| c.is_alphabetic()) {
+		let maybe_number = &s[0..first_letter_offset];
+		if let Ok(number) = maybe_number.parse::<usize>() {
+			let rest = &s[first_letter_offset..];
+
+			match rest {
+				"cm" => (150..=193).contains(&number),
+				"in" => (59..=76).contains(&number),
+				_ => false,
+			}
+		} else {
+			false
+		}
+	} else {
+		false
+	}
+}
+
 fn main() {
 	let data: String = {
 		let mut string: String = String::new();
@@ -121,27 +140,6 @@ fn main() {
 						let byr_ok: bool = valid_birth_year(byr);
 						let iyr_ok: bool = valid_issue_year(iyr);
 						let eyr_ok: bool = valid_expiry_year(eyr);
-
-
-						let hgt_ok: bool = {
-							if let Some(first_letter_offset) = hgt.chars().position(|c| c.is_alphabetic()) {
-								let maybe_number = &hgt[0..first_letter_offset];
-								if let Ok(number) = maybe_number.parse::<usize>() {
-									let maybe_rest = &hgt[first_letter_offset..];
-
-									match maybe_rest {
-										"cm" => 150 <= number && number <= 193,
-										"in" => 59 <= number && number <= 76,
-										_ => false,
-									}
-								} else {
-									false
-								}
-							} else {
-								false
-							}
-						};
-
 						let hcl_ok: bool = {
 							if hcl.chars().nth(0) == Some('#') {
 								let is_digit_and_lowercase = hcl[1..].chars().all(|ch| {
@@ -159,9 +157,7 @@ fn main() {
 								false
 							}
 						};
-
 						let ecl_ok: bool = valid_eye_colors.contains(ecl);
-
 						let pid_ok: bool = { pid.len() == 9 && pid.chars().all(|c| c.is_digit(10)) };
 
 						byr_ok && iyr_ok && eyr_ok && hgt_ok && hcl_ok && ecl_ok && pid_ok
