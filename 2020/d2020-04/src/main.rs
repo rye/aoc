@@ -69,6 +69,22 @@ fn valid_height(s: &str) -> bool {
 	}
 }
 
+fn valid_hair_color(s: &str) -> bool {
+	if let Some(rest) = s.strip_prefix('#') {
+		let is_digit_and_lowercase = rest.chars().all(|ch| {
+			if ch.is_digit(16) && !ch.is_digit(10) {
+				ch.is_lowercase()
+			} else {
+				ch.is_digit(10)
+			}
+		});
+
+		is_digit_and_lowercase
+	} else {
+		false
+	}
+}
+
 fn main() {
 	let data: String = {
 		let mut string: String = String::new();
@@ -140,23 +156,8 @@ fn main() {
 						let byr_ok: bool = valid_birth_year(byr);
 						let iyr_ok: bool = valid_issue_year(iyr);
 						let eyr_ok: bool = valid_expiry_year(eyr);
-						let hcl_ok: bool = {
-							if hcl.chars().nth(0) == Some('#') {
-								let is_digit_and_lowercase = hcl[1..].chars().all(|ch| {
-									if ch.is_digit(16) && !ch.is_digit(10) {
-										ch.is_lowercase()
-									} else if ch.is_digit(10) {
-										true
-									} else {
-										false
-									}
-								});
-
-								is_digit_and_lowercase
-							} else {
-								false
-							}
-						};
+						let hgt_ok: bool = valid_height(hgt);
+						let hcl_ok: bool = valid_hair_color(hcl);
 						let ecl_ok: bool = valid_eye_colors.contains(ecl);
 						let pid_ok: bool = { pid.len() == 9 && pid.chars().all(|c| c.is_digit(10)) };
 
