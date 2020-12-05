@@ -34,6 +34,14 @@ fn valid_birth_year(s: &str) -> bool {
 	}
 }
 
+fn valid_issue_year(s: &str) -> bool {
+	if let Ok(iyr) = s.parse::<usize>() {
+		(2010..=2020).contains(&iyr)
+	} else {
+		false
+	}
+}
+
 fn main() {
 	let data: String = {
 		let mut string: String = String::new();
@@ -103,12 +111,8 @@ fn main() {
 				) {
 					(Some(byr), Some(iyr), Some(eyr), Some(hgt), Some(hcl), Some(ecl), Some(pid), _) => {
 						let byr_ok: bool = valid_birth_year(byr);
+						let iyr_ok: bool = valid_issue_year(iyr);
 
-						let iyr_ok: bool = if let Ok(iyr) = iyr.parse::<usize>() {
-							2010 <= iyr && iyr <= 2020
-						} else {
-							false
-						};
 
 						let eyr_ok: bool = if let Ok(eyr) = eyr.parse::<usize>() {
 							2020 <= eyr && eyr <= 2030
