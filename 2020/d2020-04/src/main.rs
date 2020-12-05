@@ -4,7 +4,9 @@ use std::io::{stdin, BufRead, Read};
 fn main() {
 	let data: String = {
 		let mut string: String = String::new();
-		stdin().read_to_string(&mut string);
+		stdin()
+			.read_to_string(&mut string)
+			.expect("couldn't read stdin() to string");
 		string
 	};
 
@@ -97,13 +99,10 @@ fn main() {
 						};
 
 						let hgt_ok: bool = {
-							println!("Checking height: {}", hgt);
 							if let Some(first_letter_offset) = hgt.chars().position(|c| c.is_alphabetic()) {
 								let maybe_number = &hgt[0..first_letter_offset];
 								if let Ok(number) = maybe_number.parse::<usize>() {
 									let maybe_rest = &hgt[first_letter_offset..];
-
-									println!("Number: {}, rest: {}", number, maybe_rest);
 
 									match maybe_rest {
 										"cm" => 150 <= number && number <= 193,
@@ -120,10 +119,7 @@ fn main() {
 
 						let hcl_ok: bool = {
 							if hcl.chars().nth(0) == Some('#') {
-								println!("Considering HCL {}", hcl);
-
 								let is_digit_and_lowercase = hcl[1..].chars().all(|ch| {
-									println!("{}", ch);
 									if ch.is_digit(16) && !ch.is_digit(10) {
 										ch.is_lowercase()
 									} else if ch.is_digit(10) {
@@ -132,8 +128,6 @@ fn main() {
 										false
 									}
 								});
-
-								println!("{}", is_digit_and_lowercase);
 
 								is_digit_and_lowercase
 							} else {
@@ -145,17 +139,7 @@ fn main() {
 
 						let pid_ok: bool = { pid.len() == 9 && pid.chars().all(|c| c.is_digit(10)) };
 
-						let all_ok = byr_ok && iyr_ok && eyr_ok && hgt_ok && hcl_ok && ecl_ok && pid_ok;
-
-						if !all_ok {
-							println!(
-								"Rejecting passport: {:?} {:?}",
-								passport,
-								(byr_ok, iyr_ok, eyr_ok, hgt_ok, hcl_ok, ecl_ok, pid_ok)
-							);
-						}
-
-						all_ok
+						byr_ok && iyr_ok && eyr_ok && hgt_ok && hcl_ok && ecl_ok && pid_ok
 					}
 					_ => false,
 				}
