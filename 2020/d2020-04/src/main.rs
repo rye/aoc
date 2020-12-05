@@ -42,6 +42,14 @@ fn valid_issue_year(s: &str) -> bool {
 	}
 }
 
+fn valid_expiry_year(s: &str) -> bool {
+	if let Ok(eyr) = s.parse::<usize>() {
+		(2020..=2030).contains(&eyr)
+	} else {
+		false
+	}
+}
+
 fn main() {
 	let data: String = {
 		let mut string: String = String::new();
@@ -112,13 +120,8 @@ fn main() {
 					(Some(byr), Some(iyr), Some(eyr), Some(hgt), Some(hcl), Some(ecl), Some(pid), _) => {
 						let byr_ok: bool = valid_birth_year(byr);
 						let iyr_ok: bool = valid_issue_year(iyr);
+						let eyr_ok: bool = valid_expiry_year(eyr);
 
-
-						let eyr_ok: bool = if let Ok(eyr) = eyr.parse::<usize>() {
-							2020 <= eyr && eyr <= 2030
-						} else {
-							false
-						};
 
 						let hgt_ok: bool = {
 							if let Some(first_letter_offset) = hgt.chars().position(|c| c.is_alphabetic()) {
