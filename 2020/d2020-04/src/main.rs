@@ -2,19 +2,28 @@ use std::collections::{HashMap, HashSet};
 use std::io::{stdin, Read};
 
 fn has_required_fields(passport: &HashMap<&str, &str>) -> bool {
-	match (
-		passport.get("byr"),
-		passport.get("iyr"),
-		passport.get("eyr"),
-		passport.get("hgt"),
-		passport.get("hcl"),
-		passport.get("ecl"),
-		passport.get("pid"),
-		passport.get("cid"),
-	) {
-		(Some(_), Some(_), Some(_), Some(_), Some(_), Some(_), Some(_), _) => true,
-		_ => false,
-	}
+	matches!(
+		(
+			passport.get("byr"),
+			passport.get("iyr"),
+			passport.get("eyr"),
+			passport.get("hgt"),
+			passport.get("hcl"),
+			passport.get("ecl"),
+			passport.get("pid"),
+			passport.get("cid"),
+		),
+		(
+			Some(_),
+			Some(_),
+			Some(_),
+			Some(_),
+			Some(_),
+			Some(_),
+			Some(_),
+			_
+		)
+	)
 }
 
 fn main() {
