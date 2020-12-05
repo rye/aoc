@@ -1,5 +1,21 @@
 use std::collections::{HashMap, HashSet};
-use std::io::{stdin, BufRead, Read};
+use std::io::{stdin, Read};
+
+fn has_required_fields(passport: &HashMap<&str, &str>) -> bool {
+	match (
+		passport.get("byr"),
+		passport.get("iyr"),
+		passport.get("eyr"),
+		passport.get("hgt"),
+		passport.get("hcl"),
+		passport.get("ecl"),
+		passport.get("pid"),
+		passport.get("cid"),
+	) {
+		(Some(_), Some(_), Some(_), Some(_), Some(_), Some(_), Some(_), _) => true,
+		_ => false,
+	}
+}
 
 fn main() {
 	let data: String = {
@@ -10,13 +26,16 @@ fn main() {
 		string
 	};
 
-	let passports: Vec<&str> = data.split("\n\n").map(|line| line).collect();
+	// To start with, passports are separated by \n\n
+	let passports: Vec<&str> = data.split("\n\n").collect();
 
+	// Next, we split each passport on all whitespace to get a collection of key:value groups per passport
 	let passports: Vec<Vec<&str>> = passports
 		.iter()
 		.map(|line| line.split_whitespace().collect())
 		.collect();
 
+	// Now, turn those collections of key:value groups into hashmaps
 	let passports: Vec<HashMap<&str, &str>> = passports
 		.iter()
 		.map(|pairs| {
@@ -33,21 +52,7 @@ fn main() {
 	{
 		let valid_passports: Vec<&HashMap<&str, &str>> = passports
 			.iter()
-			.filter(|passport| {
-				match (
-					passport.get("byr"),
-					passport.get("iyr"),
-					passport.get("eyr"),
-					passport.get("hgt"),
-					passport.get("hcl"),
-					passport.get("ecl"),
-					passport.get("pid"),
-					passport.get("cid"),
-				) {
-					(Some(_), Some(_), Some(_), Some(_), Some(_), Some(_), Some(_), _) => true,
-					_ => false,
-				}
-			})
+			.filter(|passport| has_required_fields(passport))
 			.collect();
 
 		println!("Part One: {:?}", valid_passports.len());
