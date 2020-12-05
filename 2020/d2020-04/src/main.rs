@@ -51,7 +51,7 @@ fn main() {
 			pairs
 				.iter()
 				.map(|pair| {
-					let results: Vec<&str> = pair.split(":").collect();
+					let results: Vec<&str> = pair.split(':').collect();
 					(results[0], results[1])
 				})
 				.collect()
