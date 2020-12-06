@@ -1,4 +1,3 @@
-use core::iter::FromIterator;
 use std::collections::BTreeSet;
 use std::io::{stdin, Read};
 
@@ -17,8 +16,8 @@ fn main() {
 		let sum: usize = groups
 			.iter()
 			.map(|group| group.chars().filter(|c| c.is_alphabetic()))
-			.map(|alphas| BTreeSet::from_iter(alphas))
-			.map(|unique_chars| unique_chars.len())
+			.map(|alphas| alphas.collect())
+			.map(|unique_chars: BTreeSet<char>| unique_chars.len())
 			.sum();
 
 		println!("Part One: {:?}", sum);
@@ -30,14 +29,17 @@ fn main() {
 			.map(|group| {
 				let unique_chars = people_in_group(group)
 					.map(|person| person.chars().filter(|c| c.is_alphabetic()))
-					.map(|chars| BTreeSet::from_iter(chars))
-					.fold(None, |state, chars| {
-						if state.is_none() {
-							Some(chars.clone())
-						} else {
-							Some(state.unwrap().intersection(&chars).copied().collect())
-						}
-					})
+					.map(|chars| chars.collect())
+					.fold(
+						None,
+						|state: Option<BTreeSet<char>>, chars: BTreeSet<char>| {
+							if state.is_none() {
+								Some(chars.clone())
+							} else {
+								Some(state.unwrap().intersection(&chars).copied().collect())
+							}
+						},
+					)
 					.expect("empty group?");
 
 				unique_chars.len()
