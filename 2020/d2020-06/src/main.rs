@@ -2,8 +2,8 @@ use core::iter::FromIterator;
 use std::collections::BTreeSet;
 use std::io::{stdin, Read};
 
-fn people_in_group(group: &str) -> Vec<&str> {
-	group.split_whitespace().collect()
+fn people_in_group(group: &str) -> impl Iterator<Item = &str> {
+	group.split_whitespace()
 }
 
 fn main() {
@@ -28,10 +28,7 @@ fn main() {
 		let sum = groups
 			.iter()
 			.map(|group| {
-				let people = people_in_group(group);
-
-				let unique_chars = people
-					.iter()
+				let unique_chars = people_in_group(group)
 					.map(|person| person.chars().filter(|c| c.is_alphabetic()))
 					.map(|chars| BTreeSet::from_iter(chars))
 					.fold(None, |state, chars| {
