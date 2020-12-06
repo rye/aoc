@@ -1,6 +1,4 @@
-use std::{
-	io::{stdin, BufRead},
-};
+use std::io::{stdin, BufRead};
 
 use d2020::day02::*;
 
