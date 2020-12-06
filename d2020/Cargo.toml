@@ -6,13 +6,10 @@ authors = ["Kristofer Rye <kristofer.rye@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+clap = "2.33.3"
 
 [dev-dependencies]
 static_assertions = "1.1.0"
-
-[[bin]]
-name = "day01"
-path = "src/day01/main.rs"
 
 [[bin]]
 name = "day02"
