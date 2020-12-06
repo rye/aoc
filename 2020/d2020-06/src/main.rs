@@ -5,6 +5,10 @@ fn people_in_group(group: &str) -> impl Iterator<Item = &str> {
 	group.split_whitespace()
 }
 
+fn answers(person: &str) -> impl Iterator<Item = char> + '_ {
+	person.chars().filter(|c| c.is_alphabetic())
+}
+
 fn main() {
 	let mut stdin = stdin();
 	let mut data = String::new();
@@ -15,8 +19,7 @@ fn main() {
 	{
 		let sum: usize = groups
 			.iter()
-			.map(|group| group.chars().filter(|c| c.is_alphabetic()))
-			.map(|alphas| alphas.collect())
+			.map(|group| answers(group).collect())
 			.map(|unique_chars: BTreeSet<char>| unique_chars.len())
 			.sum();
 
@@ -28,8 +31,7 @@ fn main() {
 			.iter()
 			.map(|group| {
 				let unique_chars = people_in_group(group)
-					.map(|person| person.chars().filter(|c| c.is_alphabetic()))
-					.map(|chars| chars.collect())
+					.map(|person| answers(person).collect())
 					.fold(
 						None,
 						|state: Option<BTreeSet<char>>, chars: BTreeSet<char>| {
