@@ -1,23 +1,25 @@
 use std::collections::BTreeSet;
 use std::io::{stdin, Read};
 
+type Answer = char;
+
 fn people_in_group(group: &str) -> impl Iterator<Item = &str> {
 	group.split_whitespace()
 }
 
-fn answers(person: &str) -> impl Iterator<Item = char> + '_ {
+fn answers(person: &str) -> impl Iterator<Item = Answer> + '_ {
 	person.chars().filter(|c| c.is_alphabetic())
 }
 
-fn intersect_all(items: impl Iterator<Item = BTreeSet<char>>) -> BTreeSet<char> {
+fn intersect_all(items: impl Iterator<Item = BTreeSet<Answer>>) -> BTreeSet<Answer> {
 	items
 		.fold(
 			None,
-			|state: Option<BTreeSet<char>>, chars: BTreeSet<char>| {
+			|state: Option<BTreeSet<Answer>>, answers: BTreeSet<Answer>| {
 				if let Some(state) = state {
-					Some(state.intersection(&chars).copied().collect())
+					Some(state.intersection(&answers).copied().collect())
 				} else {
-					Some(chars)
+					Some(answers)
 				}
 			},
 		)
@@ -35,7 +37,7 @@ fn main() {
 		let sum: usize = groups
 			.iter()
 			.map(|group| answers(group).collect())
-			.map(|unique_chars: BTreeSet<char>| unique_chars.len())
+			.map(|answers: BTreeSet<Answer>| answers.len())
 			.sum();
 
 		println!("Part One: {:?}", sum);
