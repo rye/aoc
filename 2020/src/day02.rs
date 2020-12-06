@@ -1,9 +1,8 @@
-use std::{
-	io::{stdin, BufRead},
-	str::FromStr,
-};
 
-struct Rule {
+use std::str::FromStr;
+
+
+pub struct Rule {
 	count_range: (usize, usize),
 	character: char,
 }
@@ -28,7 +27,7 @@ impl FromStr for Rule {
 	}
 }
 
-fn validate_password(rule: &Rule, password: &str) -> bool {
+pub fn validate_password(rule: &Rule, password: &str) -> bool {
 	let count_range = rule.count_range.clone();
 	let character = rule.character;
 
@@ -42,7 +41,7 @@ fn validate_password(rule: &Rule, password: &str) -> bool {
 	count_range.0 <= *n_matches && *n_matches <= count_range.1
 }
 
-fn validate_password_two(rule: &Rule, password: &str) -> bool {
+pub fn validate_password_two(rule: &Rule, password: &str) -> bool {
 	let count_range = rule.count_range.clone();
 	let character = rule.character;
 
@@ -51,35 +50,44 @@ fn validate_password_two(rule: &Rule, password: &str) -> bool {
 	(chars[count_range.0 - 1] == character) ^ (chars[count_range.1 - 1] == character)
 }
 
-fn main() {
-	let stdin = stdin();
-	let stdin = stdin.lock();
+#[cfg(test)]
+mod tests {
 
-	let rules: Vec<(Rule, String)> = stdin
-		.lines()
-		.filter_map(Result::ok)
-		.map(|s: String| {
-			let rule = (&s).split(": ").nth(0).unwrap().parse::<Rule>().unwrap();
-			let password = (&s).split(": ").nth(1).unwrap().to_string();
+use super::{validate_password, validate_password_two, Rule};
 
-			(rule, password.clone())
-		})
-		.collect();
+#[test]
+fn validate_password_correct_0() {
+	let rule: Rule = Rule {
+		count_range: (1, 3),
+		character: 'a',
+	};
 
-	let result: Vec<&(Rule, String)> = rules
-		.iter()
-		.filter(|(rule, password)| validate_password(rule, password))
-		.collect();
+	let password = "abcde";
 
-	println!("Part One: {:?}", result.len());
-
-	let result_deux: Vec<&(Rule, String)> = rules
-		.iter()
-		.filter(|(rule, password)| validate_password_two(rule, password))
-		.collect();
-
-	println!("Part Two: {:?}", result_deux.len());
+	assert_eq!(validate_password(&rule, password), true);
 }
 
-#[cfg(test)]
-mod tests;
+#[test]
+fn validate_password_correct_1() {
+	let rule: Rule = Rule {
+		count_range: (1, 3),
+		character: 'b',
+	};
+
+	let password = "cdefg";
+
+	assert_eq!(validate_password(&rule, password), false);
+}
+
+#[test]
+fn validate_password_correct_2() {
+	let rule: Rule = Rule {
+		count_range: (2, 9),
+		character: 'c',
+	};
+
+	let password = "ccccccccc";
+
+	assert_eq!(validate_password(&rule, password), true);
+}
+}
