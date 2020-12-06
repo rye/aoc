@@ -14,18 +14,18 @@ fn main() {
 	let groups: Vec<&str> = data.split("\n\n").collect();
 
 	{
-		let sum = groups
+		let sum: usize = groups
 			.iter()
 			.map(|group| group.chars().filter(|c| c.is_alphabetic()))
 			.map(|alphas| BTreeSet::from_iter(alphas))
 			.map(|unique_chars| unique_chars.len())
-			.fold(0, |acc, qs| acc + qs);
+			.sum();
 
 		println!("Part One: {:?}", sum);
 	}
 
 	{
-		let sum = groups
+		let sum: usize = groups
 			.iter()
 			.map(|group| {
 				let unique_chars = people_in_group(group)
@@ -42,7 +42,7 @@ fn main() {
 
 				unique_chars.len()
 			})
-			.fold(0, |acc, x| acc + x);
+			.sum();
 
 		println!("Part Two: {:?}", sum);
 	}
