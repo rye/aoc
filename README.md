@@ -1,4 +1,4 @@
-# aoc2020
+# aoc
 
 This repository houses my work on the annual [Advent of Code][aoc] challenge.
 You're invited to give it a try!

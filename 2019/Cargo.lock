@@ -8,7 +8,7 @@ version = "0.1.0"
 name = "d2019-02"
 version = "0.1.0"
 dependencies = [
- "intcode 0.1.0",
+ "intcode",
 ]
 
 [[package]]
@@ -22,6 +22,9 @@ version = "0.1.0"
 [[package]]
 name = "d2019-05"
 version = "0.1.0"
+dependencies = [
+ "intcode",
+]
 
 [[package]]
 name = "d2019-06"
@@ -106,4 +109,3 @@ version = "0.1.0"
 [[package]]
 name = "intcode"
 version = "0.1.0"
-
