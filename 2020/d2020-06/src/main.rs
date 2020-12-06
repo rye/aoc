@@ -33,10 +33,10 @@ fn main() {
 					.fold(
 						None,
 						|state: Option<BTreeSet<char>>, chars: BTreeSet<char>| {
-							if state.is_none() {
-								Some(chars.clone())
+							if let Some(state) = state {
+								Some(state.intersection(&chars).copied().collect())
 							} else {
-								Some(state.unwrap().intersection(&chars).copied().collect())
+								Some(chars)
 							}
 						},
 					)
