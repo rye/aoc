@@ -5,7 +5,7 @@ use std::{
 
 use clap::{crate_authors, crate_description, crate_name, crate_version, App, Arg};
 
-use d2020::{day01, day02};
+use d2020::{day01, day02, day03};
 
 pub fn input_to_string() -> String {
 	use std::io::Read;
@@ -218,6 +218,12 @@ fn main() {
 		use day02::{parse, part_one, part_two, Rule};
 		s!(m, 2020-02#1, Vec<(Rule, String)>, usize, parse, part_one);
 		s!(m, 2020-02#2, Vec<(Rule, String)>, usize, parse, part_two);
+	}
+
+	{
+		use day03::{parse, part_one, part_two};
+		s!(m, 2020-03#1, Vec<Vec<char>>, usize, parse, part_one);
+		s!(m, 2020-03#2, Vec<Vec<char>>, usize, parse, part_two);
 	}
 
 	m.run(&matches, input);
