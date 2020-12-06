@@ -1,28 +1,7 @@
 use std::collections::BTreeSet;
 use std::io::{stdin, Read};
 
-type Answer = char;
-
-fn people_in_group(group: &str) -> impl Iterator<Item = &str> {
-	group.split_whitespace()
-}
-
-fn answers(person: &str) -> impl Iterator<Item = Answer> + '_ {
-	person.chars().filter(|c| c.is_alphabetic())
-}
-
-fn intersect_all(items: impl Iterator<Item = BTreeSet<Answer>>) -> Option<BTreeSet<Answer>> {
-	items.fold(
-		None,
-		|state: Option<BTreeSet<Answer>>, answers: BTreeSet<Answer>| {
-			if let Some(state) = state {
-				Some(state.intersection(&answers).copied().collect())
-			} else {
-				Some(answers)
-			}
-		},
-	)
-}
+use d2020::day06::*;
 
 fn main() {
 	let mut stdin = stdin();
@@ -55,6 +34,3 @@ fn main() {
 		println!("Part Two: {:?}", sum);
 	}
 }
-
-#[cfg(test)]
-mod tests {}
