@@ -60,7 +60,7 @@ mod tests {
 
 		#[cfg(test)]
 		fn test_slope() -> Vec<Vec<char>> {
-			let data = include_str!("test-data");
+			let data = include_str!("day03-test-data");
 			let data: Vec<Vec<char>> = data
 				.split("\n")
 				.filter(|s| s.len() > 0)
