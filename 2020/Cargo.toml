@@ -1,10 +1,35 @@
-[workspace]
-members = [
-	"d2020-01",
-	"d2020-02",
-	"d2020-03",
-	"d2020-04",
-	"d2020-05",
-	"d2020-06",
-	"util",
-]
+[package]
+name = "d2020"
+publish = false
+version = "0.1.0"
+authors = ["Kristofer Rye <kristofer.rye@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+
+[dev-dependencies]
+static_assertions = "1.1.0"
+
+[[bin]]
+name = "day01"
+path = "src/day01/main.rs"
+
+[[bin]]
+name = "day02"
+path = "src/day02/main.rs"
+
+[[bin]]
+name = "day03"
+path = "src/day03/main.rs"
+
+[[bin]]
+name = "day04"
+path = "src/day04/main.rs"
+
+[[bin]]
+name = "day05"
+path = "src/day05/main.rs"
+
+[[bin]]
+name = "day06"
+path = "src/day06/main.rs"
