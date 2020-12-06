@@ -9,6 +9,21 @@ fn answers(person: &str) -> impl Iterator<Item = char> + '_ {
 	person.chars().filter(|c| c.is_alphabetic())
 }
 
+fn intersect_all(items: impl Iterator<Item = BTreeSet<char>>) -> BTreeSet<char> {
+	items
+		.fold(
+			None,
+			|state: Option<BTreeSet<char>>, chars: BTreeSet<char>| {
+				if let Some(state) = state {
+					Some(state.intersection(&chars).copied().collect())
+				} else {
+					Some(chars)
+				}
+			},
+		)
+		.expect("empty iterator?")
+}
+
 fn main() {
 	let mut stdin = stdin();
 	let mut data = String::new();
@@ -30,21 +45,10 @@ fn main() {
 		let sum: usize = groups
 			.iter()
 			.map(|group| {
-				let unique_chars = people_in_group(group)
-					.map(|person| answers(person).collect())
-					.fold(
-						None,
-						|state: Option<BTreeSet<char>>, chars: BTreeSet<char>| {
-							if let Some(state) = state {
-								Some(state.intersection(&chars).copied().collect())
-							} else {
-								Some(chars)
-							}
-						},
-					)
-					.expect("empty group?");
+				let answers_by_person = people_in_group(group).map(|person| answers(person).collect());
+				let answers_by_all = intersect_all(answers_by_person);
 
-				unique_chars.len()
+				answers_by_all.len()
 			})
 			.sum();
 
