@@ -11,19 +11,17 @@ fn answers(person: &str) -> impl Iterator<Item = Answer> + '_ {
 	person.chars().filter(|c| c.is_alphabetic())
 }
 
-fn intersect_all(items: impl Iterator<Item = BTreeSet<Answer>>) -> BTreeSet<Answer> {
-	items
-		.fold(
-			None,
-			|state: Option<BTreeSet<Answer>>, answers: BTreeSet<Answer>| {
-				if let Some(state) = state {
-					Some(state.intersection(&answers).copied().collect())
-				} else {
-					Some(answers)
-				}
-			},
-		)
-		.expect("empty iterator?")
+fn intersect_all(items: impl Iterator<Item = BTreeSet<Answer>>) -> Option<BTreeSet<Answer>> {
+	items.fold(
+		None,
+		|state: Option<BTreeSet<Answer>>, answers: BTreeSet<Answer>| {
+			if let Some(state) = state {
+				Some(state.intersection(&answers).copied().collect())
+			} else {
+				Some(answers)
+			}
+		},
+	)
 }
 
 fn main() {
@@ -50,7 +48,7 @@ fn main() {
 				let answers_by_person = people_in_group(group).map(|person| answers(person).collect());
 				let answers_by_all = intersect_all(answers_by_person);
 
-				answers_by_all.len()
+				answers_by_all.expect("no people in group").len()
 			})
 			.sum();
 
