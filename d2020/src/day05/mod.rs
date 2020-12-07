@@ -24,5 +24,31 @@ pub fn seat_id_from_bsp(bsp: &str) -> usize {
 	row * 2_usize.pow(lr.len() as u32) + column
 }
 
+type Intermediate = Vec<String>;
+type Solution = usize;
+
+pub fn parse(data: &str) -> Intermediate {
+	data.lines().map(|line| line.to_string()).collect()
+}
+
+pub fn part_one(specs: &Intermediate) -> Option<Solution> {
+	use std::collections::BTreeSet;
+
+	let seat_ids: BTreeSet<usize> = specs.iter().map(|bsp| seat_id_from_bsp(bsp)).collect();
+
+	seat_ids.iter().next_back().map(|u| *u)
+}
+
+pub fn part_two(specs: &Intermediate) -> Option<Solution> {
+	use std::collections::BTreeSet;
+
+	let seat_ids: BTreeSet<usize> = specs.iter().map(|bsp| seat_id_from_bsp(bsp)).collect();
+
+	let min: usize = *seat_ids.iter().next().unwrap();
+	let max: usize = *seat_ids.iter().next_back().unwrap();
+
+	(min..=max).find(|seat_id| !seat_ids.contains(&seat_id))
+}
+
 #[cfg(test)]
 mod tests;

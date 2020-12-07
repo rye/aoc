@@ -2,7 +2,7 @@ use std::{collections::BTreeMap, io::stdin};
 
 use clap::{crate_authors, crate_description, crate_name, crate_version, App, Arg};
 
-use d2020::{day01, day02, day03, day04};
+use d2020::{day01, day02, day03, day04, day05};
 
 pub fn input_to_string() -> String {
 	use std::io::Read;
@@ -42,8 +42,8 @@ pub fn input_to_string() -> String {
 // 	}
 // }
 
-trait Solve<S> {
-	fn solve(&self, data: &str) -> Option<S>;
+trait Solve<Solution> {
+	fn solve(&self, data: &str) -> Option<Solution>;
 }
 
 struct SolverPair<
@@ -210,9 +210,14 @@ fn main() {
 
 	{
 		use day04::{parse, part_one, part_two};
-
 		s!(m, 2020-04#1, parse, part_one);
 		s!(m, 2020-04#2, parse, part_two);
+	}
+
+	{
+		use day05::{parse, part_one, part_two};
+		s!(m, 2020-05#1, parse, part_one);
+		s!(m, 2020-05#2, parse, part_two);
 	}
 
 	m.run(&matches, input);
