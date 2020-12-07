@@ -1,11 +1,8 @@
-use std::{
-	collections::{BTreeMap, BTreeSet},
-	io::stdin,
-};
+use std::{collections::BTreeMap, io::stdin};
 
 use clap::{crate_authors, crate_description, crate_name, crate_version, App, Arg};
 
-use d2020::{day01, day02, day03};
+use d2020::{day01, day02, day03, day04};
 
 pub fn input_to_string() -> String {
 	use std::io::Read;
@@ -17,62 +14,51 @@ pub fn input_to_string() -> String {
 	input
 }
 
-pub fn solve_part<Intermediate, Solution, Parser, Solver>(
-	when: (usize, usize),
-	part: u8,
-	input: &str,
-	parse: Parser,
-	solve: Solver,
-) where
-	Parser: Fn(&str) -> Intermediate,
-	Solver: Fn(&Intermediate) -> Option<Solution>,
-	Solution: core::fmt::Debug + PartialEq,
-{
-	let intermediate = parse(&input);
+// pub fn solve_part<Intermediate, Solution, Parser, Solver>(
+// 	when: (usize, usize),
+// 	part: u8,
+// 	input: &str,
+// 	parse: Parser,
+// 	solve: Solver,
+// ) where
+// 	Parser: Fn(&str) -> Intermediate,
+// 	Solver: Fn(&Intermediate) -> Option<Solution>,
+// 	Solution: core::fmt::Debug + PartialEq,
+// {
+// 	let intermediate = parse(&input);
 
-	let solution = solve(&intermediate);
+// 	let solution = solve(&intermediate);
 
-	if let Some(solution) = solution {
-		println!(
-			"Year {}, Day {}, Part {}: {:?}",
-			when.0, when.1, part, solution
-		);
-	} else {
-		eprintln!(
-			"Year {}, Day {}, Part {}: No solution!",
-			when.0, when.1, part
-		);
-	}
-}
+// 	if let Some(solution) = solution {
+// 		println!(
+// 			"Year {}, Day {}, Part {}: {:?}",
+// 			when.0, when.1, part, solution
+// 		);
+// 	} else {
+// 		eprintln!(
+// 			"Year {}, Day {}, Part {}: No solution!",
+// 			when.0, when.1, part
+// 		);
+// 	}
+// }
 
 trait Solve<S> {
 	fn solve(&self, data: &str) -> Option<S>;
 }
 
-struct SolverPair<Intermediate, Solution>(
-	fn(&str) -> Intermediate,
-	fn(&Intermediate) -> Option<Solution>,
-);
+struct SolverPair<
+	Intermediate,
+	Solution: core::fmt::Debug,
+	Parser: Fn(&str) -> Intermediate,
+	Solver: Fn(&Intermediate) -> Option<Solution>,
+>(Parser, Solver);
 
-impl<Intermediate, Solution>
-	From<(
-		fn(&str) -> Intermediate,
-		fn(&Intermediate) -> Option<Solution>,
-	)> for SolverPair<Intermediate, Solution>
-{
-	fn from(
-		tup: (
-			fn(&str) -> Intermediate,
-			fn(&Intermediate) -> Option<Solution>,
-		),
-	) -> Self {
-		Self(tup.0, tup.1)
-	}
-}
-
-impl<Intermediate, S1> Solve<String> for SolverPair<Intermediate, S1>
+impl<Intermediate, Solution, Parser, Solver> Solve<String>
+	for SolverPair<Intermediate, Solution, Parser, Solver>
 where
-	S1: core::fmt::Debug,
+	Solution: core::fmt::Debug,
+	Parser: Fn(&str) -> Intermediate,
+	Solver: Fn(&Intermediate) -> Option<Solution>,
 {
 	fn solve(&self, data: &str) -> Option<String> {
 		(self.1)(&(self.0)(data)).map(|d| format!("{:?}", d))
@@ -90,14 +76,16 @@ impl Executor {
 		}
 	}
 
-	fn add_solver_pair<I: 'static, S: 'static>(
+	fn add_solver_pair<I: 'static, S: 'static, P: 'static, So: 'static>(
 		&mut self,
 		year: usize,
 		day: usize,
 		part: u8,
-		solver: SolverPair<I, S>,
+		solver: SolverPair<I, S, P, So>,
 	) where
 		S: core::fmt::Debug,
+		P: Fn(&str) -> I,
+		So: Fn(&I) -> Option<S>,
 	{
 		if let Some(group) = self.solvers.get_mut(&(year, day)) {
 			if let None = group.get(&part) {
@@ -105,16 +93,8 @@ impl Executor {
 			}
 		} else {
 			self.solvers.insert((year, day), BTreeMap::new());
-			self.add_solver(year, day, part, solver);
+			self.add_solver_pair(year, day, part, solver);
 		}
-	}
-
-	fn add_solver<T, I: 'static, S: 'static>(&mut self, year: usize, day: usize, part: u8, solver: T)
-	where
-		S: core::fmt::Debug,
-		SolverPair<I, S>: From<T>,
-	{
-		self.add_solver_pair(year, day, part, solver.into())
 	}
 
 	fn run_solvers(&self, year: usize, day: usize, input: &str) {
@@ -161,11 +141,13 @@ impl Executor {
 
 macro_rules! s {
 	($executor:ident, $year:literal-$day:literal#$part:literal, $intermediate:ty, $solution:ty, $parser:path, $solver:path) => {
-		let tup: (
-			fn(&str) -> $intermediate,
-			fn(&$intermediate) -> Option<$solution>,
-		) = ($parser, $solver);
-		$executor.add_solver($year, $day, $part, tup);
+		let solver = SolverPair($parser, $solver);
+		$executor.add_solver_pair($year, $day, $part, solver);
+	};
+
+	($executor:ident, $year:literal-$day:literal#$part:literal, $parser:path, $solver:path) => {
+		let solver = SolverPair($parser, $solver);
+		$executor.add_solver_pair($year, $day, $part, solver);
 	};
 }
 
@@ -215,7 +197,7 @@ fn main() {
 	}
 
 	{
-		use day02::{parse, part_one, part_two, Rule};
+		use day02::{parse, part_one, part_two};
 		s!(m, 2020-02#1, Vec<(Rule, String)>, usize, parse, part_one);
 		s!(m, 2020-02#2, Vec<(Rule, String)>, usize, parse, part_two);
 	}
@@ -224,6 +206,13 @@ fn main() {
 		use day03::{parse, part_one, part_two};
 		s!(m, 2020-03#1, Vec<Vec<char>>, usize, parse, part_one);
 		s!(m, 2020-03#2, Vec<Vec<char>>, usize, parse, part_two);
+	}
+
+	{
+		use day04::{parse, part_one, part_two};
+
+		s!(m, 2020-04#1, parse, part_one);
+		s!(m, 2020-04#2, parse, part_two);
 	}
 
 	m.run(&matches, input);
