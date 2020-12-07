@@ -2,7 +2,7 @@ use std::{collections::BTreeMap, io::stdin};
 
 use clap::{crate_authors, crate_description, crate_name, crate_version, App, Arg};
 
-use d2020::{day01, day02, day03, day04, day05};
+use d2020::{day01, day02, day03, day04, day05, day06};
 
 pub fn input_to_string() -> String {
 	use std::io::Read;
@@ -14,32 +14,15 @@ pub fn input_to_string() -> String {
 	input
 }
 
-// pub fn solve_part<Intermediate, Solution, Parser, Solver>(
-// 	when: (usize, usize),
-// 	part: u8,
-// 	input: &str,
-// 	parse: Parser,
-// 	solve: Solver,
-// ) where
-// 	Parser: Fn(&str) -> Intermediate,
-// 	Solver: Fn(&Intermediate) -> Option<Solution>,
-// 	Solution: core::fmt::Debug + PartialEq,
-// {
-// 	let intermediate = parse(&input);
+// trait Parser {
+// 	type Intermediate;
+// 	fn parse(data: &str) -> Self::Intermediate;
+// }
 
-// 	let solution = solve(&intermediate);
-
-// 	if let Some(solution) = solution {
-// 		println!(
-// 			"Year {}, Day {}, Part {}: {:?}",
-// 			when.0, when.1, part, solution
-// 		);
-// 	} else {
-// 		eprintln!(
-// 			"Year {}, Day {}, Part {}: No solution!",
-// 			when.0, when.1, part
-// 		);
-// 	}
+// trait Solver {
+// 	type Intermediate;
+// 	type Solution;
+// 	fn solve(intermediate: &Self::Intermediate) -> Option<Self::Solution>;
 // }
 
 trait Solve<Solution> {
@@ -218,6 +201,12 @@ fn main() {
 		use day05::{parse, part_one, part_two};
 		s!(m, 2020-05#1, parse, part_one);
 		s!(m, 2020-05#2, parse, part_two);
+	}
+
+	{
+		use day06::{parse, part_one, part_two};
+		s!(m, 2020-06#1, parse, part_one);
+		s!(m, 2020-06#2, parse, part_two);
 	}
 
 	m.run(&matches, input);

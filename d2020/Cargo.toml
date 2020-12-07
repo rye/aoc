@@ -10,11 +10,3 @@ clap = "2.33.3"
 
 [dev-dependencies]
 static_assertions = "1.1.0"
-
-[[bin]]
-name = "day05"
-path = "src/day05/main.rs"
-
-[[bin]]
-name = "day06"
-path = "src/day06/main.rs"
