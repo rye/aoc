@@ -107,13 +107,10 @@ fn main() {
 		let mut seats = seats.clone();
 		let mut day = 0;
 
-		let positions: Vec<(usize, usize)> = seats.seat_positions().collect();
-
 		loop {
 			// Each empty seat with no adjacent, occupied seats becomes occupied
-			let become_occupied: Vec<StateChange> = positions
-				.iter()
-				.filter(|pos| -> bool { seats.seat_state(pos.0, pos.1) == Some(&CellState::Empty) })
+			let become_occupied: Vec<StateChange> = seats
+				.seats_with_state(&CellState::Empty)
 				.filter(|pos| -> bool {
 					let top_left: (usize, usize) = (pos.0.saturating_sub(1), pos.1.saturating_sub(1));
 					let bottom_right: (usize, usize) = (pos.0.saturating_add(1), pos.1.saturating_add(1));
@@ -122,7 +119,7 @@ fn main() {
 						.map(|y| (top_left.0..=bottom_right.0).map(move |x| (x, y)))
 						.flatten()
 						.filter(|pos| seats.has_seat(pos.0, pos.1))
-						.filter(|pos_i| &pos_i != pos);
+						.filter(|pos_i| pos_i != pos);
 
 					let occupied_adjacents: Vec<(usize, usize)> = positions_to_check
 						.filter(|pos| seats.seat_state(pos.0, pos.1) == Some(&CellState::Occupied))
@@ -131,7 +128,7 @@ fn main() {
 					occupied_adjacents.len() == 0
 				})
 				.map(|pos| -> StateChange {
-					let position: (usize, usize) = *pos;
+					let position: (usize, usize) = pos;
 					let old_state: &CellState = seats.seat_state(pos.0, pos.1).unwrap();
 					assert_eq!(old_state, &CellState::Empty);
 					let new_state: CellState = CellState::Occupied;
@@ -151,8 +148,8 @@ fn main() {
 			);
 
 			// Each occupied seat with four or more adjacent seats becomes empty
-			let become_emptied: Vec<StateChange> = positions
-				.iter()
+			let become_emptied: Vec<StateChange> = seats
+				.seats_with_state(&CellState::Occupied)
 				.filter(|pos| -> bool { seats.seat_state(pos.0, pos.1) == Some(&CellState::Occupied) })
 				.filter(|pos| -> bool {
 					let top_left: (usize, usize) = (pos.0.saturating_sub(1), pos.1.saturating_sub(1));
@@ -162,7 +159,7 @@ fn main() {
 						.map(|y| (top_left.0..=bottom_right.0).map(move |x| (x, y)))
 						.flatten()
 						.filter(|pos| seats.has_seat(pos.0, pos.1))
-						.filter(|pos_i| &pos_i != pos);
+						.filter(|pos_i| pos_i != pos);
 
 					let occupied_adjacents: Vec<(usize, usize)> = positions_to_check
 						.filter(|pos| seats.seat_state(pos.0, pos.1) == Some(&CellState::Occupied))
@@ -171,7 +168,7 @@ fn main() {
 					occupied_adjacents.len() >= 4
 				})
 				.map(|pos| -> StateChange {
-					let position: (usize, usize) = *pos;
+					let position: (usize, usize) = pos;
 					let old_state: &CellState = seats.seat_state(pos.0, pos.1).unwrap();
 					assert_eq!(old_state, &CellState::Occupied);
 					let new_state: CellState = CellState::Empty;
