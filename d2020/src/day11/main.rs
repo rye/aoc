@@ -122,11 +122,8 @@ fn main() {
 
 	{
 		let mut seats = seats.clone();
-		let mut round = 0;
 
 		loop {
-			let t0 = std::time::Instant::now();
-
 			// Each empty seat with no adjacent, occupied seats becomes occupied
 			let become_occupied: Vec<StateChange> = seats
 				.seats_with_state(&CellState::Empty)
@@ -142,8 +139,6 @@ fn main() {
 					StateChange { position, state }
 				})
 				.collect();
-
-			let t1 = std::time::Instant::now();
 
 			// Each occupied seat with four or more adjacent seats becomes empty
 			let become_emptied: Vec<StateChange> = seats
@@ -161,21 +156,61 @@ fn main() {
 				})
 				.collect();
 
-			let t2 = std::time::Instant::now();
+			if become_occupied.is_empty() && become_emptied.is_empty() {
+				break;
+			} else {
+				for change in become_occupied {
+					let pos = change.position;
+					seats.change_seat_state(pos.0, pos.1, change.state);
+				}
 
-			println!(
-				"Round {}: {} will become Occupied, {} will become Empty",
-				round,
-				become_occupied.len(),
-				become_emptied.len(),
-			);
+				for change in become_emptied {
+					let pos = change.position;
+					seats.change_seat_state(pos.0, pos.1, change.state);
+				}
+			}
+		}
 
-			println!(
-				"Completed planning in {}ns ({}ns, {}ns)",
-				t2.duration_since(t0).as_nanos(),
-				t1.duration_since(t0).as_nanos(),
-				t2.duration_since(t1).as_nanos(),
-			);
+		let occupied_count: usize = seats.seats_with_state(&CellState::Occupied).count();
+
+		println!("Part One: {:?}", occupied_count);
+	}
+
+	{
+		let mut seats = seats.clone();
+
+		loop {
+			// Each empty seat with no adjacent, occupied seats becomes occupied
+			let become_occupied: Vec<StateChange> = seats
+				.seats_with_state(&CellState::Empty)
+				.filter(|pos| -> bool {
+					seats
+						.adjacents_with_state(pos.0, pos.1, &CellState::Occupied)
+						.count() == 0
+				})
+				.map(|pos| -> StateChange {
+					let position: (usize, usize) = pos;
+					let state: CellState = CellState::Occupied;
+
+					StateChange { position, state }
+				})
+				.collect();
+
+			// Each occupied seat with four or more adjacent seats becomes empty
+			let become_emptied: Vec<StateChange> = seats
+				.seats_with_state(&CellState::Occupied)
+				.filter(|pos| -> bool {
+					seats
+						.adjacents_with_state(pos.0, pos.1, &CellState::Occupied)
+						.count() >= 4
+				})
+				.map(|pos| -> StateChange {
+					let position: (usize, usize) = pos;
+					let state: CellState = CellState::Empty;
+
+					StateChange { position, state }
+				})
+				.collect();
 
 			if become_occupied.is_empty() && become_emptied.is_empty() {
 				break;
@@ -189,22 +224,11 @@ fn main() {
 					let pos = change.position;
 					seats.change_seat_state(pos.0, pos.1, change.state);
 				}
-
-				println!(
-					"Completed changes in {}ns",
-					std::time::Instant::now().duration_since(t2).as_nanos()
-				);
-
-				round += 1;
 			}
 		}
 
 		let occupied_count: usize = seats.seats_with_state(&CellState::Occupied).count();
 
-		println!("Part One: {:?}", occupied_count);
-	}
-
-	{
-		println!("Part Two: {:?}", ());
+		println!("Part Two: {:?}", occupied_count);
 	}
 }
