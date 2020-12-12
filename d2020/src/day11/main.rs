@@ -31,8 +31,7 @@ impl From<char> for Cell {
 #[derive(Debug, Copy, Clone, PartialEq)]
 struct StateChange {
 	position: (usize, usize),
-	old_state: CellState,
-	new_state: CellState,
+	state: CellState,
 }
 
 #[derive(Clone)]
@@ -141,15 +140,9 @@ fn main() {
 				})
 				.map(|pos| -> StateChange {
 					let position: (usize, usize) = pos;
-					let old_state: &CellState = seats.seat_state(pos.0, pos.1).unwrap();
-					assert_eq!(old_state, &CellState::Empty);
-					let new_state: CellState = CellState::Occupied;
+					let state: CellState = CellState::Occupied;
 
-					StateChange {
-						position,
-						old_state: *old_state,
-						new_state,
-					}
+					StateChange { position, state }
 				})
 				.collect();
 
@@ -165,15 +158,9 @@ fn main() {
 				})
 				.map(|pos| -> StateChange {
 					let position: (usize, usize) = pos;
-					let old_state: &CellState = seats.seat_state(pos.0, pos.1).unwrap();
-					assert_eq!(old_state, &CellState::Occupied);
-					let new_state: CellState = CellState::Empty;
+					let state: CellState = CellState::Empty;
 
-					StateChange {
-						position,
-						old_state: *old_state,
-						new_state,
-					}
+					StateChange { position, state }
 				})
 				.collect();
 
@@ -198,12 +185,12 @@ fn main() {
 			} else {
 				for change in become_occupied {
 					let pos = change.position;
-					seats.change_seat_state(pos.0, pos.1, change.new_state);
+					seats.change_seat_state(pos.0, pos.1, change.state);
 				}
 
 				for change in become_emptied {
 					let pos = change.position;
-					seats.change_seat_state(pos.0, pos.1, change.new_state);
+					seats.change_seat_state(pos.0, pos.1, change.state);
 				}
 
 				println!(
