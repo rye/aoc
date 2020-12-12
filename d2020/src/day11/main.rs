@@ -105,9 +105,11 @@ fn main() {
 
 	{
 		let mut seats = seats.clone();
-		let mut day = 0;
+		let mut round = 0;
 
 		loop {
+			let t0 = std::time::Instant::now();
+
 			// Each empty seat with no adjacent, occupied seats becomes occupied
 			let become_occupied: Vec<StateChange> = seats
 				.seats_with_state(&CellState::Empty)
@@ -142,15 +144,16 @@ fn main() {
 				.collect();
 
 			println!(
-				"Day {}, Phase 1: {} seats will become occupied",
-				day,
+				"Round {}, Phase 1: {} seats will become occupied",
+				round,
 				become_occupied.len()
 			);
+
+			let t1 = std::time::Instant::now();
 
 			// Each occupied seat with four or more adjacent seats becomes empty
 			let become_emptied: Vec<StateChange> = seats
 				.seats_with_state(&CellState::Occupied)
-				.filter(|pos| -> bool { seats.seat_state(pos.0, pos.1) == Some(&CellState::Occupied) })
 				.filter(|pos| -> bool {
 					let top_left: (usize, usize) = (pos.0.saturating_sub(1), pos.1.saturating_sub(1));
 					let bottom_right: (usize, usize) = (pos.0.saturating_add(1), pos.1.saturating_add(1));
@@ -182,9 +185,18 @@ fn main() {
 				.collect();
 
 			println!(
-				"Day {}, Phase 2: {} seats will become emptied",
-				day,
+				"Round {}, Phase 2: {} seats will become emptied",
+				round,
 				become_emptied.len()
+			);
+
+			let t2 = std::time::Instant::now();
+
+			println!(
+				"Completed planning in {}ns ({}ns, {}ns)",
+				t2.duration_since(t0).as_nanos(),
+				t1.duration_since(t0).as_nanos(),
+				t2.duration_since(t1).as_nanos(),
 			);
 
 			if become_occupied.is_empty() && become_emptied.is_empty() {
@@ -200,7 +212,12 @@ fn main() {
 					seats.change_seat_state(pos.0, pos.1, change.new_state);
 				}
 
-				day += 1;
+				println!(
+					"Completed changes in {}ns",
+					std::time::Instant::now().duration_since(t2).as_nanos()
+				);
+
+				round += 1;
 			}
 		}
 
