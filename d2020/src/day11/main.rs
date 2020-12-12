@@ -94,6 +94,27 @@ impl Seating {
 			.seat_positions()
 			.filter(move |pos| self.seat_state(pos.0, pos.1) == Some(state))
 	}
+
+	fn adjacents<'x>(&'x self, x: usize, y: usize) -> impl Iterator<Item = (usize, usize)> + 'x {
+		(y.saturating_sub(1)..core::cmp::min(y.saturating_add(2), self.height))
+			.map(move |iy| {
+				(x.saturating_sub(1)..core::cmp::min(x.saturating_add(2), self.width))
+					.map(move |ix| (ix, iy))
+			})
+			.flatten()
+			.filter(move |pos| pos != &(x, y))
+	}
+
+	fn adjacents_with_state<'x>(
+		&'x self,
+		x: usize,
+		y: usize,
+		state: &'x CellState,
+	) -> impl Iterator<Item = (usize, usize)> + 'x {
+		self
+			.adjacents(x, y)
+			.filter(move |adjacent| self.seat_state(adjacent.0, adjacent.1) == Some(state))
+	}
 }
 
 fn main() {
@@ -114,20 +135,9 @@ fn main() {
 			let become_occupied: Vec<StateChange> = seats
 				.seats_with_state(&CellState::Empty)
 				.filter(|pos| -> bool {
-					let top_left: (usize, usize) = (pos.0.saturating_sub(1), pos.1.saturating_sub(1));
-					let bottom_right: (usize, usize) = (pos.0.saturating_add(1), pos.1.saturating_add(1));
-
-					let positions_to_check = (top_left.1..=bottom_right.1)
-						.map(|y| (top_left.0..=bottom_right.0).map(move |x| (x, y)))
-						.flatten()
-						.filter(|pos| seats.has_seat(pos.0, pos.1))
-						.filter(|pos_i| pos_i != pos);
-
-					let occupied_adjacents: Vec<(usize, usize)> = positions_to_check
-						.filter(|pos| seats.seat_state(pos.0, pos.1) == Some(&CellState::Occupied))
-						.collect();
-
-					occupied_adjacents.len() == 0
+					seats
+						.adjacents_with_state(pos.0, pos.1, &CellState::Occupied)
+						.count() == 0
 				})
 				.map(|pos| -> StateChange {
 					let position: (usize, usize) = pos;
@@ -143,32 +153,15 @@ fn main() {
 				})
 				.collect();
 
-			println!(
-				"Round {}, Phase 1: {} seats will become occupied",
-				round,
-				become_occupied.len()
-			);
-
 			let t1 = std::time::Instant::now();
 
 			// Each occupied seat with four or more adjacent seats becomes empty
 			let become_emptied: Vec<StateChange> = seats
 				.seats_with_state(&CellState::Occupied)
 				.filter(|pos| -> bool {
-					let top_left: (usize, usize) = (pos.0.saturating_sub(1), pos.1.saturating_sub(1));
-					let bottom_right: (usize, usize) = (pos.0.saturating_add(1), pos.1.saturating_add(1));
-
-					let positions_to_check = (top_left.1..=bottom_right.1)
-						.map(|y| (top_left.0..=bottom_right.0).map(move |x| (x, y)))
-						.flatten()
-						.filter(|pos| seats.has_seat(pos.0, pos.1))
-						.filter(|pos_i| pos_i != pos);
-
-					let occupied_adjacents: Vec<(usize, usize)> = positions_to_check
-						.filter(|pos| seats.seat_state(pos.0, pos.1) == Some(&CellState::Occupied))
-						.collect();
-
-					occupied_adjacents.len() >= 4
+					seats
+						.adjacents_with_state(pos.0, pos.1, &CellState::Occupied)
+						.count() >= 4
 				})
 				.map(|pos| -> StateChange {
 					let position: (usize, usize) = pos;
@@ -184,13 +177,14 @@ fn main() {
 				})
 				.collect();
 
-			println!(
-				"Round {}, Phase 2: {} seats will become emptied",
-				round,
-				become_emptied.len()
-			);
-
 			let t2 = std::time::Instant::now();
+
+			println!(
+				"Round {}: {} will become Occupied, {} will become Empty",
+				round,
+				become_occupied.len(),
+				become_emptied.len(),
+			);
 
 			println!(
 				"Completed planning in {}ns ({}ns, {}ns)",
