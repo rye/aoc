@@ -38,7 +38,7 @@ struct StateChange {
 struct Seating {
 	width: usize,
 	height: usize,
-	seats: Vec<Vec<Cell>>,
+	seats: Vec<Cell>,
 }
 
 impl<'x> core::iter::FromIterator<&'x str> for Seating {
@@ -48,9 +48,10 @@ impl<'x> core::iter::FromIterator<&'x str> for Seating {
 		let height = lines.len();
 		let width = lines[0].len();
 
-		let seats: Vec<Vec<Cell>> = lines
+		let seats: Vec<Cell> = lines
 			.iter()
-			.map(|line| line.chars().map(|c| Cell::from(c)).collect())
+			.map(|line| line.chars().map(|c| Cell::from(c)))
+			.flatten()
 			.collect();
 
 		Self {
@@ -67,11 +68,7 @@ impl Seating {
 	}
 
 	fn seat_state(&self, x: usize, y: usize) -> Option<&CellState> {
-		self
-			.seats
-			.get(y)
-			.map(|row| row.get(x).map(|cell| &cell.0))
-			.flatten()
+		self.seats.get(y * self.width + x).map(|cell| &cell.0)
 	}
 
 	fn seat_positions<'x>(&'x self) -> impl Iterator<Item = (usize, usize)> + 'x {
@@ -82,7 +79,7 @@ impl Seating {
 
 	fn change_seat_state(&mut self, x: usize, y: usize, new_state: CellState) {
 		assert!(self.has_seat(x, y));
-		self.seats[y][x].0 = new_state;
+		self.seats[y * self.width + x].0 = new_state;
 	}
 
 	fn seats_with_state<'x>(
