@@ -10,15 +10,15 @@ You're invited to give it a try!
 In general, the way to run a specific day's binary is:
 
 ```console
-$ cd ####
-$ cat inputs/day## | cargo run --bin day##
+$ cd [year]
+$ cat inputs/dayXX | cargo run --bin dayXX
 ```
 
 or, for days with just a flat solution script,
 
 ```console
-$ cd ####
-$ cat inputs/day## | ./day##
+$ cd [year]
+$ cat inputs/dayXX | ./dayXX
 ```
 
 ## Spoilers Ahead!
