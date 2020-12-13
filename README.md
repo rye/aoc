@@ -1,9 +1,25 @@
-# aoc
+# advent-of-code
 
 This repository houses my work on the annual [Advent of Code][aoc] challenge.
 You're invited to give it a try!
 
 [aoc]: https://adventofcode.com
+
+## Usage
+
+In general, the way to run a specific day's binary is:
+
+```console
+$ cd ####
+$ cat inputs/day## | cargo run --bin day##
+```
+
+or, for days with just a flat solution script,
+
+```console
+$ cd ####
+$ cat inputs/day## | ./day##
+```
 
 ## Spoilers Ahead!
 
