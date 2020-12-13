@@ -2,11 +2,11 @@
 
 cat inputs/day07 \
 	| cargo run --release --bin day07 \
-	> day07.pl
+	> inputs/day07.pl
 
 swipl \
 	--quiet \
-	-f day07.pl \
+	-f inputs/day07.pl \
 	-g 'findall(X, contents(X, shiny_gold), Solutions), length(Solutions, Len), writef("Part One: %t", [Len]), nl.' \
 	-g 'size([shiny_gold], Z), writef("Part Two: %t", [Z]), nl.' \
 	-t 'true.'

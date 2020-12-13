@@ -604,11 +604,13 @@ expand([BAG|BAG_LIST],EXPANSION) :-
     expand(BAG_LIST,LIST_EXPANSION),
     in(BAG,CONTENTS),
     append(CONTENTS,LIST_EXPANSION,EXPANSION).
+
 expand_contents(X,[],[]) :- expand(X,[]).
 expand_contents(X,Y,TRACE) :-
     expand(X,Z),
     expand_contents(Z,Y,TRACE1),
     append(Z,TRACE1,TRACE).
+
 size(X,Z) :-
     expand_contents(X,_,TRACE),
     length(TRACE,Z).
