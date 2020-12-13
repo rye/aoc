@@ -6,6 +6,7 @@ authors = ["Kristofer Rye <kristofer.rye@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+regex = "1.4.2"
 
 [dev-dependencies]
 static_assertions = "1.1.0"
@@ -45,3 +46,7 @@ path = "src/day11/main.rs"
 [[bin]]
 name = "day12"
 path = "src/day12/main.rs"
+
+[[bin]]
+name = "day13"
+path = "src/day13/main.rs"
