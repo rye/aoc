@@ -1,11 +1,5 @@
-#![allow(unused_imports)]
-
 use std::io::{stdin, Read};
-use std::{collections::*, str::FromStr};
 
-use regex::Regex;
-
-use d2020::crt;
 use d2020::day13::*;
 
 fn main() {
