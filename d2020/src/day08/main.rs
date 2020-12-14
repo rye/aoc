@@ -1,33 +1,7 @@
+use std::collections::*;
 use std::io::{stdin, Read};
-use std::{collections::*, str::FromStr};
-
-use regex::Regex;
 
 use d2020::day08::*;
-
-#[derive(Debug)]
-enum Instruction {
-	Acc(isize),
-	Jmp(isize),
-	Nop,
-}
-
-impl FromStr for Instruction {
-	type Err = ();
-
-	fn from_str(s: &str) -> Result<Self, ()> {
-		match &s[0..3] {
-			"nop" => Ok(Instruction::Nop),
-			"acc" => Ok(Instruction::Acc(
-				s.split(' ').nth(1).unwrap().parse::<isize>().unwrap(),
-			)),
-			"jmp" => Ok(Instruction::Jmp(
-				s.split(' ').nth(1).unwrap().parse::<isize>().unwrap(),
-			)),
-			_ => todo!(),
-		}
-	}
-}
 
 fn main() {
 	let mut stdin = stdin();
@@ -35,40 +9,42 @@ fn main() {
 	stdin.read_to_string(&mut data).unwrap();
 
 	let instructions: VecDeque<Instruction> = data.lines().map(|ln| ln.parse().unwrap()).collect();
-	let mut visits: VecDeque<usize> = VecDeque::new();
-	visits.resize(instructions.len(), 0_usize);
 
 	{
-		let mut accumulator = 0_isize;
-		let mut head = 0_usize;
-
-		loop {
-			if visits[head] != 0_usize {
-				break;
-			} else {
-				visits[head] += 1_usize;
-
-				let instruction = &instructions[head];
-
-				match instruction {
-					Instruction::Acc(x) => {
-						accumulator = accumulator + x;
-						head += 1
-					}
-					Instruction::Jmp(ofs) => {
-						head = (head as isize).checked_add(*ofs).unwrap() as usize;
-					}
-					Instruction::Nop => {
-						head += 1;
-					}
-				}
-			}
-		}
-
+		let accumulator = execute_program(&instructions).unwrap();
 		println!("Part One: {:?}", accumulator);
 	}
 
 	{
-		println!("Part Two: {:?}", ());
+		let instructions = instructions.clone();
+
+		let mut accumulator = None;
+
+		for position in 0..instructions.len() {
+			if let Instruction::Acc(_x) = instructions[position] {
+				continue;
+			} else {
+				let mut program = instructions.clone();
+
+				match program[position] {
+					Instruction::Jmp(ofs) => program[position] = Instruction::Nop(ofs),
+					Instruction::Nop(par) => program[position] = Instruction::Jmp(par),
+					Instruction::Acc(_) => unreachable!(),
+				}
+
+				let result = execute_program(&program);
+
+				if let ExecutionResult::Normal(acc) = result {
+					accumulator = Some(acc);
+					break;
+				} else {
+					continue;
+				}
+			}
+		}
+
+		let accumulator = accumulator.expect("bruh");
+
+		println!("Part Two: {:?}", accumulator);
 	}
 }
