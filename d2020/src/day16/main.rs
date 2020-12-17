@@ -14,9 +14,32 @@ type MysteriousNumber = u16;
 fn main() {
 	let data: String = string_from(stdin()).unwrap();
 
-	let file_parts = file_parts(data);
+	let (rules_str, _my_ticket_str, nearby_tickets_str) = file_parts(data);
+
+	let valid_locations_per_rule = valid_values_and_indices_from_rules(&rules_str);
+
+	let nearby_tickets: Vec<Vec<MysteriousNumber>> = nearby_tickets_str
+		.lines()
+		.map(|line| {
+			line
+				.split(",")
+				.map(|n| n.parse::<MysteriousNumber>().unwrap())
+				.collect()
+		})
+		.collect();
+
 	{
-		println!("Part One: {:?}", ());
+		let mut error_rate = 0_u32;
+
+		for ticket in nearby_tickets {
+			for number in ticket {
+				if !valid_locations_per_rule.contains_key(&number) {
+					error_rate += u32::from(number);
+				}
+			}
+		}
+
+		println!("Part One: {:?}", error_rate);
 	}
 
 	{
@@ -25,15 +48,15 @@ fn main() {
 }
 
 /// Break the input into chunks based on the "your ticket:" and "nearby tickets:" separators.
-fn file_parts(data: String) -> Vec<String> {
+fn file_parts(data: String) -> (String, String, String) {
 	let split_a: Vec<&str> = data.split("\n\nyour ticket:\n").collect();
 	let split_b: Vec<&str> = split_a[1].split(&"\n\nnearby tickets:\n").collect();
 
-	let rules = split_a[0].to_string();
-	let my_ticket = split_b[0].to_string();
-	let nearby_tickets = split_b[1].to_string();
+	let rules = split_a[0].trim().to_string();
+	let my_ticket = split_b[0].trim().to_string();
+	let nearby_tickets = split_b[1].trim().to_string();
 
-	vec![rules, my_ticket, nearby_tickets]
+	(rules, my_ticket, nearby_tickets)
 }
 
 /// Break the "rules" header, specifying which numbers are valid, and where in the string they can appear.
@@ -127,7 +150,10 @@ mod tests {
 			let simple_example: String =
 				"a: 1-3\n\nyour ticket:\n1\n\nnearby tickets:\n1\n2\n3".to_string();
 
-			assert_eq!(file_parts(simple_example), vec!["a: 1-3", "1", "1\n2\n3"]);
+			assert_eq!(
+				file_parts(simple_example),
+				("a: 1-3".to_string(), "1".to_string(), "1\n2\n3".to_string())
+			);
 		}
 	}
 
