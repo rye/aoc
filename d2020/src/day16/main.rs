@@ -11,6 +11,17 @@ use d2020::{day16::*, *};
 
 type MysteriousNumber = u16;
 
+fn parse_ticket(ticket: &str) -> Vec<MysteriousNumber> {
+	ticket
+		.split(',')
+		.map(|item| {
+			item
+				.parse::<MysteriousNumber>()
+				.expect("expected valid item in ticket string")
+		})
+		.collect()
+}
+
 fn main() {
 	let data: String = string_from(stdin()).unwrap();
 
@@ -18,15 +29,8 @@ fn main() {
 
 	let valid_locations_per_rule = valid_values_and_indices_from_rules(&rules_str);
 
-	let nearby_tickets: Vec<Vec<MysteriousNumber>> = nearby_tickets_str
-		.lines()
-		.map(|line| {
-			line
-				.split(",")
-				.map(|n| n.parse::<MysteriousNumber>().unwrap())
-				.collect()
-		})
-		.collect();
+	let nearby_tickets: Vec<Vec<MysteriousNumber>> =
+		nearby_tickets_str.lines().map(parse_ticket).collect();
 
 	{
 		let mut error_rate = 0_u32;
