@@ -37,7 +37,7 @@ impl FromStr for Rule {
 	}
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct RuleSet {
 	rules: Vec<Rule>,
 }
@@ -83,60 +83,89 @@ impl FromStr for RuleSet {
 	}
 }
 
-impl RuleSet {
-	fn message_matches_rule(&self, message: &Message, rule_idx: usize) -> bool {
-		self
-			.message_matches_rule_inner(message, rule_idx, 0_usize)
-			.0
-	}
+fn convert_rule(ruleset: &RuleSet, rule_idx: usize) -> String {
+	match &ruleset.rules[rule_idx] {
+		Rule::SingleChar(c) => c.to_string(),
+		Rule::Compound(groups) => {
+			let group_string = groups
+				.iter()
+				.map(|inner_rules| {
+					inner_rules
+						.iter()
+						.map(|inner_rule_idx| convert_rule(ruleset, *inner_rule_idx))
+						.collect::<Vec<_>>()
+						.join("")
+				})
+				.collect::<Vec<_>>()
+				.join("|");
 
-	fn message_matches_rule_inner(
-		&self,
-		message: &Message,
-		rule_idx: usize,
-		head: usize,
-	) -> (bool, usize) {
-		println!("MMRI: {}, {}, {}", message.0, rule_idx, head);
-
-		let rule: &Rule = &self.rules[rule_idx];
-
-		match rule {
-			Rule::SingleChar(c) => {
-				println!("{:?} == {}?", message.0.chars().nth(head), c);
-				(message.0.chars().nth(head) == Some(*c), 1)
-			}
-			Rule::Compound(groups) => {
-				let result = groups
-					.iter()
-					.map(|group: &Vec<usize>| (group, group.len()))
-					.map(|(group, len)| -> (bool, usize) {
-						let mut inner_head = head;
-						let mut all_matched = true;
-
-						for (idx, rule_idx) in group.iter().enumerate() {
-							dbg!(idx, rule_idx, head, inner_head);
-
-							if let (true, size) =
-								self.message_matches_rule_inner(message, *rule_idx, inner_head + idx)
-							{
-								inner_head += size;
-							} else {
-								all_matched = false;
-								break;
-							}
-						}
-
-						(all_matched, len + inner_head)
-					})
-					.find(|(b, _)| *b);
-
-				if let Some((b, u)) = result {
-					(b, u)
-				} else {
-					(false, 0)
-				}
+			if groups.len() == 1 {
+				group_string
+			} else {
+				format!("(?:{})", group_string)
 			}
 		}
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	#[test]
+	fn simple() {
+		let rules = "0: 1 1\n1: \"a\"\n";
+		let rule_set: RuleSet = rules.parse().unwrap();
+
+		let regex = Regex::from(&rule_set);
+
+		assert_eq!(regex.as_str(), "^aa$");
+		assert!(regex.is_match("aa"));
+		assert!(!regex.is_match("ab"));
+	}
+	#[test]
+	fn slightly_longer() {
+		let rules = "0: 1 2\n1: \"a\"\n2: \"b\"";
+		let rule_set: RuleSet = rules.parse().unwrap();
+
+		let regex = Regex::from(&rule_set);
+
+		assert_eq!(regex.as_str(), "^ab$");
+		assert!(!regex.is_match("aa"));
+		assert!(regex.is_match("ab"));
+	}
+	#[test]
+	fn alternation() {
+		let rules = "0: 1 2 | 2 1\n1: \"a\"\n2: \"b\"";
+		let rule_set: RuleSet = rules.parse().unwrap();
+
+		let regex = Regex::from(&rule_set);
+
+		assert_eq!(regex.as_str(), "^(?:ab|ba)$");
+		assert!(regex.is_match("ab"));
+		assert!(regex.is_match("ba"));
+	}
+
+	#[test]
+	fn given_more_complex() {
+		let rules = "0: 4 1 5\n1: 2 3 | 3 2\n2: 4 4 | 5 5\n3: 4 5 | 5 4\n4: \"a\"\n5: \"b\"";
+		let rule_set: RuleSet = rules.parse().unwrap();
+
+		let regex = Regex::from(&rule_set);
+
+		println!("{}", regex.as_str());
+
+		assert!(regex.is_match("ababbb"));
+		assert!(regex.is_match("abbbab"));
+		assert!(!regex.is_match("bababa"));
+		assert!(!regex.is_match("aaabbb"));
+		assert!(!regex.is_match("aaaaabbb"));
+	}
+}
+
+impl From<&RuleSet> for Regex {
+	fn from(rule_set: &RuleSet) -> Regex {
+		let rule_string = convert_rule(&rule_set, 0_usize);
+		Regex::new(&format!("^{}$", rule_string)).unwrap()
 	}
 }
 
@@ -155,9 +184,13 @@ fn main() {
 	};
 
 	{
+		let ruleset_regex = Regex::from(&rules);
+
+		println!("{}", ruleset_regex.as_str());
+
 		let count = messages
 			.iter()
-			.filter(|message| rules.message_matches_rule(message, 0_usize))
+			.filter(|message| ruleset_regex.is_match(message.0))
 			.count();
 
 		println!("Part One: {:?}", count);
