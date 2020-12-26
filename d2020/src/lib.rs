@@ -17,6 +17,7 @@ pub mod day13;
 pub mod day14;
 pub mod day16;
 pub mod day19;
+pub mod day25;
 
 pub fn string_from(mut r: impl std::io::Read) -> std::io::Result<String> {
 	let mut s: String = String::new();
