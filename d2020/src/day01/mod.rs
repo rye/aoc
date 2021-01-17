@@ -20,5 +20,23 @@ pub fn find_triple(list: &BTreeSet<i64>, target: &i64) -> Option<(i64, i64, i64)
 	None
 }
 
+pub type Intermediate = BTreeSet<i64>;
+pub type Solution = i64;
+
+pub fn parse(data: &str) -> Intermediate {
+	data
+		.lines()
+		.map(|line| line.parse::<i64>().expect("malformed input"))
+		.collect()
+}
+
+pub fn part_one(list: &Intermediate) -> Option<Solution> {
+	find_pair(&list, &2020_i64).map(|(a, b): (i64, i64)| a * b)
+}
+
+pub fn part_two(list: &Intermediate) -> Option<Solution> {
+	find_triple(&list, &2020_i64).map(|(a, b, c): (i64, i64, i64)| a * b * c)
+}
+
 #[cfg(test)]
 mod tests;

@@ -48,6 +48,39 @@ pub fn validate_password_two(rule: &Rule, password: &str) -> bool {
 	(chars[count_range.0 - 1] == character) ^ (chars[count_range.1 - 1] == character)
 }
 
+pub type Intermediate = Vec<(Rule, String)>;
+pub type Solution = usize;
+
+pub fn parse(data: &str) -> Intermediate {
+	data
+		.lines()
+		.map(|s| {
+			let rule = (&s).split(": ").nth(0).unwrap().parse::<Rule>().unwrap();
+			let password = (&s).split(": ").nth(1).unwrap().to_string();
+
+			(rule, password.clone())
+		})
+		.collect()
+}
+
+pub fn part_one(rules: &Intermediate) -> Option<Solution> {
+	Some(
+		rules
+			.iter()
+			.filter(|(rule, password)| validate_password(rule, password))
+			.count(),
+	)
+}
+
+pub fn part_two(rules: &Intermediate) -> Option<Solution> {
+	Some(
+		rules
+			.iter()
+			.filter(|(rule, password)| validate_password_two(rule, password))
+			.count(),
+	)
+}
+
 #[cfg(test)]
 mod tests {
 

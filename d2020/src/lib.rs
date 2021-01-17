@@ -50,3 +50,29 @@ macro_rules! day_solver {
 		}
 	};
 }
+
+#[macro_export]
+macro_rules! day_solver_std {
+	() => {
+		fn main() {
+			use std::io::{stdin, BufRead, Read};
+
+			let data: String = {
+				let mut stdin = stdin();
+				let mut data = String::new();
+				stdin.read_to_string(&mut data).unwrap();
+				data
+			};
+
+			let intermediate: Intermediate = parse(&data);
+
+			if let Some(part_one) = part_one(&intermediate) {
+				println!("Part One: {}", part_one);
+			}
+
+			if let Some(part_two) = part_two(&intermediate) {
+				println!("Part Two: {}", part_two);
+			}
+		}
+	};
+}
