@@ -27,18 +27,14 @@ pub fn string_from(mut r: impl std::io::Read) -> std::io::Result<String> {
 
 #[macro_export]
 macro_rules! day_solver {
-	( $intermediate:ty , $result:ty , $transform:ident , $part_one:ident , $part_two:ident ) => {
-		fn main() {
-			use std::io::{stdin, BufRead, Read};
+	( $transform:expr, $part_one:expr, $part_two:expr ) => {
+		fn main() -> Result<(), Box<dyn std::error::Error>> {
+			use ::std::io::stdin;
+			use $crate::string_from;
 
-			let data: String = {
-				let mut stdin = stdin();
-				let mut data = String::new();
-				stdin.read_to_string(&mut data).unwrap();
-				data
-			};
+			let data: String = string_from(stdin())?;
 
-			let intermediate: $intermediate = $transform(&data);
+			let intermediate = $transform(&data);
 
 			if let Some(part_one) = $part_one(&intermediate) {
 				println!("Part One: {}", part_one);
@@ -47,6 +43,8 @@ macro_rules! day_solver {
 			if let Some(part_two) = $part_two(&intermediate) {
 				println!("Part Two: {}", part_two);
 			}
+
+			Ok(())
 		}
 	};
 }
@@ -54,53 +52,39 @@ macro_rules! day_solver {
 #[macro_export]
 macro_rules! day_solver_std {
 	() => {
-		fn main() {
-			use std::io::{stdin, BufRead, Read};
-
-			let data: String = {
-				let mut stdin = stdin();
-				let mut data = String::new();
-				stdin.read_to_string(&mut data).unwrap();
-				data
-			};
-
-			let intermediate: Intermediate = parse(&data);
-
-			if let Some(part_one) = part_one(&intermediate) {
-				println!("Part One: {}", part_one);
-			}
-
-			if let Some(part_two) = part_two(&intermediate) {
-				println!("Part Two: {}", part_two);
-			}
-		}
+		d2020::day_solver_from!(self);
 	};
 }
 
 #[macro_export]
 macro_rules! day_solver_from {
-	( $place:path ) => {
-		fn main() {
-			use std::io::{stdin, BufRead, Read};
+	($place:path) => {
+		use $place::{parse, part_one, part_two};
 
-			use $place::{parse, part_one, part_two, Intermediate, Solution};
+		d2020::day_solver!(
+			|data| { parse(data) },
+			|intermediate| { part_one(intermediate) },
+			|intermediate| { part_two(intermediate) }
+		);
+	};
 
-			let data: String = {
-				let mut stdin = stdin();
-				let mut data = String::new();
-				stdin.read_to_string(&mut data).unwrap();
-				data
-			};
+	($place:path, $parser:ident) => {
+		use $place::{part_one, part_two, $parser};
 
-			let intermediate: Intermediate = parse(&data);
+		d2020::day_solver!(
+			|data| { $parser(data) },
+			|intermediate| { part_one(intermediate) },
+			|intermediate| { part_two(intermediate) }
+		);
+	};
 
-			if let Some(part_one) = part_one(&intermediate) {
-				println!("Part One: {}", part_one);
-			}
+	($place:path, $parser:ident, $part_one:ident, $part_two:ident) => {
+		use $place::{$parser, $part_one, $part_two};
 
-			if let Some(part_two) = part_two(&intermediate) {
-				println!("Part Two: {}", part_two);
-			}
-		}
+		d2020::day_solver!(
+			|data| { $parser(data) },
+			|intermediate| { $part_one(intermediate) },
+			|intermediate| { $part_two(intermediate) }
+		);
 	};
 }
