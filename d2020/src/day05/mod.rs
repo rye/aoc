@@ -24,5 +24,23 @@ pub fn seat_id_from_bsp(bsp: &str) -> usize {
 	row * 2_usize.pow(lr.len() as u32) + column
 }
 
+pub type Intermediate = std::collections::BTreeSet<usize>;
+pub type Solution = usize;
+
+pub fn parse(data: &str) -> Intermediate {
+	data.lines().map(|bsp| seat_id_from_bsp(bsp)).collect()
+}
+
+pub fn part_one(seat_ids: &Intermediate) -> Option<Solution> {
+	seat_ids.iter().next_back().map(|n| n.to_owned())
+}
+
+pub fn part_two(seat_ids: &Intermediate) -> Option<Solution> {
+	let min: usize = *seat_ids.iter().next().unwrap();
+	let max: usize = *seat_ids.iter().next_back().unwrap();
+
+	(min..=max).find(|seat_id| !seat_ids.contains(&seat_id))
+}
+
 #[cfg(test)]
 mod tests;
