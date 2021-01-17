@@ -36,10 +36,11 @@ pub fn part_one(map: &Intermediate) -> Option<Solution> {
 }
 
 pub fn part_two(map: &Intermediate) -> Option<Solution> {
+	let trajectories = [(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)];
 	Some(
-		vec![(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)]
-			.drain(..)
-			.map(|trajectory| slope(&map, trajectory))
+		trajectories
+			.iter()
+			.map(|trajectory| slope(&map, *trajectory))
 			.fold(1, |acc, x| acc * x),
 	)
 }
