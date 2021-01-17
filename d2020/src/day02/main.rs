@@ -1,33 +1,36 @@
-use std::io::{stdin, BufRead};
-
 use d2020::day02::*;
 
-fn main() {
-	let stdin = stdin();
-	let stdin = stdin.lock();
+type Intermediate = Vec<(Rule, String)>;
+type Solution = usize;
 
-	let rules: Vec<(Rule, String)> = stdin
+fn parse(data: &str) -> Intermediate {
+	data
 		.lines()
-		.filter_map(Result::ok)
-		.map(|s: String| {
+		.map(|s| {
 			let rule = (&s).split(": ").nth(0).unwrap().parse::<Rule>().unwrap();
 			let password = (&s).split(": ").nth(1).unwrap().to_string();
 
 			(rule, password.clone())
 		})
-		.collect();
-
-	let result: Vec<&(Rule, String)> = rules
-		.iter()
-		.filter(|(rule, password)| validate_password(rule, password))
-		.collect();
-
-	println!("Part One: {:?}", result.len());
-
-	let result_deux: Vec<&(Rule, String)> = rules
-		.iter()
-		.filter(|(rule, password)| validate_password_two(rule, password))
-		.collect();
-
-	println!("Part Two: {:?}", result_deux.len());
+		.collect()
 }
+
+fn part_one(rules: &Intermediate) -> Option<Solution> {
+	Some(
+		rules
+			.iter()
+			.filter(|(rule, password)| validate_password(rule, password))
+			.count(),
+	)
+}
+
+fn part_two(rules: &Intermediate) -> Option<Solution> {
+	Some(
+		rules
+			.iter()
+			.filter(|(rule, password)| validate_password_two(rule, password))
+			.count(),
+	)
+}
+
+d2020::day_solver!(Intermediate, Solution, parse, part_one, part_two);
