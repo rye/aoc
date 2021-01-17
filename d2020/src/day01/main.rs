@@ -1,24 +1,23 @@
 use std::collections::BTreeSet;
-use std::io::{stdin, BufRead};
 
 use d2020::day01::*;
-use d2020::Lines;
 
-fn main() {
-	let stdin = stdin();
-	let stdin = stdin.lock();
+type Intermediate = BTreeSet<i64>;
+type Solution = i64;
 
-	let list: BTreeSet<i64> = (Lines::from(stdin.lines())).into();
-
-	let pair = find_pair(&list, &2020_i64);
-
-	if let Some((a, b)) = pair {
-		println!("Part One: {}", a * b);
-	}
-
-	let triple = find_triple(&list, &2020_i64);
-
-	if let Some((a, b, c)) = triple {
-		println!("Part Two: {}", a * b * c);
-	}
+fn transform(data: &str) -> Intermediate {
+	data
+		.lines()
+		.map(|line| line.parse::<i64>().expect("malformed input"))
+		.collect()
 }
+
+fn part_one(list: &Intermediate) -> Option<Solution> {
+	find_pair(&list, &2020_i64).map(|(a, b): (i64, i64)| a * b)
+}
+
+fn part_two(list: &Intermediate) -> Option<Solution> {
+	find_triple(&list, &2020_i64).map(|(a, b, c): (i64, i64, i64)| a * b * c)
+}
+
+d2020::day_solver!(BTreeSet<i64>, i64, transform, part_one, part_two);
