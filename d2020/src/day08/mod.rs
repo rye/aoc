@@ -70,3 +70,46 @@ pub fn execute_program(program: &VecDeque<Instruction>) -> ExecutionResult<isize
 		}
 	}
 }
+
+pub type Intermediate = VecDeque<Instruction>;
+pub type Solution = isize;
+
+pub fn parse(data: &str) -> Intermediate {
+	data
+		.lines()
+		.map(|ln| ln.parse().expect("failed to parse instruction"))
+		.collect()
+}
+
+pub fn part_one(instructions: &Intermediate) -> Option<Solution> {
+	Some(execute_program(&instructions).unwrap())
+}
+
+pub fn part_two(instructions: &Intermediate) -> Option<Solution> {
+	let mut accumulator = None;
+
+	for position in 0..instructions.len() {
+		if let Instruction::Acc(_x) = instructions[position] {
+			continue;
+		} else {
+			let mut program = instructions.clone();
+
+			match program[position] {
+				Instruction::Jmp(ofs) => program[position] = Instruction::Nop(ofs),
+				Instruction::Nop(par) => program[position] = Instruction::Jmp(par),
+				Instruction::Acc(_) => unreachable!(),
+			}
+
+			let result = execute_program(&program);
+
+			if let ExecutionResult::Normal(acc) = result {
+				accumulator = Some(acc);
+				break;
+			} else {
+				continue;
+			}
+		}
+	}
+
+	accumulator
+}
