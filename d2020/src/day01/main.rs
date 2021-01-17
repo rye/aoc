@@ -5,7 +5,7 @@ use d2020::day01::*;
 type Intermediate = BTreeSet<i64>;
 type Solution = i64;
 
-fn transform(data: &str) -> Intermediate {
+fn parse(data: &str) -> Intermediate {
 	data
 		.lines()
 		.map(|line| line.parse::<i64>().expect("malformed input"))
@@ -20,4 +20,4 @@ fn part_two(list: &Intermediate) -> Option<Solution> {
 	find_triple(&list, &2020_i64).map(|(a, b, c): (i64, i64, i64)| a * b * c)
 }
 
-d2020::day_solver!(BTreeSet<i64>, i64, transform, part_one, part_two);
+d2020::day_solver!(Intermediate, Solution, parse, part_one, part_two);
