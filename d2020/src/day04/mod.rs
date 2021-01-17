@@ -84,5 +84,91 @@ pub fn valid_hair_color(s: &str) -> bool {
 	}
 }
 
+pub type Intermediate<'a> = Vec<HashMap<&'a str, &'a str>>;
+pub type Solution = usize;
+
+pub fn parse(data: &str) -> Intermediate {
+	// To start with, passports are separated by \n\n
+	let passports: Vec<&str> = data.split("\n\n").collect();
+
+	// Next, we split each passport on all whitespace to get a collection of key:value groups per passport
+	let passports: Vec<Vec<&str>> = passports
+		.iter()
+		.map(|line| line.split_whitespace().collect())
+		.collect();
+
+	// Now, turn those collections of key:value groups into hashmaps
+	let passports: Vec<HashMap<&str, &str>> = passports
+		.iter()
+		.map(|pairs| {
+			pairs
+				.iter()
+				.map(|pair| {
+					let results: Vec<&str> = pair.split(':').collect();
+					(results[0], results[1])
+				})
+				.collect()
+		})
+		.collect();
+
+	passports
+}
+
+pub fn part_one(passports: &Intermediate) -> Option<Solution> {
+	Some(
+		passports
+			.iter()
+			.filter(|passport| has_required_fields(passport))
+			.count(),
+	)
+}
+
+pub fn part_two(passports: &Intermediate) -> Option<Solution> {
+	use std::collections::HashSet;
+
+	let valid_eye_colors: HashSet<&str> = {
+		let mut set = HashSet::new();
+		set.insert("amb");
+		set.insert("blu");
+		set.insert("brn");
+		set.insert("gry");
+		set.insert("grn");
+		set.insert("hzl");
+		set.insert("oth");
+		set
+	};
+
+	Some(
+		passports
+			.iter()
+			.filter(|passport| {
+				match (
+					passport.get("byr"),
+					passport.get("iyr"),
+					passport.get("eyr"),
+					passport.get("hgt"),
+					passport.get("hcl"),
+					passport.get("ecl"),
+					passport.get("pid"),
+					passport.get("cid"),
+				) {
+					(Some(byr), Some(iyr), Some(eyr), Some(hgt), Some(hcl), Some(ecl), Some(pid), _) => {
+						let byr_ok: bool = valid_birth_year(byr);
+						let iyr_ok: bool = valid_issue_year(iyr);
+						let eyr_ok: bool = valid_expiry_year(eyr);
+						let hgt_ok: bool = valid_height(hgt);
+						let hcl_ok: bool = valid_hair_color(hcl);
+						let ecl_ok: bool = valid_eye_colors.contains(ecl);
+						let pid_ok: bool = { pid.len() == 9 && pid.chars().all(|c| c.is_digit(10)) };
+
+						byr_ok && iyr_ok && eyr_ok && hgt_ok && hcl_ok && ecl_ok && pid_ok
+					}
+					_ => false,
+				}
+			})
+			.count(),
+	)
+}
+
 #[cfg(test)]
 mod tests;
