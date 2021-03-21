@@ -181,19 +181,18 @@ impl Layout {
 		new_layout
 	}
 
-	fn occupied_neighbors(&self, (row_idx, col_idx): Coords) -> usize {
-		DELTAS
-			.iter()
-			.map(|(row_delta, col_delta)| (row_idx as i32 + row_delta, col_idx as i32 + col_delta))
-			.filter_map(|(row_idx, col_idx)| {
-				if row_idx >= 0 && col_idx >= 0 {
-					self.cells.get(&(row_idx as usize, col_idx as usize))
+	fn occupied_neighbors(&self, coords: Coords) -> usize {
+		DELTAS.iter().fold(0, |count, delta| {
+			if let Some(visible_coords) = self.delta_n(coords, delta, 1) {
+				if let Some(Occupied) = self.cells.get(&visible_coords) {
+					count + 1
 				} else {
-					None
+					count
 				}
-			})
-			.filter(|cell| **cell == Occupied)
-			.count()
+			} else {
+				count
+			}
+		})
 	}
 
 	fn visible_occupied_neighbors(&self, coords: Coords) -> usize {
