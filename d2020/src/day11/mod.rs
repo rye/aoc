@@ -105,7 +105,7 @@ const DELTAS: [(i32, i32); 8] = [
 	(1, 1),
 ];
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum LayoutParseError {
 	UnexpectedChar(char),
 }
@@ -233,4 +233,36 @@ impl Layout {
 			None
 		}
 	}
+}
+
+#[test]
+fn layout_parse() {
+	let s: &str = "L.L\n.L.\nL.#";
+
+	let expected = {
+		let mut map = HashMap::new();
+
+		map.insert((0, 0), Cell::Empty);
+		map.insert((0, 2), Cell::Empty);
+		map.insert((1, 1), Cell::Empty);
+		map.insert((2, 0), Cell::Empty);
+
+		map.insert((0, 1), Cell::Floor);
+		map.insert((1, 0), Cell::Floor);
+		map.insert((1, 2), Cell::Floor);
+		map.insert((2, 1), Cell::Floor);
+
+		map.insert((2, 2), Cell::Occupied);
+
+		map
+	};
+
+	assert_eq!(
+		s.parse(),
+		Ok(Layout {
+			cells: expected,
+			width: 3,
+			height: 3
+		})
+	);
 }
