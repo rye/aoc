@@ -14,7 +14,7 @@ pub fn part_one(intermediate: &Intermediate) -> Option<Solution> {
 
 	while prev_layout.is_none() || layout != prev_layout.unwrap() {
 		prev_layout = Some(layout.clone());
-		layout = layout.advance(transition);
+		layout = layout.advance(transition, Layout::occupied_neighbors, 4_usize);
 	}
 
 	Some(
@@ -33,7 +33,7 @@ pub fn part_two(intermediate: &Intermediate) -> Option<Solution> {
 
 	while prev_layout.is_none() || layout != prev_layout.unwrap() {
 		prev_layout = Some(layout.clone());
-		layout = layout.advance(transition2);
+		layout = layout.advance(transition, Layout::visible_occupied_neighbors, 5_usize);
 	}
 
 	Some(
@@ -45,42 +45,29 @@ pub fn part_two(intermediate: &Intermediate) -> Option<Solution> {
 	)
 }
 
-fn transition(layout: &Layout, coords: Coords, cell: &Cell) -> Cell {
-	let occupied_neigbhors = layout.occupied_neighbors(coords);
+fn transition<F>(
+	layout: &Layout,
+	coords: Coords,
+	cell: &Cell,
+	occupied_neighbors_fn: F,
+	crowding_threshold: usize,
+) -> Cell
+where
+	F: Fn(&Layout, Coords) -> usize,
+{
+	let neighbors = occupied_neighbors_fn(layout, coords);
 
 	match cell {
 		Floor => Floor,
 		Empty => {
-			if occupied_neigbhors == 0 {
+			if neighbors == 0 {
 				Occupied
 			} else {
 				Empty
 			}
 		}
 		Occupied => {
-			if occupied_neigbhors >= 4 {
-				Empty
-			} else {
-				Occupied
-			}
-		}
-	}
-}
-
-fn transition2(layout: &Layout, coords: Coords, cell: &Cell) -> Cell {
-	let occupied_neigbhors = layout.visible_occupied_neighbors(coords);
-
-	match cell {
-		Floor => Floor,
-		Empty => {
-			if occupied_neigbhors == 0 {
-				Occupied
-			} else {
-				Empty
-			}
-		}
-		Occupied => {
-			if occupied_neigbhors >= 5 {
+			if neighbors >= crowding_threshold {
 				Empty
 			} else {
 				Occupied
@@ -163,9 +150,15 @@ impl Layout {
 		}
 	}
 
-	fn advance<F>(&self, transition: F) -> Layout
+	fn advance<TF, ONF>(
+		&self,
+		transition: TF,
+		occupied_neighbors_fn: ONF,
+		crowding_threshold: usize,
+	) -> Layout
 	where
-		F: Fn(&Layout, Coords, &Cell) -> Cell,
+		TF: Fn(&Layout, Coords, &Cell, ONF, usize) -> Cell,
+		ONF: Fn(&Layout, Coords) -> usize + Copy,
 	{
 		let mut new_layout = Layout::new(self.width, self.height);
 
@@ -174,7 +167,13 @@ impl Layout {
 				let coords = (row_idx, col_idx);
 				let cell = self.cells.get(&coords).unwrap();
 
-				let new_cell = transition(self, coords, cell);
+				let new_cell = transition(
+					self,
+					coords,
+					cell,
+					occupied_neighbors_fn,
+					crowding_threshold,
+				);
 				new_layout.cells.insert(coords, new_cell);
 			}
 		}
