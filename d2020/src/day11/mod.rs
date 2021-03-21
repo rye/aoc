@@ -107,6 +107,17 @@ pub struct Layout {
 
 use Cell::*;
 
+const DELTAS: [(i32, i32); 8] = [
+	(-1, -1),
+	(-1, 0),
+	(-1, 1),
+	(0, -1),
+	(0, 1),
+	(1, -1),
+	(1, 0),
+	(1, 1),
+];
+
 impl Layout {
 	fn parse(input: &str) -> Layout {
 		let mut cells = HashMap::new();
@@ -163,18 +174,7 @@ impl Layout {
 	}
 
 	fn occupied_neighbors(&self, (row_idx, col_idx): Coords) -> usize {
-		let deltas = [
-			(-1, -1),
-			(-1, 0),
-			(-1, 1),
-			(0, -1),
-			(0, 1),
-			(1, -1),
-			(1, 0),
-			(1, 1),
-		];
-
-		deltas
+		DELTAS
 			.iter()
 			.map(|(row_delta, col_delta)| (row_idx as i32 + row_delta, col_idx as i32 + col_delta))
 			.filter_map(|(row_idx, col_idx)| {
@@ -189,18 +189,7 @@ impl Layout {
 	}
 
 	fn visible_occupied_neighbors(&self, coords: Coords) -> usize {
-		let deltas = [
-			(-1, -1),
-			(-1, 0),
-			(-1, 1),
-			(0, -1),
-			(0, 1),
-			(1, -1),
-			(1, 0),
-			(1, 1),
-		];
-
-		deltas.iter().fold(0, |count, delta| {
+		DELTAS.iter().fold(0, |count, delta| {
 			if let Some(true) = (1..).find_map(|n| {
 				if let Some(visible_coords) = self.delta_n(coords, delta, n) {
 					match self.cells.get(&visible_coords) {
