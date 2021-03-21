@@ -3,8 +3,8 @@ use std::collections::HashMap;
 pub type Intermediate = Layout;
 pub type Solution = usize;
 
-pub fn parse(data: &str) -> Intermediate {
-	Layout::parse(data)
+pub fn parse(input: &str) -> Intermediate {
+	Layout::parse(input)
 }
 
 pub fn part_one(intermediate: &Intermediate) -> Option<Solution> {
