@@ -201,24 +201,22 @@ impl Layout {
 		];
 
 		deltas.iter().fold(0, |count, delta| {
-			let mut n = 1;
-			let mut acc = 0;
-
-			while let Some(visible_coords) = self.delta_n(coords, delta, n) {
-				match self.cells.get(&visible_coords) {
-					Some(Occupied) => {
-						acc += 1;
-						break;
+			if let Some(true) = (1..).find_map(|n| {
+				if let Some(visible_coords) = self.delta_n(coords, delta, n) {
+					match self.cells.get(&visible_coords) {
+						Some(Occupied) => Some(true),
+						Some(Empty) => Some(false),
+						None => Some(false),
+						_ => None,
 					}
-					Some(Empty) => break,
-					None => break,
-					_ => (),
+				} else {
+					Some(false)
 				}
-
-				n += 1;
+			}) {
+				count + 1
+			} else {
+				count
 			}
-
-			count + acc
 		})
 	}
 
