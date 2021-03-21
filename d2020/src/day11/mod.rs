@@ -48,10 +48,10 @@ pub fn part_two(intermediate: &Intermediate) -> Option<Solution> {
 fn transition<F>(
 	layout: &Layout,
 	coords: Coords,
-	cell: &Cell,
+	cell: &CellState,
 	occupied_neighbors_fn: F,
 	crowding_threshold: usize,
-) -> Cell
+) -> CellState
 where
 	F: Fn(&Layout, Coords) -> usize,
 {
@@ -77,7 +77,7 @@ where
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
-enum Cell {
+enum CellState {
 	Floor,
 	Empty,
 	Occupied,
@@ -87,12 +87,12 @@ type Coords = (usize, usize);
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Layout {
-	cells: HashMap<Coords, Cell>,
+	cells: HashMap<Coords, CellState>,
 	width: usize,
 	height: usize,
 }
 
-use Cell::*;
+use CellState::*;
 
 const DELTAS: [(i32, i32); 8] = [
 	(-1, -1),
@@ -157,7 +157,7 @@ impl Layout {
 		crowding_threshold: usize,
 	) -> Layout
 	where
-		TF: Fn(&Layout, Coords, &Cell, ONF, usize) -> Cell,
+		TF: Fn(&Layout, Coords, &CellState, ONF, usize) -> CellState,
 		ONF: Fn(&Layout, Coords) -> usize + Copy,
 	{
 		let mut new_layout = Layout::new(self.width, self.height);
@@ -242,17 +242,17 @@ fn layout_parse() {
 	let expected = {
 		let mut map = HashMap::new();
 
-		map.insert((0, 0), Cell::Empty);
-		map.insert((0, 2), Cell::Empty);
-		map.insert((1, 1), Cell::Empty);
-		map.insert((2, 0), Cell::Empty);
+		map.insert((0, 0), CellState::Empty);
+		map.insert((0, 2), CellState::Empty);
+		map.insert((1, 1), CellState::Empty);
+		map.insert((2, 0), CellState::Empty);
 
-		map.insert((0, 1), Cell::Floor);
-		map.insert((1, 0), Cell::Floor);
-		map.insert((1, 2), Cell::Floor);
-		map.insert((2, 1), Cell::Floor);
+		map.insert((0, 1), CellState::Floor);
+		map.insert((1, 0), CellState::Floor);
+		map.insert((1, 2), CellState::Floor);
+		map.insert((2, 1), CellState::Floor);
 
-		map.insert((2, 2), Cell::Occupied);
+		map.insert((2, 2), CellState::Occupied);
 
 		map
 	};
