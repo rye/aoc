@@ -200,15 +200,14 @@ impl Layout {
 			(1, 1),
 		];
 
-		let mut count = 0;
-
-		deltas.iter().for_each(|delta| {
+		deltas.iter().fold(0, |count, delta| {
 			let mut n = 1;
+			let mut acc = 0;
 
 			while let Some(visible_coords) = self.delta_n(coords, delta, n) {
 				match self.cells.get(&visible_coords) {
 					Some(Occupied) => {
-						count += 1;
+						acc += 1;
 						break;
 					}
 					Some(Empty) => break,
@@ -218,9 +217,9 @@ impl Layout {
 
 				n += 1;
 			}
-		});
 
-		count
+			count + acc
+		})
 	}
 
 	fn delta_n(
