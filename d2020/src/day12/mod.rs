@@ -119,6 +119,12 @@ pub fn part_one(instructions: &Intermediate) -> Option<Solution> {
 	Some(final_state.position.0.abs() + final_state.position.1.abs())
 }
 
+#[test]
+fn part_one_example() {
+	let instructions: Intermediate = parse("F10\nN3\nF7\nR90\nF11");
+	assert_eq!(part_one(&instructions), Some(25.0_f64));
+}
+
 pub fn part_two(instructions: &Intermediate) -> Option<Solution> {
 	#[derive(Debug, Clone)]
 	struct ShipState {
@@ -219,4 +225,10 @@ pub fn part_two(instructions: &Intermediate) -> Option<Solution> {
 			});
 
 	Some(final_state.position.0.abs() + final_state.position.1.abs())
+}
+
+#[test]
+fn part_two_example() {
+	let instructions: Intermediate = parse("F10\nN3\nF7\nR90\nF11");
+	assert_eq!(part_two(&instructions), Some(286.0_f64));
 }
