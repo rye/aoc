@@ -7,9 +7,10 @@ edition = "2018"
 
 [dependencies]
 itertools = "0.9.0"
-regex = "1.4.2"
 num = "0.3.1"
 num-integer = "0.1.44"
+regex = "1.4.2"
+thiserror = "1.0.24"
 
 [dev-dependencies]
 static_assertions = "1.1.0"
@@ -97,6 +98,18 @@ path = "src/day20/main.rs"
 [[bin]]
 name = "day21"
 path = "src/day21/main.rs"
+
+[[bin]]
+name = "day22"
+path = "src/day22/main.rs"
+
+[[bin]]
+name = "day23"
+path = "src/day23/main.rs"
+
+[[bin]]
+name = "day24"
+path = "src/day24/main.rs"
 
 [[bin]]
 name = "day25"
