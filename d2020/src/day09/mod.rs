@@ -70,10 +70,12 @@ pub fn part_two(numbers: &Intermediate) -> Option<Solution> {
 	let impostor = sus(&numbers).expect("couldn't find impostor");
 
 	let mut result = None;
+
 	if let Some(set) = find_weakness(&numbers, impostor) {
 		if let (Some(max), Some(min)) = (set.iter().max(), set.iter().min()) {
 			result = Some(max + min);
 		}
 	}
+
 	result
 }
