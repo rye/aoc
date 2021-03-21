@@ -201,28 +201,25 @@ impl Layout {
 		];
 
 		let mut count = 0;
-		for delta in deltas.iter() {
+
+		deltas.iter().for_each(|delta| {
 			let mut n = 1;
 
-			loop {
-				match self.delta_n(coords, delta, n) {
-					Some(visible_coords) => {
-						match self.cells.get(&visible_coords) {
-							Some(Occupied) => {
-								count += 1;
-								break;
-							}
-							Some(Empty) => break,
-							None => break,
-							_ => (),
-						}
-
-						n += 1;
+			while let Some(visible_coords) = self.delta_n(coords, delta, n) {
+				match self.cells.get(&visible_coords) {
+					Some(Occupied) => {
+						count += 1;
+						break;
 					}
+					Some(Empty) => break,
 					None => break,
+					_ => (),
 				}
+
+				n += 1;
 			}
-		}
+		});
+
 		count
 	}
 
