@@ -4,7 +4,7 @@ pub type Intermediate = Layout;
 pub type Solution = usize;
 
 pub fn parse(input: &str) -> Intermediate {
-	Layout::parse(input)
+	input.parse().expect("invalid input")
 }
 
 pub fn part_one(intermediate: &Intermediate) -> Option<Solution> {
@@ -118,8 +118,15 @@ const DELTAS: [(i32, i32); 8] = [
 	(1, 1),
 ];
 
-impl Layout {
-	fn parse(input: &str) -> Layout {
+#[derive(Debug)]
+pub enum LayoutParseError {
+	UnexpectedChar(char),
+}
+
+impl core::str::FromStr for Layout {
+	type Err = LayoutParseError;
+
+	fn from_str(input: &str) -> Result<Self, Self::Err> {
 		let mut cells = HashMap::new();
 		let mut width = 0;
 		let mut height = 0;
@@ -130,7 +137,7 @@ impl Layout {
 					'L' => Empty,
 					'.' => Floor,
 					'#' => Occupied,
-					_ => panic!("Unexpected input {}", ch),
+					_ => return Err(LayoutParseError::UnexpectedChar(ch)),
 				};
 
 				cells.insert((row_idx, col_idx), cell);
@@ -139,13 +146,15 @@ impl Layout {
 			height = height.max(row_idx + 1);
 		}
 
-		Layout {
+		Ok(Layout {
 			cells,
 			width,
 			height,
-		}
+		})
 	}
+}
 
+impl Layout {
 	fn new(width: usize, height: usize) -> Layout {
 		Layout {
 			width,
