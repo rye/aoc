@@ -97,6 +97,36 @@ nearby tickets:
 
 		let intermediate = parse(input);
 
+		assert_eq!(
+			intermediate.rules,
+			vec![
+				super::Rule {
+					field: "class".to_string(),
+					ranges: [1..=3, 5..=7]
+				},
+				super::Rule {
+					field: "row".to_string(),
+					ranges: [6..=11, 33..=44]
+				},
+				super::Rule {
+					field: "seat".to_string(),
+					ranges: [13..=40, 45..=50]
+				}
+			]
+		);
+
+		assert_eq!(intermediate.mine, vec![7, 1, 14]);
+
+		assert_eq!(
+			intermediate.others,
+			vec![
+				vec![7, 3, 47],
+				vec![40, 4, 50],
+				vec![55, 2, 20],
+				vec![38, 6, 12],
+			]
+		);
+
 		let part_one = part_one(&intermediate);
 
 		assert_eq!(part_one, Some(71));
