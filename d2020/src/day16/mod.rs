@@ -143,5 +143,125 @@ nearby tickets:
 }
 
 pub fn part_two(input: &Intermediate) -> Option<Solution> {
-	todo!()
+	let (rules, mine, others): (&Vec<Rule>, &Vec<u64>, &Vec<Vec<u64>>) =
+		(&input.rules, &input.mine, &input.others);
+
+	// Discard invalid tickets entirely as we now only care about tickets that
+	// contain valid values.
+	let valid_others: Vec<_> = others
+		.iter()
+		.filter(|ticket| {
+			ticket.iter().all(|field| {
+				rules
+					.iter()
+					.any(|rule| rule.ranges.iter().any(|range| range.contains(field)))
+			})
+		})
+		.collect();
+
+	// Build a map of field names to possible indices.
+	//
+	// For each rule, loop over all ticket fields (idx), and for each field index,
+	// check all the valid tickets (other) to verify that the rule matches the
+	// value contained within.  Using iter.all, if any of the tickets contains
+	// an invalid value at the index, then that index cannot match the rules.
+	let mut unknown: HashMap<String, HashSet<usize>> = rules
+		.iter()
+		.map(|rule| {
+			(
+				rule.field.clone(),
+				(0..mine.len())
+					.filter(|idx| valid_others.iter().all(|other| rule.matches(other[*idx])))
+					.collect(),
+			)
+		})
+		.collect();
+
+	// Now, solve the constraints.
+	let mut known = HashMap::<String, usize>::new();
+
+	// As long as there is one field with only one possible index, and as long
+	// as we haven't solved all the fields, pick a field with only one possible
+	// index, remove its index from all other fields' lists of possible indices,
+	// and repeat until all fields are solved.
+	while !unknown.is_empty() {
+		// Find a field with only one possible index.
+		let (field, idx): (String, usize) = unknown
+			.iter()
+			.find(|(_, idxes)| idxes.len() == 1)
+			.map(|(f, i)| (f.clone(), *i.iter().next().unwrap()))
+			.unwrap();
+
+		// We now know the index for that field.  Remove it from the
+		// list of unknown fields, and insert it (and the known index)
+		// into the known set.
+		unknown.remove(&field);
+		known.insert(field, idx);
+
+		// Now, no other field can have that index, so remove it from
+		// all other fields.
+		for idxes in unknown.values_mut() {
+			idxes.remove(&idx);
+		}
+	}
+
+	// Now that we know the locations for all the fields, the solution is the
+	// product of the values in all of "our" "departure" fields.
+	Some(
+		known
+			.iter()
+			.filter(|(field, _idx)| field.starts_with("departure "))
+			.fold(1_u64, |product, (_field, idx)| product * mine[*idx]),
+	)
+}
+
+#[cfg(test)]
+mod part_two {
+	use super::{parse, part_two};
+
+	#[test]
+	fn example() {
+		let input = "class: 0-1 or 4-19
+row: 0-5 or 8-19
+seat: 0-13 or 16-19
+
+your ticket:
+11,12,13
+
+nearby tickets:
+3,9,18
+15,1,5
+5,14,9";
+
+		let intermediate = parse(input);
+
+		assert_eq!(
+			intermediate.rules,
+			vec![
+				super::Rule {
+					field: "class".to_string(),
+					ranges: [0..=1, 4..=19]
+				},
+				super::Rule {
+					field: "row".to_string(),
+					ranges: [0..=5, 8..=19]
+				},
+				super::Rule {
+					field: "seat".to_string(),
+					ranges: [0..=13, 16..=19]
+				}
+			]
+		);
+
+		assert_eq!(intermediate.mine, vec![11, 12, 13]);
+
+		assert_eq!(
+			intermediate.others,
+			vec![vec![3, 9, 18], vec![15, 1, 5], vec![5, 14, 9],]
+		);
+
+		let part_two = part_two(&intermediate);
+
+		assert_eq!(part_two, Some(1));
+	}
 }
