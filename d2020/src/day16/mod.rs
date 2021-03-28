@@ -43,7 +43,33 @@ type Intermediate = Input;
 type Solution = u64;
 
 pub fn parse(input: &str) -> Intermediate {
-	todo!()
+	let mut sections = input.split("\n\n");
+
+	let rules: Vec<Rule> = sections.next().unwrap().lines().map(Rule::from).collect();
+
+	let mine = sections
+		.next()
+		.unwrap()
+		.lines()
+		.nth(1)
+		.unwrap()
+		.split(',')
+		.map(|n| n.parse().unwrap())
+		.collect();
+
+	let others = sections
+		.next()
+		.unwrap()
+		.lines()
+		.skip(1)
+		.map(|line| line.split(',').map(|x| x.parse().unwrap()).collect())
+		.collect();
+
+	Input {
+		rules,
+		mine,
+		others,
+	}
 }
 
 pub fn part_one(input: &Intermediate) -> Option<Solution> {
