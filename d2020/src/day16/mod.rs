@@ -73,7 +73,16 @@ pub fn parse(input: &str) -> Intermediate {
 }
 
 pub fn part_one(input: &Intermediate) -> Option<Solution> {
-	todo!()
+	let (rules, _mine, others): (&Vec<Rule>, &Vec<u64>, &Vec<Vec<u64>>) =
+		(&input.rules, &input.mine, &input.others);
+
+	Some(
+		others
+			.iter()
+			.flatten()
+			.filter(|field| !rules.iter().any(|rule| rule.matches(**field)))
+			.sum(),
+	)
 }
 
 #[cfg(test)]
