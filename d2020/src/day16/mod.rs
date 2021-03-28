@@ -1,3 +1,4 @@
+use regex::Regex;
 use std::collections::{HashMap, HashSet};
 use std::ops::RangeInclusive;
 
@@ -10,6 +11,24 @@ pub struct Rule {
 impl Rule {
 	pub fn matches(&self, x: u64) -> bool {
 		self.ranges.iter().any(|range| range.contains(&x))
+	}
+}
+
+impl From<&str> for Rule {
+	fn from(s: &str) -> Self {
+		let RE: Regex = Regex::new(r"^(.*+): (\d+)-(\d+) or (\d+)-(\d+)$").unwrap();
+
+		let caps = RE.captures(s).unwrap();
+
+		Rule {
+			field: caps.get(1).unwrap().as_str().into(),
+			ranges: [
+				caps.get(2).unwrap().as_str().parse().unwrap()
+					..=caps.get(3).unwrap().as_str().parse().unwrap(),
+				caps.get(4).unwrap().as_str().parse().unwrap()
+					..=caps.get(5).unwrap().as_str().parse().unwrap(),
+			],
+		}
 	}
 }
 
