@@ -7,6 +7,12 @@ pub struct Rule {
 	pub ranges: [RangeInclusive<u64>; 2],
 }
 
+impl Rule {
+	pub fn matches(&self, x: u64) -> bool {
+		self.ranges.iter().any(|range| range.contains(&x))
+	}
+}
+
 #[derive(Debug, Clone)]
 pub struct Input {
 	rules: Vec<Rule>,
