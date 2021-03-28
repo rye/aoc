@@ -124,10 +124,34 @@ pub fn part_one(active_cells: &Intermediate) -> Option<Solution> {
 	Some(count as u64)
 }
 
+#[cfg(test)]
+mod part_one {
+	use super::{parse, part_one};
+
+	#[test]
+	fn example() {
+		let input = ".#.\n..#\n###";
+
+		assert_eq!(part_one(&parse(input)), Some(112));
+	}
+}
+
 pub fn part_two(active_cells: &Intermediate) -> Option<Solution> {
 	let active: HashSet<Pos> = active_cells.clone();
 
 	let count = process(active, count_neighbors_4d);
 
 	Some(count as u64)
+}
+
+#[cfg(test)]
+mod part_two {
+	use super::{parse, part_two};
+
+	#[test]
+	fn example() {
+		let input = ".#.\n..#\n###";
+
+		assert_eq!(part_two(&parse(input)), Some(848));
+	}
 }
