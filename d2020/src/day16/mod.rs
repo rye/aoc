@@ -16,9 +16,9 @@ impl Rule {
 
 impl From<&str> for Rule {
 	fn from(s: &str) -> Self {
-		let RE: Regex = Regex::new(r"^(.*+): (\d+)-(\d+) or (\d+)-(\d+)$").unwrap();
+		let rule_regex: Regex = Regex::new(r"^(.*+): (\d+)-(\d+) or (\d+)-(\d+)$").unwrap();
 
-		let caps = RE.captures(s).unwrap();
+		let caps = rule_regex.captures(s).unwrap();
 
 		Rule {
 			field: caps.get(1).unwrap().as_str().into(),
