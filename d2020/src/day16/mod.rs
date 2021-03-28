@@ -1,6 +1,20 @@
 use std::collections::{HashMap, HashSet};
+use std::ops::RangeInclusive;
 
-type Intermediate = ();
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Rule {
+	pub field: String,
+	pub ranges: [RangeInclusive<u64>; 2],
+}
+
+#[derive(Debug, Clone)]
+pub struct Input {
+	rules: Vec<Rule>,
+	mine: Vec<u64>,
+	others: Vec<Vec<u64>>,
+}
+
+type Intermediate = Input;
 type Solution = u64;
 
 pub fn parse(input: &str) -> Intermediate {
