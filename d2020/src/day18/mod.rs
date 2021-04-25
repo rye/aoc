@@ -7,12 +7,6 @@ pub enum Token {
 	Plus,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Ord, Eq)]
-struct OpTokenProps {
-	precedence: usize,
-	left_associative: bool,
-}
-
 impl std::fmt::Display for Token {
 	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
 		match self {
@@ -41,51 +35,10 @@ impl std::fmt::Display for Expr {
 	}
 }
 
-type Intermediate = Vec<Expr>;
-type Solution = u64;
-
-pub fn parse(input: &str) -> Intermediate {
-	let mut exprs: Vec<Expr> = Vec::new();
-
-	for line in input.lines() {
-		let mut number: Option<u32> = None;
-
-		let mut tokens: Vec<Token> = vec![];
-
-		for c in line.chars() {
-			if c.is_digit(10) {
-				// TODO Not strictly necessary since we only have single digits
-				if let Some(n) = number {
-					number = Some(n * 10 + c.to_digit(10).expect("invalid digit"))
-				} else {
-					number = Some(c.to_digit(10).expect("invalid digit"))
-				}
-			} else {
-				if let Some(n) = number {
-					tokens.push(Token::Number(n as u64));
-					number = None;
-				}
-
-				match c {
-					'(' => tokens.push(Token::OpenParen),
-					')' => tokens.push(Token::CloseParen),
-
-					' ' => {}
-					'+' => tokens.push(Token::Plus),
-					'*' => tokens.push(Token::Asterisk),
-					_ => unimplemented!(),
-				}
-			}
-		}
-
-		if let Some(n) = number {
-			tokens.push(Token::Number(n as u64));
-		}
-
-		exprs.push(Expr(tokens));
-	}
-
-	exprs
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Ord, Eq)]
+struct OpTokenProps {
+	precedence: usize,
+	left_associative: bool,
 }
 
 impl Expr {
@@ -222,6 +175,53 @@ const fn part_two_prec_props_fn(token: &Token) -> OpTokenProps {
 
 #[cfg(test)]
 mod tests;
+
+type Intermediate = Vec<Expr>;
+type Solution = u64;
+
+pub fn parse(input: &str) -> Intermediate {
+	let mut exprs: Vec<Expr> = Vec::new();
+
+	for line in input.lines() {
+		let mut number: Option<u32> = None;
+
+		let mut tokens: Vec<Token> = vec![];
+
+		for c in line.chars() {
+			if c.is_digit(10) {
+				// TODO Not strictly necessary since we only have single digits
+				if let Some(n) = number {
+					number = Some(n * 10 + c.to_digit(10).expect("invalid digit"))
+				} else {
+					number = Some(c.to_digit(10).expect("invalid digit"))
+				}
+			} else {
+				if let Some(n) = number {
+					tokens.push(Token::Number(n as u64));
+					number = None;
+				}
+
+				match c {
+					'(' => tokens.push(Token::OpenParen),
+					')' => tokens.push(Token::CloseParen),
+
+					' ' => {}
+					'+' => tokens.push(Token::Plus),
+					'*' => tokens.push(Token::Asterisk),
+					_ => unimplemented!(),
+				}
+			}
+		}
+
+		if let Some(n) = number {
+			tokens.push(Token::Number(n as u64));
+		}
+
+		exprs.push(Expr(tokens));
+	}
+
+	exprs
+}
 
 pub fn part_one(exprs: &Intermediate) -> Option<Solution> {
 	exprs
