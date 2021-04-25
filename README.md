@@ -31,11 +31,14 @@ If you haven't, I encourage you to give it your best effort first.
 - My goal here is definitely _not_ to make the leaderboard.
   Rather, I hope to come up with simple, elegant, and performant solutions.
 
+- **As much as possible**, I also aim to make solutions that share code as much as possible, too.
+  It's pretty easy to write two entirely separate groups of functions per day, but being able to re-use intermediates, and do effectively the same calculations with only minor differences where part one and part two differ is (in my opinion) far more useful.
+
 - I may make many revisions to my solutions as time goes on.
   Oftentimes I'll make a decision on the first pass and then decide there's a more elegant way to do things.
 
 - You can expect to see solutions here after 6 hours _after_ the puzzle goes live.
-  I am generally asleep hours before the puzzles go live.
+  I am generally asleep hours before the puzzles go live, so sometimes it'll take me much longer than most to get to the solution.
 
 ## License
 
