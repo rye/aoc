@@ -7,6 +7,12 @@ pub enum Token {
 	Plus,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Ord, Eq)]
+struct OpTokenProps {
+	precedence: usize,
+	left_associative: bool,
+}
+
 impl std::fmt::Display for Token {
 	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
 		match self {
@@ -83,201 +89,198 @@ pub fn parse(input: &str) -> Intermediate {
 }
 
 impl Expr {
-	fn is_paren_balanced(&self) -> bool {
-		let mut level: usize = 0;
-		let mut balanced: bool = true;
+	fn process_rpn(output_queue: &[&Token]) -> Option<u64> {
+		let mut final_stack: Vec<u64> = Vec::new();
 
-		for token in self.0.iter() {
+		for token in output_queue {
 			match token {
-				Token::OpenParen => {
-					level += 1;
+				Token::Number(n) => final_stack.push(*n),
+				Token::Asterisk => {
+					let a = final_stack.pop().unwrap();
+					let b = final_stack.pop().unwrap();
+					final_stack.push(a * b);
 				}
+				Token::Plus => {
+					let a = final_stack.pop().unwrap();
+					let b = final_stack.pop().unwrap();
+					final_stack.push(a + b);
+				}
+				_ => panic!("panik!"),
+			}
+		}
+
+		final_stack.pop()
+	}
+
+	/// Perform the Shunting Yard Algorithm on the stream of tokens `tokens` using a precedence map function.
+	///
+	/// The precedence map is computed from `part_one`; that is the only place where that is used.
+	fn shunting_yard(&self, prec_props_fn: &dyn Fn(&Token) -> OpTokenProps) -> Vec<&Token> {
+		let mut output_queue: Vec<&Token> = vec![];
+		let mut operator_stack: Vec<&Token> = vec![];
+
+		let tokens: &[Token] = &self.0;
+
+		for token in tokens {
+			match token {
+				Token::Number(_) => output_queue.push(token),
+				// no impl for functions
+				Token::OpenParen => operator_stack.push(token),
 				Token::CloseParen => {
-					if level > 0 {
-						level -= 1;
-					} else {
-						balanced = false;
-						break;
+					while operator_stack.last().unwrap() != &&Token::OpenParen {
+						output_queue.push(operator_stack.pop().unwrap())
 					}
-				}
-				_ => {}
-			}
-		}
 
-		if level > 0 {
-			balanced = false;
-		}
-
-		balanced
-	}
-
-	fn is_valid(&self) -> bool {
-		self.is_paren_balanced() && true
-	}
-
-	fn matching_close_idx(span: &[Token], open_idx: usize) -> Option<usize> {
-		assert!(span[open_idx] == Token::OpenParen);
-
-		let mut level = 0;
-
-		// TODO enumerate/scan/find?
-
-		for idx in open_idx..span.len() {
-			match span[idx] {
-				Token::OpenParen => level += 1,
-				Token::CloseParen => {
-					level -= 1;
-					if level == 0 {
-						return Some(idx);
+					if let Some(Token::OpenParen) = operator_stack.last() {
+						let _ = operator_stack.pop();
 					}
+
+					// no function tokens
 				}
-				_ => {}
+				// token is an operator!
+				_ => {
+					fn should_pop(
+						token: &Token,
+						last: Option<&&Token>,
+						prec_props_fn: &dyn Fn(&Token) -> OpTokenProps,
+					) -> bool {
+						match last {
+							Some(Token::Asterisk) | Some(Token::Plus) | Some(Token::OpenParen) => {
+								let token_props = prec_props_fn(token);
+								let last_props = prec_props_fn(last.unwrap());
+
+								// While:
+								// - There is an operator at the top of the stack, AND
+								// - The operator at the top of the operator stack has greater precedence than the token, OR
+								//   - The operator at the top
+								((last_props.precedence > token_props.precedence)
+									|| (last_props.precedence == token_props.precedence
+										&& token_props.left_associative))
+									&& last != Some(&&Token::OpenParen)
+							}
+							_ => false,
+						}
+					}
+
+					while should_pop(token, operator_stack.last(), prec_props_fn) {
+						output_queue.push(operator_stack.pop().unwrap())
+					}
+
+					operator_stack.push(token)
+				}
 			}
 		}
 
-		None
+		while !operator_stack.is_empty() {
+			output_queue.push(operator_stack.pop().unwrap())
+		}
+
+		assert!(operator_stack.is_empty());
+
+		output_queue
 	}
 
-	/// Evaluates a `(` `)`-encapsulated span consisting of solely +, *, and literlas.
-	fn eval_span(span: &[Token]) -> Option<u64> {
-		let mut value: Option<u64> = None;
-		let mut op: Option<Token> = None;
-
-		for tok in span {
-			match (value, op, tok) {
-				(None, _, Token::Number(n)) => value = Some(*n),
-				(None, _, _) => panic!("need a starting value first"),
-				(Some(_), None, Token::Plus) => op = Some(Token::Plus),
-				(Some(_), None, Token::Asterisk) => op = Some(Token::Asterisk),
-
-				(Some(cur), Some(Token::Plus), Token::Number(n)) => {
-					value = Some(cur + n);
-					op = None;
-				}
-				(Some(cur), Some(Token::Asterisk), Token::Number(n)) => {
-					value = Some(cur * n);
-					op = None;
-				}
-				(Some(_), _, _) => panic!(
-					"unexpected span layout, cur={:?}, op={:?}, tok={:?}",
-					value, op, tok
-				),
-			}
-		}
-
-		value
+	fn evaluate(&self, prec_props_fn: &dyn Fn(&Token) -> OpTokenProps) -> Option<u64> {
+		let rpn = self.shunting_yard(prec_props_fn);
+		Self::process_rpn(&rpn)
 	}
+}
 
-	fn evaluate(&self) -> Option<u64> {
-		if !self.is_valid() {
-			return None;
-		}
+const fn part_one_prec_props_fn(token: &Token) -> OpTokenProps {
+	match *token {
+		Token::Asterisk => OpTokenProps {
+			precedence: 1,
+			left_associative: true,
+		},
+		Token::Plus => OpTokenProps {
+			precedence: 1,
+			left_associative: true,
+		},
+		_ => OpTokenProps {
+			precedence: 0,
+			left_associative: true,
+		},
+	}
+}
 
-		// Flatten out the expression, evaluating subexpressions as they are found.
-		if let Some(open_paren_idx) = self
-			.0
-			.iter()
-			.enumerate()
-			.find(|(_, tok)| **tok == Token::OpenParen)
-			.map(|res| res.0)
-		{
-			let matching_close_paren_idx = Self::matching_close_idx(&self.0, open_paren_idx).unwrap();
-
-			let span_to_evaluate = (open_paren_idx + 1)..matching_close_paren_idx;
-
-			let subexpr = Expr(self.0[span_to_evaluate.clone()].to_vec());
-
-			let result = subexpr
-				.evaluate()
-				.expect("inner expr failed to evaluate to a value");
-
-			let mut new_expr_body = self.0.clone();
-			let _ = new_expr_body.splice(
-				open_paren_idx..=matching_close_paren_idx,
-				vec![Token::Number(result)],
-			);
-
-			let new_expr = Expr(new_expr_body);
-
-			new_expr.evaluate()
-		} else {
-			Self::eval_span(&self.0)
-		}
+const fn part_two_prec_props_fn(token: &Token) -> OpTokenProps {
+	match *token {
+		Token::Asterisk => OpTokenProps {
+			precedence: 1,
+			left_associative: true,
+		},
+		Token::Plus => OpTokenProps {
+			precedence: 2,
+			left_associative: true,
+		},
+		_ => OpTokenProps {
+			precedence: 0,
+			left_associative: true,
+		},
 	}
 }
 
 #[cfg(test)]
 mod expr {
 
-	use super::{Expr, Token, Token::*};
+	use super::{part_one_prec_props_fn, Expr, Token, Token::*};
 
 	#[cfg(test)]
-	mod is_paren_balanced {
-
-		use super::*;
-
-		#[test]
-		fn o() {
-			assert_eq!(Expr(vec![OpenParen,]).is_paren_balanced(), false);
-		}
+	mod shunting_yard {
+		use super::{super::OpTokenProps, *};
 
 		#[test]
-		fn c() {
-			assert_eq!(Expr(vec![CloseParen,]).is_paren_balanced(), false);
-		}
+		fn npnmn_p_low() {
+			const fn ppf(token: &Token) -> OpTokenProps {
+				match token {
+					Asterisk => OpTokenProps {
+						precedence: 2,
+						left_associative: true,
+					},
+					Plus => OpTokenProps {
+						precedence: 1,
+						left_associative: true,
+					},
+					_ => OpTokenProps {
+						precedence: 0,
+						left_associative: true,
+					},
+				}
+			}
 
-		#[test]
-		fn oc() {
-			assert_eq!(Expr(vec![OpenParen, CloseParen,]).is_paren_balanced(), true);
-		}
+			let expr = Expr(vec![Number(1), Plus, Number(2), Asterisk, Number(3)]);
 
-		#[test]
-		fn co() {
 			assert_eq!(
-				Expr(vec![CloseParen, OpenParen,]).is_paren_balanced(),
-				false
-			);
+				expr.shunting_yard(&ppf),
+				vec![&Number(1), &Number(2), &Number(3), &Asterisk, &Plus]
+			)
 		}
 
 		#[test]
-		fn oocc() {
-			assert_eq!(
-				Expr(vec![OpenParen, OpenParen, CloseParen, CloseParen,]).is_paren_balanced(),
-				true
-			);
-		}
+		fn npnmn_p_high() {
+			const fn ppf(token: &Token) -> OpTokenProps {
+				match token {
+					Asterisk => OpTokenProps {
+						precedence: 1,
+						left_associative: true,
+					},
+					Plus => OpTokenProps {
+						precedence: 2,
+						left_associative: true,
+					},
+					_ => OpTokenProps {
+						precedence: 0,
+						left_associative: true,
+					},
+				}
+			}
 
-		#[test]
-		fn ococ() {
-			assert_eq!(
-				Expr(vec![OpenParen, CloseParen, OpenParen, CloseParen,]).is_paren_balanced(),
-				true
-			);
-		}
-	}
+			let expr = Expr(vec![Number(1), Plus, Number(2), Asterisk, Number(3)]);
 
-	#[cfg(test)]
-	mod eval_span {
-		use super::*;
-
-		#[test]
-		fn s1p2m3p4m5p6() {
 			assert_eq!(
-				Expr::eval_span(&vec![
-					Number(1),
-					Plus,
-					Number(2),
-					Asterisk,
-					Number(3),
-					Plus,
-					Number(4),
-					Asterisk,
-					Number(5),
-					Plus,
-					Number(6),
-				]),
-				Some(71)
-			);
+				expr.shunting_yard(&ppf),
+				vec![&Number(1), &Number(2), &Plus, &Number(3), &Asterisk]
+			)
 		}
 	}
 
@@ -301,7 +304,7 @@ mod expr {
 					Plus,
 					Number(6),
 				])
-				.evaluate(),
+				.evaluate(&part_one_prec_props_fn),
 				Some(71)
 			)
 		}
@@ -328,7 +331,7 @@ mod expr {
 					CloseParen,
 					CloseParen,
 				])
-				.evaluate(),
+				.evaluate(&part_one_prec_props_fn),
 				Some(51)
 			)
 		}
@@ -347,7 +350,7 @@ mod expr {
 					Number(5),
 					CloseParen
 				])
-				.evaluate(),
+				.evaluate(&part_one_prec_props_fn),
 				Some(26)
 			)
 		}
@@ -372,7 +375,7 @@ mod expr {
 					Number(3),
 					CloseParen
 				])
-				.evaluate(),
+				.evaluate(&part_one_prec_props_fn),
 				Some(437)
 			)
 		}
@@ -405,7 +408,7 @@ mod expr {
 					CloseParen,
 					CloseParen
 				])
-				.evaluate(),
+				.evaluate(&part_one_prec_props_fn),
 				Some(12240)
 			)
 		}
@@ -442,79 +445,23 @@ mod expr {
 					Asterisk,
 					Number(2)
 				])
-				.evaluate(),
+				.evaluate(&part_one_prec_props_fn),
 				Some(13632)
 			)
-		}
-	}
-
-	#[cfg(test)]
-	mod matching_close_idx {
-		use super::*;
-
-		#[test]
-		fn onpnc() {
-			// ( 1 + 2 )
-			let span = vec![OpenParen, Number(1), Plus, Number(2), CloseParen];
-
-			assert_eq!(Expr::matching_close_idx(&span, 0), Some(4));
-		}
-
-		#[test]
-		fn onpnponmncc() {
-			// ( 1 + 2 + ( 3 * 4 ) )
-			let span = vec![
-				OpenParen,
-				Number(1),
-				Plus,
-				Number(2),
-				Plus,
-				OpenParen,
-				Number(3),
-				Asterisk,
-				Number(4),
-				CloseParen,
-				CloseParen,
-			];
-
-			assert_eq!(Expr::matching_close_idx(&span, 0), Some(10));
-			assert_eq!(Expr::matching_close_idx(&span, 5), Some(9));
-		}
-
-		#[test]
-		fn onpnponmncponpncc() {
-			// ( 1 + 2 + ( 3 * 4 ) + ( 5 + 6 ) )
-			let span = vec![
-				OpenParen,
-				Number(1),
-				Plus,
-				Number(2),
-				Plus,
-				OpenParen,
-				Number(3),
-				Asterisk,
-				Number(4),
-				CloseParen,
-				Plus,
-				OpenParen,
-				Number(5),
-				Plus,
-				Number(6),
-				CloseParen,
-				CloseParen,
-			];
-
-			assert_eq!(Expr::matching_close_idx(&span, 0), Some(16));
-			assert_eq!(Expr::matching_close_idx(&span, 5), Some(9));
-			assert_eq!(Expr::matching_close_idx(&span, 11), Some(15));
 		}
 	}
 }
 
 pub fn part_one(exprs: &Intermediate) -> Option<Solution> {
-	exprs.iter().map(|expr| expr.evaluate()).sum()
+	exprs
+		.iter()
+		.map(|expr| expr.evaluate(&part_one_prec_props_fn))
+		.sum()
 }
 
 pub fn part_two(exprs: &Intermediate) -> Option<Solution> {
-	None
+	exprs
+		.iter()
+		.map(|expr| expr.evaluate(&part_two_prec_props_fn))
+		.sum()
 }
