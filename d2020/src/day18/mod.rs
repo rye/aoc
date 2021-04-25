@@ -49,8 +49,8 @@ pub fn parse(input: &str) -> Intermediate {
 		for c in line.chars() {
 			if c.is_digit(10) {
 				// TODO Not strictly necessary since we only have single digits
-				if let Some(mut n) = number {
-					n = n * 10 + c.to_digit(10).expect("invalid digit")
+				if let Some(n) = number {
+					number = Some(n * 10 + c.to_digit(10).expect("invalid digit"))
 				} else {
 					number = Some(c.to_digit(10).expect("invalid digit"))
 				}
