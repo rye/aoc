@@ -67,7 +67,10 @@ impl Expr {
 
 	/// Perform the Shunting Yard Algorithm on the stream of tokens `tokens` using a precedence map function.
 	///
-	/// The precedence map is computed from `part_one`; that is the only place where that is used.
+	/// # Arguments
+	///
+	/// - `prec_props_fn` - an ideally `const fn` that takes a token and returns its precedence properties;
+	///   will only be called on operators.
 	fn shunting_yard(&self, prec_props_fn: &dyn Fn(&Token) -> OpTokenProps) -> Vec<&Token> {
 		let mut output_queue: Vec<&Token> = vec![];
 		let mut operator_stack: Vec<&Token> = vec![];
