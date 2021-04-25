@@ -10,11 +10,11 @@ pub enum Token {
 impl std::fmt::Display for Token {
 	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
 		match self {
-			&Token::Number(n) => write!(f, "{}", n),
-			&Token::Plus => write!(f, "+"),
-			&Token::Asterisk => write!(f, "*"),
-			&Token::OpenParen => write!(f, "("),
-			&Token::CloseParen => write!(f, ")"),
+			Token::Number(n) => write!(f, "{}", n),
+			Token::Plus => write!(f, "+"),
+			Token::Asterisk => write!(f, "*"),
+			Token::OpenParen => write!(f, "("),
+			Token::CloseParen => write!(f, ")"),
 		}
 	}
 }
