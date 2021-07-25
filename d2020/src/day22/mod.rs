@@ -1,133 +1,284 @@
-use std::collections::{HashSet, VecDeque};
+#![allow(dead_code)]
 
-pub type Intermediate<'input> = (&'input str, &'input str);
-pub type Solution = usize;
+use std::collections::VecDeque;
 
-pub fn parse(input: &str) -> Intermediate {
-	input.split_once("\n\n").unwrap()
-}
+type Card = u8;
 
-pub fn part_one(chunks: &Intermediate) -> Option<Solution> {
-	let (p1, p2) = (chunks.0, chunks.1);
-
-	let mut p1: VecDeque<usize> = p1.lines().skip(1).map(|n| n.parse().unwrap()).collect();
-	let mut p2: VecDeque<usize> = p2.lines().skip(1).map(|n| n.parse().unwrap()).collect();
-
-	while !p1.is_empty() && !p2.is_empty() {
-		let (c1, c2) = p1.pop_front().zip(p2.pop_front()).unwrap();
-		if c1 > c2 {
-			p1.push_back(c1);
-			p1.push_back(c2);
-		} else {
-			p2.push_back(c2);
-			p2.push_back(c1);
-		}
-	}
-
-	Some(
-		p1.iter()
-			.chain(p2.iter())
-			.rev()
-			.enumerate()
-			.map(|(i, c)| (i + 1) * c)
-			.sum::<usize>(),
-	)
-}
-
-const ALLOC_SIZE: usize = 16000;
-
-pub fn part_two(chunks: &Intermediate) -> Option<Solution> {
-	let (p1, p2) = (chunks.0, chunks.1);
-	let p1 = Deck::from(
-		&p1
-			.lines()
-			.skip(1)
-			.map(|n| n.parse().unwrap())
-			.collect::<Vec<_>>(),
-	);
-	let p2 = Deck::from(
-		&p2
-			.lines()
-			.skip(1)
-			.map(|n| n.parse().unwrap())
-			.collect::<Vec<_>>(),
-	);
-
-	Some(
-		if play(&p1, &p2) { p1 } else { p2 }
-			.as_slice()
-			.iter()
-			.rev()
-			.enumerate()
-			.map(|(i, c)| (i + 1) * c)
-			.sum::<usize>(),
-	)
-}
-
-fn play(p1: &Deck, p2: &Deck) -> bool {
-	let mut turns = HashSet::new();
-	while turns.insert((p1.as_slice(), p2.as_slice())) {
-		if p1.len() == 0 || p2.len() == 0 {
-			return p1.len() > 0;
-		}
-
-		let (c1, c2) = (p1.pop(), p2.pop());
-		if if c1 <= p1.len() && c2 <= p2.len() {
-			let sp1 = Deck::from(&p1.as_slice()[..c1]);
-			let sp2 = Deck::from(&p2.as_slice()[..c2]);
-			sp1.as_slice().iter().max() >= sp2.as_slice().iter().max() || play(&sp1, &sp2)
-		} else {
-			c1 > c2
-		} {
-			p1.push(c1);
-			p1.push(c2);
-		} else {
-			p2.push(c2);
-			p2.push(c1);
-		}
-	}
-
-	true
-}
-
-struct Deck {
-	start: usize,
-	end: usize,
-	cards: [usize; ALLOC_SIZE],
-}
-
-// struct Deck(usize, usize, [usize; ALLOC_SIZE]);
+#[derive(Debug, Clone)]
+struct Deck(VecDeque<Card>);
 
 impl Deck {
-	fn from(slice: &[usize]) -> Self {
-		let mut cards = [0; ALLOC_SIZE];
-		cards[..slice.len()].copy_from_slice(&slice);
-		Deck {
-			start: 0,
-			end: slice.len(),
-			cards,
+	fn is_exhausted(&self) -> bool {
+		self.0.is_empty()
+	}
+}
+
+#[derive(Debug)]
+pub struct Game {
+	players: Vec<Deck>,
+}
+
+type Intermediate = Game;
+type Solution = usize;
+
+#[derive(Debug, PartialEq)]
+struct Player(usize);
+
+pub fn parse<'input>(input: &'input str) -> Game {
+	let players: Vec<Deck> = input
+		.split("\n\n")
+		.map(|block| {
+			Deck(
+				block
+					.lines()
+					.skip(1)
+					.map(|line| line.parse::<Card>().expect("invalid input"))
+					.collect::<VecDeque<Card>>(),
+			)
+		})
+		.collect();
+
+	Game { players }
+}
+
+fn round_is_playable(deck_a: &Deck, deck_b: &Deck) -> bool {
+	!deck_a.0.is_empty() && !deck_b.0.is_empty()
+}
+
+#[derive(Debug, PartialEq)]
+enum RoundResults {
+	RoundWon(Player),
+	GameWon(GameResults),
+}
+
+#[derive(Debug, PartialEq)]
+struct GameResults {
+	winner: Player,
+	score: usize,
+}
+
+fn deck_score(deck: &Deck) -> usize {
+	let cards = deck.0.iter().rev();
+	let multipliers = 1..=deck.0.len();
+
+	cards
+		.zip(multipliers)
+		.map(|(card, multiplier)| *card as usize * multiplier)
+		.sum()
+}
+
+#[cfg(test)]
+mod deck_score {
+	use super::*;
+
+	#[test]
+	fn example() {
+		let deck = Deck([3_u8, 2, 10, 6, 8, 5, 9, 4, 7, 1].iter().copied().collect());
+		assert_eq!(deck_score(&deck), 306_usize);
+	}
+}
+
+fn play_one_round<'round>(deck_a: &'round mut Deck, deck_b: &'round mut Deck) -> RoundResults {
+	if round_is_playable(deck_a, deck_b) {
+		let deck_a_plays = deck_a
+			.0
+			.pop_front()
+			.expect("round is playable but deck is empty?");
+		let deck_b_plays = deck_b
+			.0
+			.pop_front()
+			.expect("round is playable but deck is empty?");
+
+		if deck_a_plays > deck_b_plays {
+			deck_a.0.push_back(deck_a_plays);
+			deck_a.0.push_back(deck_b_plays);
+			RoundResults::RoundWon(Player(0_usize))
+		} else {
+			deck_b.0.push_back(deck_b_plays);
+			deck_b.0.push_back(deck_a_plays);
+			RoundResults::RoundWon(Player(1_usize))
+		}
+	} else {
+		let winner = if deck_a.is_exhausted() {
+			Player(1_usize)
+		} else {
+			Player(0_usize)
+		};
+
+		let score = match winner {
+			Player(0) => deck_score(deck_a),
+			Player(1) => deck_score(deck_b),
+			Player(_) => unreachable!(),
+		};
+
+		RoundResults::GameWon(GameResults { winner, score })
+	}
+}
+
+#[cfg(test)]
+mod play_one_round {
+	use super::*;
+
+	#[test]
+	fn example_round_1() {
+		let mut player_a = Deck([9, 2, 6, 3, 1].iter().copied().collect());
+		let mut player_b = Deck([5, 8, 4, 7, 10].iter().copied().collect());
+
+		let result = play_one_round(&mut player_a, &mut player_b);
+
+		assert_eq!(result, RoundResults::RoundWon(Player(0_usize)));
+
+		assert_eq!(player_a.0, [2, 6, 3, 1, 9, 5]);
+		assert_eq!(player_b.0, [8, 4, 7, 10]);
+	}
+
+	#[test]
+	fn example_round_2() {
+		let mut player_a = Deck([2, 6, 3, 1, 9, 5].iter().copied().collect());
+		let mut player_b = Deck([8, 4, 7, 10].iter().copied().collect());
+
+		let result = play_one_round(&mut player_a, &mut player_b);
+
+		assert_eq!(result, RoundResults::RoundWon(Player(1_usize)));
+
+		assert_eq!(player_a.0, [6, 3, 1, 9, 5]);
+		assert_eq!(player_b.0, [4, 7, 10, 8, 2]);
+	}
+
+	#[test]
+	fn example_round_3() {
+		let mut player_a = Deck([6, 3, 1, 9, 5].iter().copied().collect());
+		let mut player_b = Deck([4, 7, 10, 8, 2].iter().copied().collect());
+
+		let result = play_one_round(&mut player_a, &mut player_b);
+
+		assert_eq!(result, RoundResults::RoundWon(Player(0_usize)));
+
+		assert_eq!(player_a.0, [3, 1, 9, 5, 6, 4]);
+		assert_eq!(player_b.0, [7, 10, 8, 2]);
+	}
+
+	#[test]
+	fn example_round_4() {
+		let mut player_a = Deck([3, 1, 9, 5, 6, 4].iter().copied().collect());
+		let mut player_b = Deck([7, 10, 8, 2].iter().copied().collect());
+
+		let result = play_one_round(&mut player_a, &mut player_b);
+
+		assert_eq!(result, RoundResults::RoundWon(Player(1_usize)));
+
+		assert_eq!(player_a.0, [1, 9, 5, 6, 4]);
+		assert_eq!(player_b.0, [10, 8, 2, 7, 3]);
+	}
+
+	#[test]
+	fn example_round_5() {
+		let mut player_a = Deck([1, 9, 5, 6, 4].iter().copied().collect());
+		let mut player_b = Deck([10, 8, 2, 7, 3].iter().copied().collect());
+
+		let result = play_one_round(&mut player_a, &mut player_b);
+
+		assert_eq!(result, RoundResults::RoundWon(Player(1_usize)));
+
+		assert_eq!(player_a.0, [9, 5, 6, 4]);
+		assert_eq!(player_b.0, [8, 2, 7, 3, 10, 1]);
+	}
+
+	#[test]
+	fn example_round_27() {
+		let mut player_a = Deck([5, 4, 1].iter().copied().collect());
+		let mut player_b = Deck([8, 9, 7, 3, 2, 10, 6].iter().copied().collect());
+
+		let result = play_one_round(&mut player_a, &mut player_b);
+
+		assert_eq!(result, RoundResults::RoundWon(Player(1_usize)));
+
+		assert_eq!(player_a.0, [4, 1]);
+		assert_eq!(player_b.0, [9, 7, 3, 2, 10, 6, 8, 5]);
+	}
+
+	#[test]
+	fn example_round_28() {
+		let mut player_a = Deck([4, 1].iter().copied().collect());
+		let mut player_b = Deck([9, 7, 3, 2, 10, 6, 8, 5].iter().copied().collect());
+
+		let result = play_one_round(&mut player_a, &mut player_b);
+
+		assert_eq!(result, RoundResults::RoundWon(Player(1_usize)));
+
+		assert_eq!(player_a.0, [1]);
+		assert_eq!(player_b.0, [7, 3, 2, 10, 6, 8, 5, 9, 4]);
+	}
+
+	#[test]
+	fn example_round_29() {
+		let mut player_a = Deck([1].iter().copied().collect());
+		let mut player_b = Deck([7, 3, 2, 10, 6, 8, 5, 9, 4].iter().copied().collect());
+
+		let result = play_one_round(&mut player_a, &mut player_b);
+
+		assert_eq!(result, RoundResults::RoundWon(Player(1_usize)));
+
+		assert_eq!(player_a.0, []);
+		assert_eq!(player_b.0, [3, 2, 10, 6, 8, 5, 9, 4, 7, 1]);
+	}
+
+	#[test]
+	fn example_round_29_next_win() {
+		let mut player_a = Deck([].iter().copied().collect());
+		let mut player_b = Deck([3, 2, 10, 6, 8, 5, 9, 4, 7, 1].iter().copied().collect());
+
+		let result = play_one_round(&mut player_a, &mut player_b);
+
+		assert_eq!(player_a.0, []);
+		assert_eq!(player_b.0, [3, 2, 10, 6, 8, 5, 9, 4, 7, 1]);
+
+		assert_eq!(
+			result,
+			RoundResults::GameWon(GameResults {
+				winner: Player(1),
+				score: 306_usize
+			})
+		);
+	}
+}
+
+fn play(mut deck_a: Deck, mut deck_b: Deck) -> GameResults {
+	loop {
+		match play_one_round(&mut deck_a, &mut deck_b) {
+			RoundResults::RoundWon(_) => {}
+			RoundResults::GameWon(results) => break results,
 		}
 	}
+}
 
-	fn as_slice(&self) -> &[usize] {
-		&self.cards[self.start..self.end]
-	}
+#[cfg(test)]
+mod play {
+	use super::{play, Deck, Player};
 
-	fn len(&self) -> usize {
-		self.end - self.start
-	}
+	#[test]
+	fn example_full_game() {
+		let player_a = Deck([9, 2, 6, 3, 1].iter().copied().collect());
+		let player_b = Deck([5, 8, 4, 7, 10].iter().copied().collect());
 
-	fn push(&self, card: usize) {
-		unsafe {
-			(*(&self.cards as *const _ as *mut [_; ALLOC_SIZE]))[self.end] = card;
-			*(&self.end as *const _ as *mut usize) += 1;
-		}
-	}
+		let results = play(player_a, player_b);
 
-	fn pop(&self) -> usize {
-		unsafe {
-			*(&self.start as *const _ as *mut usize) += 1;
-		}
-		self.cards[self.start - 1]
+		assert_eq!(results.winner, Player(1));
+		assert_eq!(results.score, 306_usize);
 	}
+}
+
+pub fn part_one(game: &Game) -> Option<Solution> {
+	let player_a: Deck = game.players[0].clone();
+	let player_b: Deck = game.players[1].clone();
+
+	let game_results: GameResults = play(player_a, player_b);
+
+	let score = game_results.score;
+
+	Some(score)
+}
+
+pub fn part_two(_game: &Game) -> Option<Solution> {
+	None
 }
