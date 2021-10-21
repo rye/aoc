@@ -1,5 +1,5 @@
 pub mod day01;
-
+pub mod day02;
 
 pub fn string_from(mut r: impl std::io::Read) -> std::io::Result<String> {
 	let mut s: String = String::new();
