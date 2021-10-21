@@ -33,5 +33,16 @@ pub fn part_one(directions: &Intermediate) -> Option<Solution> {
 }
 
 pub fn part_two(directions: &Intermediate) -> Option<Solution> {
+	let mut floor = 0;
+
+	for (index, direction) in directions.iter().enumerate() {
+		floor += i32::from(direction);
+
+		if floor < 0 {
+			let offset = index as i32 + 1;
+			return Some(offset);
+		}
+	}
+
 	None
 }
