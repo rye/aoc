@@ -34,6 +34,14 @@ impl Gift {
 		]
 	}
 
+	fn side_perimeters(&self) -> [usize; 3] {
+		[
+			2 * (self.length + self.width),
+			2 * (self.width + self.height),
+			2 * (self.height + self.length),
+		]
+	}
+
 	fn surface_area(&self) -> usize {
 		let three_side_sum: usize = self.side_areas().into_iter().sum();
 		2_usize * three_side_sum
@@ -45,6 +53,49 @@ impl Gift {
 
 	fn wrapping_paper_required(&self) -> usize {
 		self.surface_area() + self.area_of_smallest_side()
+	}
+
+	fn volume(&self) -> usize {
+		self.length * self.width * self.height
+	}
+
+	fn perimeter_of_smallest_side(&self) -> usize {
+		self.side_perimeters().into_iter().min().unwrap()
+	}
+
+	fn ribbon_required(&self) -> usize {
+		self.perimeter_of_smallest_side() + self.volume()
+	}
+}
+
+#[cfg(test)]
+mod ribbon {
+	use super::Gift;
+
+	#[test]
+	fn dimensions_2_3_4_correct() {
+		let gift: Gift = Gift {
+			length: 2,
+			width: 3,
+			height: 4,
+		};
+		assert_eq!(gift.side_perimeters(), [10, 14, 12]);
+		assert_eq!(gift.volume(), 24);
+		assert_eq!(gift.perimeter_of_smallest_side(), 10);
+		assert_eq!(gift.ribbon_required(), 34);
+	}
+
+	#[test]
+	fn dimensions_1_1_10_correct() {
+		let gift: Gift = Gift {
+			length: 1,
+			width: 1,
+			height: 10,
+		};
+		assert_eq!(gift.side_perimeters(), [4, 22, 22]);
+		assert_eq!(gift.volume(), 10);
+		assert_eq!(gift.perimeter_of_smallest_side(), 4);
+		assert_eq!(gift.ribbon_required(), 14);
 	}
 }
 
@@ -64,6 +115,6 @@ pub fn part_one(gifts: &Intermediate) -> Option<Solution> {
 	Some(gifts.iter().map(Gift::wrapping_paper_required).sum())
 }
 
-pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
-	None
+pub fn part_two(gifts: &Intermediate) -> Option<Solution> {
+	Some(gifts.iter().map(Gift::ribbon_required).sum())
 }
