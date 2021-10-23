@@ -2,6 +2,7 @@ use std::collections::{btree_map::Entry, BTreeMap};
 
 type Intermediate = Vec<Direction>;
 
+#[derive(Clone, Copy, Debug)]
 pub enum Direction {
 	North,
 	South,
@@ -79,6 +80,48 @@ pub fn part_one(directions: &Intermediate) -> Option<Solution> {
 	Some(map.keys().len())
 }
 
-pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
-	None
+pub fn part_two(directions: &Intermediate) -> Option<Solution> {
+	let chunks: Vec<[Direction; 2]> = directions
+		.chunks_exact(2)
+		.map(|pair| [pair[0], pair[1]])
+		.collect();
+
+	let santa_track: Vec<PVec> = chunks
+		.iter()
+		.map(|pair| &pair[0])
+		.map(Direction::to_pvec)
+		.scan(PVec([0, 0]), |pos, cur| {
+			let old = *pos;
+			*pos = *pos + cur;
+			Some(old)
+		})
+		.collect();
+
+	let robo_santa_track: Vec<PVec> = chunks
+		.iter()
+		.map(|pair| &pair[1])
+		.map(Direction::to_pvec)
+		.scan(PVec([0, 0]), |pos, cur| {
+			let old = *pos;
+			*pos = *pos + cur;
+			Some(old)
+		})
+		.collect();
+
+	let mut map: BTreeMap<PVec, usize> = BTreeMap::new();
+
+	for track in [santa_track, robo_santa_track] {
+		for position in track {
+			match map.entry(position) {
+				Entry::Occupied(mut e) => {
+					e.insert(e.get() + 1);
+				}
+				Entry::Vacant(e) => {
+					e.insert(1);
+				}
+			};
+		}
+	}
+
+	Some(map.keys().len())
 }
