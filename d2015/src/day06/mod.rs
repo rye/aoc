@@ -6,7 +6,7 @@ enum Action {
 }
 
 #[derive(Debug, PartialEq)]
-struct Coord([usize; 2]);
+struct Coord([u16; 2]);
 
 impl core::str::FromStr for Coord {
 	type Err = Error;
@@ -17,8 +17,8 @@ impl core::str::FromStr for Coord {
 		if coords.len() != 2 {
 			Err(Error::CoordParse)
 		} else {
-			let w = coords[0].parse::<usize>().ok();
-			let h = coords[1].parse::<usize>().ok();
+			let x = coords[0].parse::<u16>().ok();
+			let y = coords[1].parse::<u16>().ok();
 
 			if let (Some(w), Some(h)) = (w, h) {
 				Ok(Coord([w, h]))
@@ -126,7 +126,7 @@ mod instruction_fromstr {
 #[derive(Clone, Copy)]
 enum LightState {
 	Off,
-	On(usize),
+	On(u16),
 }
 
 impl core::ops::Not for LightState {
@@ -161,12 +161,12 @@ impl Grid {
 		for y in start.0[1]..=end.0[1] {
 			for x in start.0[0]..=end.0[0] {
 				let new_state: LightState = match action {
-					Action::Toggle => !self.lights[y][x].0,
+					Action::Toggle => !self.lights[y as usize][x as usize].0,
 					Action::TurnOn => LightState::On(1),
 					Action::TurnOff => LightState::Off,
 				};
 
-				self.lights[y][x].0 = new_state
+				self.lights[y as usize][x as usize].0 = new_state
 			}
 		}
 	}
