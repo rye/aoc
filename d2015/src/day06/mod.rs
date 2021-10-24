@@ -126,15 +126,15 @@ mod instruction_fromstr {
 #[derive(Clone, Copy)]
 enum LightState {
 	Off,
-	On,
+	On(usize),
 }
 
 impl core::ops::Not for LightState {
 	type Output = Self;
 	fn not(self) -> Self {
 		match self {
-			Self::Off => Self::On,
-			Self::On => Self::Off,
+			Self::Off => Self::On(1),
+			Self::On(_) => Self::Off,
 		}
 	}
 }
@@ -162,7 +162,7 @@ impl Grid {
 			for x in start.0[0]..=end.0[0] {
 				let new_state: LightState = match action {
 					Action::Toggle => !self.lights[y][x].0,
-					Action::TurnOn => LightState::On,
+					Action::TurnOn => LightState::On(1),
 					Action::TurnOff => LightState::Off,
 				};
 
@@ -180,7 +180,7 @@ impl Grid {
 					.iter()
 					.map(|light| light.0)
 					.map(|state| match state {
-						LightState::On => 1,
+						LightState::On(_) => 1,
 						_ => 0,
 					})
 					.sum::<usize>()
