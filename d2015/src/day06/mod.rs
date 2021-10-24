@@ -6,7 +6,10 @@ enum Action {
 }
 
 #[derive(Debug, PartialEq)]
-struct Coord([u16; 2]);
+struct Coord {
+	x: u16,
+	y: u16,
+}
 
 impl core::str::FromStr for Coord {
 	type Err = Error;
@@ -20,8 +23,8 @@ impl core::str::FromStr for Coord {
 			let x = coords[0].parse::<u16>().ok();
 			let y = coords[1].parse::<u16>().ok();
 
-			if let (Some(w), Some(h)) = (w, h) {
-				Ok(Coord([w, h]))
+			if let (Some(x), Some(y)) = (x, y) {
+				Ok(Coord { x, y })
 			} else {
 				Err(Error::CoordParse)
 			}
@@ -92,8 +95,8 @@ mod instruction_fromstr {
 			"turn on 0,0 through 999,999".parse::<Instruction>(),
 			Ok(Instruction {
 				action: Action::TurnOn,
-				start: Coord([0, 0]),
-				end: Coord([999, 999]),
+				start: Coord { x: 0, y: 0 },
+				end: Coord { x: 999, y: 999 },
 			})
 		)
 	}
@@ -104,8 +107,8 @@ mod instruction_fromstr {
 			"toggle 0,0 through 999,0".parse::<Instruction>(),
 			Ok(Instruction {
 				action: Action::Toggle,
-				start: Coord([0, 0]),
-				end: Coord([999, 0]),
+				start: Coord { x: 0, y: 0 },
+				end: Coord { x: 999, y: 0 },
 			})
 		)
 	}
@@ -116,8 +119,8 @@ mod instruction_fromstr {
 			"turn off 499,499 through 500,500".parse::<Instruction>(),
 			Ok(Instruction {
 				action: Action::TurnOff,
-				start: Coord([499, 499]),
-				end: Coord([500, 500]),
+				start: Coord { x: 499, y: 499 },
+				end: Coord { x: 500, y: 500 },
 			})
 		)
 	}
@@ -158,8 +161,8 @@ impl Grid {
 	fn apply_instruction(&mut self, instruction: &Instruction) {
 		let Instruction { action, start, end } = instruction;
 
-		for y in start.0[1]..=end.0[1] {
-			for x in start.0[0]..=end.0[0] {
+		for y in start.y..=end.y {
+			for x in start.x..=end.x {
 				let new_state: LightState = match action {
 					Action::Toggle => !self.lights[y as usize][x as usize].0,
 					Action::TurnOn => LightState::On(1),
