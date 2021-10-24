@@ -174,6 +174,33 @@ impl Grid {
 		}
 	}
 
+	fn apply_instruction_correct(&mut self, instruction: &Instruction) {
+		let Instruction { action, start, end } = instruction;
+
+		for y in start.y..=end.y {
+			for x in start.x..=end.x {
+				let old_state = self.lights[y as usize][x as usize].0;
+
+				let new_state: LightState = match (old_state, action) {
+					(LightState::On(brightness), Action::Toggle) => LightState::On(brightness + 2),
+					(LightState::On(brightness), Action::TurnOn) => LightState::On(brightness + 1),
+					(LightState::On(brightness), Action::TurnOff) => {
+						if brightness > 1 {
+							LightState::On(brightness - 1)
+						} else {
+							LightState::Off
+						}
+					}
+					(LightState::Off, Action::Toggle) => LightState::On(2),
+					(LightState::Off, Action::TurnOn) => LightState::On(1),
+					(LightState::Off, Action::TurnOff) => LightState::Off,
+				};
+
+				self.lights[y as usize][x as usize].0 = new_state;
+			}
+		}
+	}
+
 	fn num_lights_lit(&self) -> usize {
 		self
 			.lights
@@ -184,6 +211,23 @@ impl Grid {
 					.map(|light| light.0)
 					.map(|state| match state {
 						LightState::On(_) => 1,
+						_ => 0,
+					})
+					.sum::<usize>()
+			})
+			.sum()
+	}
+
+	fn total_brightness(&self) -> usize {
+		self
+			.lights
+			.iter()
+			.map(|row| {
+				row
+					.iter()
+					.map(|light| light.0)
+					.map(|state| match state {
+						LightState::On(value) => value as usize,
 						_ => 0,
 					})
 					.sum::<usize>()
@@ -214,6 +258,12 @@ pub fn part_one(instructions: &Intermediate) -> Option<Solution> {
 	Some(grid.num_lights_lit())
 }
 
-pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
-	None
+pub fn part_two(instructions: &Intermediate) -> Option<Solution> {
+	let mut grid: Grid = Grid::default();
+
+	for instruction in instructions {
+		grid.apply_instruction_correct(instruction);
+	}
+
+	Some(grid.total_brightness())
 }
