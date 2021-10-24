@@ -158,7 +158,7 @@ impl Default for Grid {
 }
 
 impl Grid {
-	fn apply_instruction(&mut self, instruction: &Instruction) {
+	fn apply_instruction_misinterpretation(&mut self, instruction: &Instruction) {
 		let Instruction { action, start, end } = instruction;
 
 		for y in start.y..=end.y {
@@ -208,7 +208,7 @@ pub fn part_one(instructions: &Intermediate) -> Option<Solution> {
 	let mut grid: Grid = Grid::default();
 
 	for instruction in instructions {
-		grid.apply_instruction(instruction);
+		grid.apply_instruction_misinterpretation(instruction);
 	}
 
 	Some(grid.num_lights_lit())
