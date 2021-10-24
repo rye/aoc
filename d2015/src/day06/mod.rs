@@ -123,15 +123,70 @@ mod instruction_fromstr {
 	}
 }
 
+#[derive(Clone, Copy)]
 enum LightState {
 	Off,
 	On,
 }
 
+impl core::ops::Not for LightState {
+	type Output = Self;
+	fn not(self) -> Self {
+		match self {
+			Self::Off => Self::On,
+			Self::On => Self::Off,
+		}
+	}
+}
+
+#[derive(Clone, Copy)]
 struct Light(LightState);
 
 struct Grid {
 	lights: [[Light; 1000]; 1000],
+}
+
+impl Default for Grid {
+	fn default() -> Self {
+		Self {
+			lights: [[Light(LightState::Off); 1000]; 1000],
+		}
+	}
+}
+
+impl Grid {
+	fn apply_instruction(&mut self, instruction: &Instruction) {
+		let Instruction { action, start, end } = instruction;
+
+		for y in start.0[1]..=end.0[1] {
+			for x in start.0[0]..=end.0[0] {
+				let new_state: LightState = match action {
+					Action::Toggle => !self.lights[y][x].0,
+					Action::TurnOn => LightState::On,
+					Action::TurnOff => LightState::Off,
+				};
+
+				self.lights[y][x].0 = new_state
+			}
+		}
+	}
+
+	fn num_lights_lit(&self) -> usize {
+		self
+			.lights
+			.iter()
+			.map(|row| {
+				row
+					.iter()
+					.map(|light| light.0)
+					.map(|state| match state {
+						LightState::On => 1,
+						_ => 0,
+					})
+					.sum::<usize>()
+			})
+			.sum()
+	}
 }
 
 type Intermediate = Vec<Instruction>;
@@ -146,8 +201,14 @@ pub fn parse(input: &str) -> Intermediate {
 
 type Solution = usize;
 
-pub fn part_one(_intermediate: &Intermediate) -> Option<Solution> {
-	None
+pub fn part_one(instructions: &Intermediate) -> Option<Solution> {
+	let mut grid: Grid = Grid::default();
+
+	for instruction in instructions {
+		grid.apply_instruction(instruction);
+	}
+
+	Some(grid.num_lights_lit())
 }
 
 pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
