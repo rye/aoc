@@ -146,13 +146,13 @@ impl core::ops::Not for LightState {
 struct Light(LightState);
 
 struct Grid {
-	lights: [[Light; 1000]; 1000],
+	lights: Vec<Vec<Light>>,
 }
 
 impl Default for Grid {
 	fn default() -> Self {
 		Self {
-			lights: [[Light(LightState::Off); 1000]; 1000],
+			lights: vec![vec![Light(LightState::Off); 1000]; 1000],
 		}
 	}
 }
