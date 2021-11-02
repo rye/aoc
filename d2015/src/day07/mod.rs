@@ -21,14 +21,40 @@ impl core::fmt::Display for WireId {
 }
 
 #[derive(PartialEq, Debug)]
-enum Input {
+enum Source {
 	Wire(WireId),
 	Signal(Signal),
-	And(WireId, WireId),
-	Or(WireId, WireId),
-	LShift(WireId, u16),
-	RShift(WireId, u16),
-	Not(WireId),
+}
+
+impl<T> From<T> for Source
+where
+	T: AsRef<str>,
+{
+	fn from(s: T) -> Self {
+		match s.as_ref().parse::<Signal>() {
+			Ok(signal) => Source::Signal(signal),
+			Err(_) => Source::Wire(s.into()),
+		}
+	}
+}
+
+impl core::fmt::Display for Source {
+	fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+		match self {
+			Self::Wire(wire) => write!(f, "{}", wire),
+			Self::Signal(signal) => write!(f, "{}", signal),
+		}
+	}
+}
+
+#[derive(PartialEq, Debug)]
+enum Input {
+	Source(Source),
+	And(Source, Source),
+	Or(Source, Source),
+	LShift(Source, u16),
+	RShift(Source, u16),
+	Not(Source),
 }
 
 #[derive(PartialEq, Debug)]
@@ -42,8 +68,7 @@ impl core::fmt::Display for Connection {
 		let out = &self.output;
 
 		match &self.input {
-			Input::Wire(a) => write!(f, "{} -> {}", a, out),
-			Input::Signal(signal) => write!(f, "{} -> {}", signal, out),
+			Input::Source(source) => write!(f, "{} -> {}", source, out),
 			Input::And(a, b) => write!(f, "{} AND {} -> {}", a, b, out),
 			Input::Or(a, b) => write!(f, "{} OR {} -> {}", a, b, out),
 			Input::LShift(a, b) => write!(f, "{} LSHIFT {} -> {}", a, b, out),
@@ -77,17 +102,34 @@ impl FromStr for Connection {
 
 		let input: Input = match lhs_split.len() {
 			1 => match lhs_split.get(0).unwrap().parse::<Signal>() {
-				Ok(signal) => Input::Signal(signal),
-				Err(_) => Input::Wire(lhs_split.get(0).unwrap().into()),
+				Ok(signal) => Input::Source(Source::Signal(signal)),
+				Err(_) => Input::Source(Source::Wire(lhs_split.get(0).unwrap().into())),
 			},
 			3 => {
-				let a: WireId = lhs_split.get(0).unwrap().into();
+				let a: Source = lhs_split.get(0).unwrap().into();
+				let op = *lhs_split.get(1).unwrap();
 
-				match *lhs_split.get(1).unwrap() {
-					"AND" => Input::And(a, lhs_split.get(2).unwrap().into()),
-					"OR" => Input::Or(a, lhs_split.get(2).unwrap().into()),
-					"LSHIFT" => Input::LShift(a, lhs_split.get(2).unwrap().parse().unwrap()),
-					"RSHIFT" => Input::RShift(a, lhs_split.get(2).unwrap().parse().unwrap()),
+				//let a: WireId = lhs_split.get(0).unwrap().into();
+
+				match op {
+					"AND" | "OR" => {
+						let b: Source = lhs_split.get(2).unwrap().into();
+
+						match op {
+							"AND" => Input::And(a, b),
+							"OR" => Input::Or(a, b),
+							_ => unreachable!(),
+						}
+					}
+					"LSHIFT" | "RSHIFT" => {
+						let b: u16 = lhs_split.get(2).unwrap().parse().unwrap();
+
+						match op {
+							"LSHIFT" => Input::LShift(a, b),
+							"RSHIFT" => Input::RShift(a, b),
+							_ => unreachable!(),
+						}
+					}
 					_ => unreachable!(),
 				}
 			}
@@ -108,14 +150,14 @@ impl FromStr for Connection {
 mod connection {
 	use core::str::FromStr;
 
-	use super::{Connection, Input};
+	use super::{Connection, Input, Source};
 
 	#[test]
 	fn connect_123_x() {
 		assert_eq!(
 			Connection::from_str("123 -> x"),
 			Ok(Connection {
-				input: Input::Signal(123),
+				input: Input::Source(Source::Signal(123)),
 				output: "x".into()
 			})
 		)
@@ -127,7 +169,7 @@ mod connection {
 		assert_eq!(
 			Connection::from_str(connection),
 			Ok(Connection {
-				input: Input::Signal(456),
+				input: Input::Source(Source::Signal(456)),
 				output: "y".into(),
 			})
 		)
@@ -217,7 +259,27 @@ pub fn parse(input: &str) -> Intermediate {
 
 type Solution = Signal;
 
-pub fn part_one(_connections: &Intermediate) -> Option<Solution> {
+struct Connections<'c> {
+	inputs: Vec<&'c Connection>,
+}
+
+pub fn part_one(connections: &Intermediate) -> Option<Solution> {
+	let sources: Vec<_> = connections
+		.iter()
+		.filter(|input| match input.input {
+			Input::Source(_) => true,
+			_ => false,
+		})
+		.collect();
+
+	for source in &sources {
+		println!("{}", source);
+	}
+
+	// Something where I can...
+	//
+	// signals.set(WireId, SignalValue)
+
 	None
 }
 
