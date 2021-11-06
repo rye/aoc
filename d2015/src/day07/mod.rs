@@ -1,8 +1,9 @@
 use core::str::FromStr;
+use std::collections::{BTreeMap, HashMap, VecDeque};
 
 type Signal = u16;
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Eq, Hash, Clone, PartialOrd, Ord)]
 struct WireId(String);
 
 impl<T> From<T> for WireId
@@ -20,7 +21,7 @@ impl core::fmt::Display for WireId {
 	}
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 enum Source {
 	Wire(WireId),
 	Signal(Signal),
@@ -47,7 +48,7 @@ impl core::fmt::Display for Source {
 	}
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 enum Input {
 	Source(Source),
 	And(Source, Source),
@@ -57,7 +58,7 @@ enum Input {
 	Not(Source),
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct Connection {
 	input: Input,
 	output: WireId,
@@ -247,7 +248,7 @@ mod connection {
 	}
 }
 
-type Intermediate = Vec<Connection>;
+type Intermediate = VecDeque<Connection>;
 
 pub fn parse(input: &str) -> Intermediate {
 	input
@@ -259,30 +260,199 @@ pub fn parse(input: &str) -> Intermediate {
 
 type Solution = Signal;
 
-struct Connections<'c> {
-	inputs: Vec<&'c Connection>,
+fn contains_source(signal_tracker: &BTreeMap<WireId, Signal>, source: &Source) -> bool {
+	match source {
+		Source::Signal(_) => true,
+		Source::Wire(wire_id) => signal_tracker.contains_key(wire_id),
+	}
 }
 
-pub fn part_one(connections: &Intermediate) -> Option<Solution> {
-	let sources: Vec<_> = connections
+fn eval_source(signal_tracker: &mut BTreeMap<WireId, Signal>, wire: &WireId, output: &WireId) {
+	let signal: Signal = *signal_tracker
+		.get(wire)
+		.expect("called eval_source without valid entry for wire");
+	signal_tracker.insert(output.clone(), signal);
+}
+
+fn eval_and(
+	signal_tracker: &mut BTreeMap<WireId, Signal>,
+	a: &Source,
+	b: &Source,
+	output: &WireId,
+) {
+	let signal_a: Signal = match a {
+		Source::Signal(signal) => *signal,
+		Source::Wire(wire) => *signal_tracker
+			.get(wire)
+			.expect("called eval_and without valid entry for input a"),
+	};
+	let signal_b: Signal = match b {
+		Source::Signal(signal) => *signal,
+		Source::Wire(wire) => *signal_tracker
+			.get(wire)
+			.expect("called eval_and without valid entry for input a"),
+	};
+
+	let output_signal: Signal = signal_a & signal_b;
+	signal_tracker.insert(output.clone(), output_signal);
+}
+
+fn eval_or(signal_tracker: &mut BTreeMap<WireId, Signal>, a: &Source, b: &Source, output: &WireId) {
+	let signal_a: Signal = match a {
+		Source::Signal(signal) => *signal,
+		Source::Wire(wire) => *signal_tracker
+			.get(wire)
+			.expect("called eval_and without valid entry for input a"),
+	};
+	let signal_b: Signal = match b {
+		Source::Signal(signal) => *signal,
+		Source::Wire(wire) => *signal_tracker
+			.get(wire)
+			.expect("called eval_and without valid entry for input a"),
+	};
+
+	let output_signal: Signal = signal_a | signal_b;
+	signal_tracker.insert(output.clone(), output_signal);
+}
+
+fn eval_lshift(
+	signal_tracker: &mut BTreeMap<WireId, Signal>,
+	input: &Source,
+	value: &u16,
+	output: &WireId,
+) {
+	let signal: Signal = match input {
+		Source::Signal(signal) => *signal,
+		Source::Wire(wire) => *signal_tracker
+			.get(wire)
+			.expect("called eval_and without valid entry for input a"),
+	};
+
+	let output_signal: Signal = signal << value;
+	signal_tracker.insert(output.clone(), output_signal);
+}
+
+fn eval_rshift(
+	signal_tracker: &mut BTreeMap<WireId, Signal>,
+	input: &Source,
+	value: &u16,
+	output: &WireId,
+) {
+	let signal: Signal = match input {
+		Source::Signal(signal) => *signal,
+		Source::Wire(wire) => *signal_tracker
+			.get(wire)
+			.expect("called eval_and without valid entry for input a"),
+	};
+
+	let output_signal: Signal = signal >> value;
+	signal_tracker.insert(output.clone(), output_signal);
+}
+
+fn eval_not(signal_tracker: &mut BTreeMap<WireId, Signal>, input: &Source, output: &WireId) {
+	let signal: Signal = match input {
+		Source::Signal(signal) => *signal,
+		Source::Wire(wire) => *signal_tracker
+			.get(wire)
+			.expect("called eval_and without valid entry for input a"),
+	};
+
+	let output_signal: Signal = !signal;
+	signal_tracker.insert(output.clone(), output_signal);
+}
+
+fn process_connections(connections: VecDeque<Connection>) -> BTreeMap<WireId, Signal> {
+	// Isolate the connections that are supplying a direct input to a wire.
+	let (signal_sources, mut connections): (VecDeque<&Connection>, VecDeque<&Connection>) =
+		connections
+			.iter()
+			.partition(|&connection| match connection.input {
+				Input::Source(Source::Signal(_)) => true,
+				_ => false,
+			});
+
+	// Build up the initial state of the signal tracker, cloning the output so the tracker has ownership
+	// of its own wire identifiers.
+	//
+	// TODO: Intern the strings somehow?
+	let signal_sources: BTreeMap<WireId, Signal> = signal_sources
 		.iter()
-		.filter(|input| match input.input {
-			Input::Source(_) => true,
-			_ => false,
+		.filter_map(|&connection| match connection.input {
+			Input::Source(Source::Signal(signal)) => Some((connection.output.clone(), signal)),
+			_ => unreachable!(),
 		})
 		.collect();
 
-	for source in &sources {
-		println!("{}", source);
+	let mut signal_tracker: BTreeMap<WireId, Signal> = signal_sources;
+
+	loop {
+		if let Some(connection) = connections.pop_front() {
+			if match &connection.input {
+				Input::Source(Source::Wire(a)) => signal_tracker.contains_key(a),
+				Input::Source(_) => unreachable!(),
+				Input::And(a, b) => {
+					contains_source(&signal_tracker, a) && contains_source(&signal_tracker, b)
+				}
+				Input::Or(a, b) => {
+					contains_source(&signal_tracker, a) && contains_source(&signal_tracker, b)
+				}
+				Input::LShift(a, _) => contains_source(&signal_tracker, a),
+				Input::RShift(a, _) => contains_source(&signal_tracker, a),
+				Input::Not(a) => contains_source(&signal_tracker, a),
+			} {
+				// Evaluate and place the result.
+				match (&connection.input, &connection.output) {
+					(Input::Source(Source::Wire(wire)), output) => {
+						eval_source(&mut signal_tracker, &wire, &output)
+					}
+					(Input::Source(_), _) => unreachable!(),
+					(Input::And(a, b), output) => eval_and(&mut signal_tracker, &a, &b, &output),
+					(Input::Or(a, b), output) => eval_or(&mut signal_tracker, &a, &b, &output),
+					(Input::LShift(input, value), output) => {
+						eval_lshift(&mut signal_tracker, &input, &value, &output)
+					}
+					(Input::RShift(input, value), output) => {
+						eval_rshift(&mut signal_tracker, &input, &value, &output)
+					}
+					(Input::Not(input), output) => eval_not(&mut signal_tracker, &input, &output),
+				}
+			} else {
+				// Restore the connection back onto the stack.
+				connections.push_back(connection);
+			}
+		} else {
+			break;
+		}
 	}
 
-	// Something where I can...
-	//
-	// signals.set(WireId, SignalValue)
-
-	None
+	signal_tracker
 }
 
-pub fn part_two(_connections: &Intermediate) -> Option<Solution> {
-	None
+pub fn part_one(connections: &Intermediate) -> Option<Solution> {
+	let connections: VecDeque<Connection> = connections.clone();
+
+	let mut signal_tracker = process_connections(connections);
+
+	let result = signal_tracker.remove(&WireId::from("a"));
+
+	result
+}
+
+pub fn part_two(connections: &Intermediate) -> Option<Solution> {
+	let mut connections: VecDeque<Connection> = connections.clone();
+
+	let mut signal_tracker = process_connections(connections.clone());
+
+	let result = signal_tracker.remove(&WireId::from("a")).unwrap();
+
+	connections.push_back(Connection {
+		input: Input::Source(Source::Signal(result)),
+		output: WireId("b".to_string()),
+	});
+
+	let mut signal_tracker = process_connections(connections);
+
+	let result: Option<u16> = signal_tracker.remove(&WireId::from("a"));
+
+	result
 }
