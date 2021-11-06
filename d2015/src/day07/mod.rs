@@ -1,5 +1,5 @@
 use core::str::FromStr;
-use std::collections::{BTreeMap, HashMap, VecDeque};
+use std::collections::{BTreeMap, VecDeque};
 
 type Signal = u16;
 
