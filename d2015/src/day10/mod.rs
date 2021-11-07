@@ -1,6 +1,15 @@
-type Intermediate = ();
+type Intermediate = LookAndSay;
 
-pub fn parse(_input: &str) -> Intermediate {}
+pub struct LookAndSay(String);
+
+pub fn parse(input: &str) -> Intermediate {
+	input
+		.lines()
+		.nth(0)
+		.map(str::to_string)
+		.map(LookAndSay)
+		.unwrap()
+}
 
 type Solution = usize;
 
