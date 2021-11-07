@@ -81,15 +81,13 @@ pub fn parse(input: &str) -> Intermediate {
 		.iter()
 		.permutations(places.len())
 		.map(|permutation| {
-			let total_distance = permutation
+			permutation
 				.windows(2)
 				.filter_map(|window| {
 					let key = (window[0].clone(), window[1].clone());
 					distances.get(&key)
 				})
-				.sum();
-
-			total_distance
+				.sum()
 		})
 		.collect()
 }
