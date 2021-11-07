@@ -17,6 +17,7 @@ const LINE_PARSE_RE: &str = r"^(?P<start>\w+) to (?P<end>\w+) = (?P<distance>\d+
 pub fn parse(input: &str) -> Intermediate {
 	let regex: Regex = Regex::new(LINE_PARSE_RE).unwrap();
 
+	// First, process all the lines down to a collection of each of the pieces.
 	let lines: Vec<(&str, &str, &str)> = input
 		.lines()
 		.filter_map(|line| {
@@ -35,6 +36,10 @@ pub fn parse(input: &str) -> Intermediate {
 		})
 		.collect();
 
+	// Then, build the distance/place map.  Store:
+	//
+	// - the list of all seen places,
+	// - the individual distances between A and B and B and A.
 	let mut distances: DistanceMap = DistanceMap::default();
 	let mut places: PlaceSet = PlaceSet::default();
 
@@ -61,6 +66,7 @@ pub fn parse(input: &str) -> Intermediate {
 		}
 	}
 
+	// Finally, permute all the places together and produce a mapping of routes to their total distance
 	places
 		.iter()
 		.permutations(places.len())
