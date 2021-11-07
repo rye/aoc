@@ -47,6 +47,12 @@ fn parse_line<'input, 'regex>(
 		})
 }
 
+fn permute<'places, 'input>(
+	places: &'places HashSet<Place<'input>>,
+) -> impl Iterator<Item = Vec<&'places &'input str>> {
+	places.iter().permutations(places.len())
+}
+
 pub fn parse(input: &str) -> Intermediate {
 	let regex: Regex = Regex::new(LINE_PARSE_RE).unwrap();
 
@@ -85,9 +91,7 @@ pub fn parse(input: &str) -> Intermediate {
 	}
 
 	// Finally, permute all the places together and produce a mapping of routes to their total distance
-	places
-		.iter()
-		.permutations(places.len())
+	permute(&places)
 		.map(|permutation| {
 			permutation
 				.windows(2)
