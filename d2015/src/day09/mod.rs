@@ -43,6 +43,15 @@ fn line_captures_to_str<'input>(
 	}
 }
 
+fn parse_distance<'input>(
+	(start, end, distance): (&'input str, &'input str, &'input str),
+) -> Option<(&'input str, &'input str, usize)> {
+	match distance.parse() {
+		Ok(distance) => Some((start, end, distance)),
+		Err(_) => None,
+	}
+}
+
 fn parse_line<'input, 'regex>(
 	regex: &'regex Regex,
 	line: &'input str,
@@ -51,10 +60,7 @@ fn parse_line<'input, 'regex>(
 		.captures(line)
 		.map(extract_line_captures)
 		.and_then(line_captures_to_str)
-		.and_then(|(start, end, distance)| match distance.parse() {
-			Ok(distance) => Some((start, end, distance)),
-			Err(_) => None,
-		})
+		.and_then(parse_distance)
 }
 
 fn all_routes<'places, 'input>(
