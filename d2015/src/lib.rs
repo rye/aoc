@@ -7,6 +7,7 @@ pub mod day06;
 pub mod day07;
 // day 08 is implemented in Python; see src/day08.py
 pub mod day09;
+pub mod day10;
 
 /// Fully consumes a reader of type `std::io::Read` and produces a `String` containing all read text.
 ///
