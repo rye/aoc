@@ -45,13 +45,6 @@ macro_rules! day_solver {
 }
 
 #[macro_export]
-macro_rules! day_solver_std {
-	() => {
-		d2015::day_solver_from!(self);
-	};
-}
-
-#[macro_export]
 macro_rules! day_solver_from {
 	($place:path) => {
 		use $place::{parse, part_one, part_two};
