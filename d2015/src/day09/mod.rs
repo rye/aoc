@@ -14,12 +14,12 @@ type RouteDistances = Vec<Distance>;
 
 const LINE_PARSE_RE: &str = r"^(?P<start>\w+) to (?P<end>\w+) = (?P<distance>\d+)$";
 
-fn extract_line_captures(
-	captures: regex::Captures,
+fn extract_line_captures<'input>(
+	captures: regex::Captures<'input>,
 ) -> (
-	Option<regex::Match>,
-	Option<regex::Match>,
-	Option<regex::Match>,
+	Option<regex::Match<'input>>,
+	Option<regex::Match<'input>>,
+	Option<regex::Match<'input>>,
 ) {
 	(
 		captures.name("start"),
@@ -60,7 +60,10 @@ fn all_routes<'places, 'input>(
 	places.iter().permutations(places.len())
 }
 
-fn total_distance(distances: &DistanceMap, route: Vec<&Place>) -> usize {
+fn total_distance<'processing, 'input>(
+	distances: &'processing DistanceMap,
+	route: Vec<&'processing Place<'input>>,
+) -> usize {
 	route
 		.windows(2)
 		.filter_map(|window| {
