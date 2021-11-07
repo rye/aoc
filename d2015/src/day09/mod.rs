@@ -3,14 +3,14 @@ use std::collections::{hash_map::Entry, HashMap, HashSet};
 use itertools::Itertools;
 use regex::Regex;
 
-type Intermediate = RouteMap;
+type Intermediate = RouteDistances;
 
 type Distance = usize;
-type Place = String;
+type Place<'p> = &'p str;
 
-type DistanceMap = HashMap<(Place, Place), Distance>;
-type PlaceSet = HashSet<Place>;
-type RouteMap = HashMap<Vec<Place>, Distance>;
+type DistanceMap<'p> = HashMap<(Place<'p>, Place<'p>), Distance>;
+type PlaceSet<'p> = HashSet<Place<'p>>;
+type RouteDistances = Vec<Distance>;
 
 const LINE_PARSE_RE: &str = r"^(?P<start>\w+) to (?P<end>\w+) = (?P<distance>\d+)$";
 
@@ -47,15 +47,15 @@ pub fn parse(input: &str) -> Intermediate {
 		let start = line.0;
 		let end = line.1;
 
-		places.insert(start.to_string());
-		places.insert(end.to_string());
+		places.insert(start);
+		places.insert(end);
 
 		let distance = line.2;
 
 		let distance: usize = distance.parse().unwrap();
 
-		let normal_key = (start.to_string(), end.to_string());
-		let reverse_key = (end.to_string(), start.to_string());
+		let normal_key = (start, end);
+		let reverse_key = (end, start);
 
 		if let Entry::Vacant(normal_entry) = distances.entry(normal_key) {
 			normal_entry.insert(distance);
@@ -71,27 +71,25 @@ pub fn parse(input: &str) -> Intermediate {
 		.iter()
 		.permutations(places.len())
 		.map(|permutation| {
-			let route: Vec<String> = permutation.iter().map(ToString::to_string).collect();
-
 			let total_distance = permutation
 				.windows(2)
 				.filter_map(|window| {
-					let key: (String, String) = (window[0].clone(), window[1].clone());
+					let key = (window[0].clone(), window[1].clone());
 					distances.get(&key)
 				})
 				.sum();
 
-			(route, total_distance)
+			total_distance
 		})
 		.collect()
 }
 
-type Solution = usize;
+type Solution = Distance;
 
-pub fn part_one(routes: &Intermediate) -> Option<Solution> {
-	routes.values().min().map(ToOwned::to_owned)
+pub fn part_one(route_distances: &Intermediate) -> Option<Solution> {
+	route_distances.iter().min().map(ToOwned::to_owned)
 }
 
-pub fn part_two(routes: &Intermediate) -> Option<Solution> {
-	routes.values().max().map(ToOwned::to_owned)
+pub fn part_two(route_distances: &Intermediate) -> Option<Solution> {
+	route_distances.iter().max().map(ToOwned::to_owned)
 }
