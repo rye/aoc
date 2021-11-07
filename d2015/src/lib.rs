@@ -12,7 +12,9 @@ pub mod day09;
 ///
 /// # Errors
 ///
-/// An error is only returned if the underlying [`std::io::Read::read_to_string`] operation returns an error.
+/// An error is only returned if the underlying [`std::io::Read::read_to_string`] operation
+/// returns an error.
+///
 /// See [`std::io::Read::read_to_string`] for all error semantics.
 pub fn string_from(mut read: impl std::io::Read) -> std::io::Result<String> {
 	let mut buf: String = String::new();
@@ -20,6 +22,13 @@ pub fn string_from(mut read: impl std::io::Read) -> std::io::Result<String> {
 	Ok(buf)
 }
 
+/// Produces a "day solver" `main` definition.
+///
+/// # Generated Code
+///
+/// Arguments `$transform`, `$part_one`, and `$part_two` are all treated as expressions to be
+/// evaluated against the underlying input after it has been processed.
+///
 #[macro_export]
 macro_rules! day_solver {
 	( $transform:expr, $part_one:expr, $part_two:expr ) => {
@@ -44,6 +53,31 @@ macro_rules! day_solver {
 	};
 }
 
+/// Generates a "day" solver from a given module.
+///
+/// # Examples
+///
+/// ```rust
+/// mod dayXX {
+/// 	type Intermediate = usize;
+///
+/// 	pub(super) fn parse(input: &str) -> Intermediate {
+/// 		input.lines().count()
+/// 	}
+///
+/// 	type Solution = usize;
+///
+/// 	pub(super) fn part_one(line_count: &Intermediate) -> Option<Solution> {
+/// 		Some(*line_count)
+/// 	}
+///
+/// 	pub(super) fn part_two(line_count: &Intermediate) -> Option<Solution> {
+/// 		Some(*line_count)
+/// 	}
+/// }
+///
+/// d2015::day_solver_from!(dayXX);
+/// ```
 #[macro_export]
 macro_rules! day_solver_from {
 	($place:path) => {
