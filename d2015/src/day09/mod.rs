@@ -14,26 +14,38 @@ type RouteDistances = Vec<Distance>;
 
 const LINE_PARSE_RE: &str = r"^(?P<start>\w+) to (?P<end>\w+) = (?P<distance>\d+)$";
 
+fn parse_line<'input, 'regex>(
+	regex: &'regex Regex,
+	line: &'input str,
+) -> Option<(&'input str, &'input str, usize)> {
+	regex
+		.captures(line)
+		.map(|captures| {
+			(
+				captures.name("start"),
+				captures.name("end"),
+				captures.name("distance"),
+			)
+		})
+		.and_then(|(start, end, distance)| match (start, end, distance) {
+			(Some(start), Some(end), Some(distance)) => {
+				Some((start.as_str(), end.as_str(), distance.as_str()))
+			}
+			_ => None,
+		})
+		.and_then(|(start, end, distance)| match distance.parse() {
+			Ok(distance) => Some((start, end, distance)),
+			Err(_) => None,
+		})
+}
+
 pub fn parse(input: &str) -> Intermediate {
 	let regex: Regex = Regex::new(LINE_PARSE_RE).unwrap();
 
 	// First, process all the lines down to a collection of each of the pieces.
-	let lines: Vec<(&str, &str, &str)> = input
+	let lines: Vec<(&str, &str, usize)> = input
 		.lines()
-		.filter_map(|line| {
-			let captures = regex.captures(line).unwrap();
-
-			match (
-				captures.name("start"),
-				captures.name("end"),
-				captures.name("distance"),
-			) {
-				(Some(start), Some(end), Some(distance)) => {
-					Some((start.as_str(), end.as_str(), distance.as_str()))
-				}
-				_ => None,
-			}
-		})
+		.filter_map(|line| parse_line(&regex, line))
 		.collect();
 
 	// Then, build the distance/place map.  Store:
@@ -51,8 +63,6 @@ pub fn parse(input: &str) -> Intermediate {
 		places.insert(end);
 
 		let distance = line.2;
-
-		let distance: usize = distance.parse().unwrap();
 
 		let normal_key = (start, end);
 		let reverse_key = (end, start);
