@@ -53,6 +53,16 @@ fn all_routes<'places, 'input>(
 	places.iter().permutations(places.len())
 }
 
+fn total_distance(distances: &DistanceMap, route: Vec<&Place>) -> usize {
+	route
+		.windows(2)
+		.filter_map(|window| {
+			let key = (*window[0], *window[1]);
+			distances.get(&key)
+		})
+		.sum()
+}
+
 pub fn parse(input: &str) -> Intermediate {
 	let regex: Regex = Regex::new(LINE_PARSE_RE).unwrap();
 
@@ -92,15 +102,7 @@ pub fn parse(input: &str) -> Intermediate {
 
 	// Finally, permute all the places together and produce a mapping of routes to their total distance
 	all_routes(&places)
-		.map(|permutation| {
-			permutation
-				.windows(2)
-				.filter_map(|window| {
-					let key = (window[0].clone(), window[1].clone());
-					distances.get(&key)
-				})
-				.sum()
-		})
+		.map(|route| total_distance(&distances, route))
 		.collect()
 }
 
