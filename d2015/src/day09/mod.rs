@@ -28,27 +28,19 @@ fn extract_line_captures(
 	)
 }
 
-fn line_captures_to_str<'input>(
-	line: (
+fn process_line_captures<'input>(
+	(start, end, distance): (
 		Option<regex::Match<'input>>,
 		Option<regex::Match<'input>>,
 		Option<regex::Match<'input>>,
 	),
-) -> Option<(&'input str, &'input str, &'input str)> {
-	match line {
-		(Some(start), Some(end), Some(distance)) => {
-			Some((start.as_str(), end.as_str(), distance.as_str()))
-		}
-		_ => None,
-	}
-}
-
-fn parse_distance<'input>(
-	(start, end, distance): (&'input str, &'input str, &'input str),
 ) -> Option<(&'input str, &'input str, usize)> {
-	match distance.parse() {
-		Ok(distance) => Some((start, end, distance)),
-		Err(_) => None,
+	match (start, end, distance) {
+		(Some(start), Some(end), Some(distance)) => match distance.as_str().parse() {
+			Ok(distance) => Some((start.as_str(), end.as_str(), distance)),
+			_ => None,
+		},
+		_ => None,
 	}
 }
 
@@ -59,8 +51,7 @@ fn parse_line<'input, 'regex>(
 	regex
 		.captures(line)
 		.map(extract_line_captures)
-		.and_then(line_captures_to_str)
-		.and_then(parse_distance)
+		.and_then(process_line_captures)
 }
 
 fn all_routes<'places, 'input>(
