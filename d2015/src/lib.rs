@@ -6,6 +6,7 @@ pub mod day05;
 pub mod day06;
 pub mod day07;
 // day 08 is implemented in Python; see src/day08.py
+pub mod day09;
 
 pub fn string_from(mut r: impl std::io::Read) -> std::io::Result<String> {
 	let mut s: String = String::new();
