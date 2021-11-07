@@ -1,5 +1,6 @@
 type Intermediate = LookAndSay;
 
+#[derive(Clone)]
 #[cfg_attr(test, derive(PartialEq, Debug))]
 pub struct LookAndSay(String);
 
@@ -85,4 +86,24 @@ pub fn part_one(_intermediate: &Intermediate) -> Option<Solution> {
 
 pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
 	None
+}
+
+pub fn part_one(seed_command: &Intermediate) -> Option<Solution> {
+	let mut current_las: LookAndSay = seed_command.clone();
+
+	for _ in 0..40 {
+		current_las = current_las.say();
+	}
+
+	Some(current_las.0.len())
+}
+
+pub fn part_two(seed_command: &Intermediate) -> Option<Solution> {
+	let mut current_las: LookAndSay = seed_command.clone();
+
+	for _ in 0..50 {
+		current_las = current_las.say();
+	}
+
+	Some(current_las.0.len())
 }
