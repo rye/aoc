@@ -14,19 +14,27 @@ type RouteDistances = Vec<Distance>;
 
 const LINE_PARSE_RE: &str = r"^(?P<start>\w+) to (?P<end>\w+) = (?P<distance>\d+)$";
 
+fn extract_line_captures(
+	captures: regex::Captures,
+) -> (
+	Option<regex::Match>,
+	Option<regex::Match>,
+	Option<regex::Match>,
+) {
+	(
+		captures.name("start"),
+		captures.name("end"),
+		captures.name("distance"),
+	)
+}
+
 fn parse_line<'input, 'regex>(
 	regex: &'regex Regex,
 	line: &'input str,
 ) -> Option<(&'input str, &'input str, usize)> {
 	regex
 		.captures(line)
-		.map(|captures| {
-			(
-				captures.name("start"),
-				captures.name("end"),
-				captures.name("distance"),
-			)
-		})
+		.map(extract_line_captures)
 		.and_then(|(start, end, distance)| match (start, end, distance) {
 			(Some(start), Some(end), Some(distance)) => {
 				Some((start.as_str(), end.as_str(), distance.as_str()))
