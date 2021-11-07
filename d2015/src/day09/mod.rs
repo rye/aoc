@@ -28,6 +28,21 @@ fn extract_line_captures(
 	)
 }
 
+fn line_captures_to_str<'input>(
+	line: (
+		Option<regex::Match<'input>>,
+		Option<regex::Match<'input>>,
+		Option<regex::Match<'input>>,
+	),
+) -> Option<(&'input str, &'input str, &'input str)> {
+	match line {
+		(Some(start), Some(end), Some(distance)) => {
+			Some((start.as_str(), end.as_str(), distance.as_str()))
+		}
+		_ => None,
+	}
+}
+
 fn parse_line<'input, 'regex>(
 	regex: &'regex Regex,
 	line: &'input str,
@@ -35,12 +50,7 @@ fn parse_line<'input, 'regex>(
 	regex
 		.captures(line)
 		.map(extract_line_captures)
-		.and_then(|(start, end, distance)| match (start, end, distance) {
-			(Some(start), Some(end), Some(distance)) => {
-				Some((start.as_str(), end.as_str(), distance.as_str()))
-			}
-			_ => None,
-		})
+		.and_then(line_captures_to_str)
 		.and_then(|(start, end, distance)| match distance.parse() {
 			Ok(distance) => Some((start, end, distance)),
 			Err(_) => None,
