@@ -8,10 +8,16 @@ pub mod day07;
 // day 08 is implemented in Python; see src/day08.py
 pub mod day09;
 
-pub fn string_from(mut r: impl std::io::Read) -> std::io::Result<String> {
-	let mut s: String = String::new();
-	r.read_to_string(&mut s)?;
-	Ok(s)
+/// Fully consumes a reader of type `std::io::Read` and produces a `String` containing all read text.
+///
+/// # Errors
+///
+/// An error is only returned if the underlying [`std::io::Read::read_to_string`] operation returns an error.
+/// See [`std::io::Read::read_to_string`] for all error semantics.
+pub fn string_from(mut read: impl std::io::Read) -> std::io::Result<String> {
+	let mut buf: String = String::new();
+	read.read_to_string(&mut buf)?;
+	Ok(buf)
 }
 
 #[macro_export]
