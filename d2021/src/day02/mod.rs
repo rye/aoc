@@ -18,6 +18,7 @@ impl core::str::FromStr for Command {
 	type Err = CommandParseError;
 
 	fn from_str(s: &str) -> Result<Self, Self::Err> {
+		// TODO: DRY this up a bit, maybe collect components?
 		let mut split = s.split(' ');
 		match (split.next(), split.next(), split.next()) {
 			(Some("forward"), Some(units), None) => units
