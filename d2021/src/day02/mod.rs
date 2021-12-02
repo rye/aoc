@@ -51,12 +51,12 @@ pub fn parse(input: &str) -> Intermediate {
 
 type Solution = usize;
 
-struct State {
-	horizontal_position: usize,
-	depth: usize,
-}
-
 pub fn part_one(commands: &Intermediate) -> Option<Solution> {
+	struct State {
+		horizontal_position: usize,
+		depth: usize,
+	}
+
 	let final_state = commands.iter().fold(
 		State {
 			horizontal_position: 0,
