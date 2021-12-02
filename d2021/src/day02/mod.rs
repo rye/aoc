@@ -53,38 +53,32 @@ type Solution = usize;
 
 pub fn part_one(commands: &Intermediate) -> Option<Solution> {
 	struct State {
-		horizontal_position: usize,
+		position: usize,
 		depth: usize,
 	}
 
 	let final_state = commands.iter().fold(
 		State {
-			horizontal_position: 0,
+			position: 0,
 			depth: 0,
 		},
-		|State {
-		   horizontal_position,
-		   depth,
-		 },
-		 command| {
-			match command {
-				Command::Forward(units) => State {
-					horizontal_position: horizontal_position + units,
-					depth,
-				},
-				Command::Down(units) => State {
-					horizontal_position,
-					depth: depth + units,
-				},
-				Command::Up(units) => State {
-					horizontal_position,
-					depth: depth - units,
-				},
-			}
+		|State { position, depth }, command| match command {
+			Command::Forward(units) => State {
+				position: position + units,
+				depth,
+			},
+			Command::Down(units) => State {
+				position,
+				depth: depth + units,
+			},
+			Command::Up(units) => State {
+				position,
+				depth: depth - units,
+			},
 		},
 	);
 
-	Some(final_state.horizontal_position * final_state.depth)
+	Some(final_state.position * final_state.depth)
 }
 
 pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
