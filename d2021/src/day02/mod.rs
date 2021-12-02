@@ -51,22 +51,22 @@ pub fn parse(input: &str) -> Intermediate {
 
 type Solution = usize;
 
+struct State {
+	position: usize,
+	aim: Option<usize>,
+	depth: usize,
+}
+
 pub fn part_one(commands: &Intermediate) -> Option<Solution> {
 	struct State {
 		position: usize,
 		depth: usize,
 	}
 
-	let final_state = commands.iter().fold(
-		State {
-			position: 0,
-			depth: 0,
-		},
-		|State { position, depth }, command| match command {
-			Command::Forward(units) => State {
-				position: position + units,
-				depth,
-			},
+	fn apply_state_transition(state: State, command: &Command) -> State {
+		let State { position, depth } = state;
+
+		match command {
 			Command::Down(units) => State {
 				position,
 				depth: depth + units,
@@ -75,7 +75,19 @@ pub fn part_one(commands: &Intermediate) -> Option<Solution> {
 				position,
 				depth: depth - units,
 			},
+			Command::Forward(units) => State {
+				position: position + units,
+				depth,
+			},
+		}
+	}
+
+	let final_state = commands.iter().fold(
+		State {
+			position: 0,
+			depth: 0,
 		},
+		apply_state_transition,
 	);
 
 	Some(final_state.position * final_state.depth)
