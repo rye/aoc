@@ -97,40 +97,39 @@ pub fn part_one(commands: &Intermediate) -> Option<Solution> {
 }
 
 pub fn part_two(commands: &Intermediate) -> Option<Solution> {
-	struct State {
-		aim: usize,
-		depth: usize,
-		position: usize,
-	}
+	fn apply_state_transition(state: State, command: &Command) -> State {
+		let State {
+			position,
+			aim,
+			depth,
+		} = state;
 
-	let final_state = commands.iter().fold(
-		State {
-			aim: 0,
-			depth: 0,
-			position: 0,
-		},
-		|State {
-		   position,
-		   depth,
-		   aim,
-		 },
-		 command| match command {
+		match command {
 			Command::Forward(units) => State {
 				position: position + units,
 				aim,
-				depth: depth + aim * units,
+				depth: depth + aim.unwrap() * units,
 			},
 			Command::Down(units) => State {
 				position,
-				aim: aim + units,
+				aim: aim.map(|aim| aim + units),
 				depth,
 			},
 			Command::Up(units) => State {
 				position,
-				aim: aim - units,
+				aim: aim.map(|aim| aim - units),
 				depth,
 			},
+		}
+	}
+
+	let final_state = commands.iter().fold(
+		State {
+			aim: Some(0),
+			depth: 0,
+			position: 0,
 		},
+		apply_state_transition,
 	);
 
 	Some(final_state.position * final_state.depth)
