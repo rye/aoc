@@ -51,8 +51,40 @@ pub fn parse(input: &str) -> Intermediate {
 
 type Solution = usize;
 
-pub fn part_one(_intermediate: &Intermediate) -> Option<Solution> {
-	None
+struct State {
+	horizontal_position: usize,
+	depth: usize,
+}
+
+pub fn part_one(commands: &Intermediate) -> Option<Solution> {
+	let final_state = commands.iter().fold(
+		State {
+			horizontal_position: 0,
+			depth: 0,
+		},
+		|State {
+		   horizontal_position,
+		   depth,
+		 },
+		 command| {
+			match command {
+				Command::Forward(units) => State {
+					horizontal_position: horizontal_position + units,
+					depth,
+				},
+				Command::Down(units) => State {
+					horizontal_position,
+					depth: depth + units,
+				},
+				Command::Up(units) => State {
+					horizontal_position,
+					depth: depth - units,
+				},
+			}
+		},
+	);
+
+	Some(final_state.horizontal_position * final_state.depth)
 }
 
 pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
