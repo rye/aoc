@@ -21,6 +21,16 @@ pub fn part_one(readings: &Intermediate) -> Option<Solution> {
 	)
 }
 
-pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
-	None
+pub fn part_two(readings: &Intermediate) -> Option<Solution> {
+	Some(
+		readings
+			.windows(3)
+			.map(|window| window.iter().sum())
+			.collect::<Box<[u16]>>()
+			.windows(2)
+			.map(<&[u16; 2]>::try_from)
+			.filter_map(Result::ok)
+			.filter(|[a, b]| a < b)
+			.count(),
+	)
 }
