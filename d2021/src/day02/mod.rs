@@ -81,6 +81,42 @@ pub fn part_one(commands: &Intermediate) -> Option<Solution> {
 	Some(final_state.position * final_state.depth)
 }
 
-pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
-	None
+pub fn part_two(commands: &Intermediate) -> Option<Solution> {
+	struct State {
+		aim: usize,
+		depth: usize,
+		position: usize,
+	}
+
+	let final_state = commands.iter().fold(
+		State {
+			aim: 0,
+			depth: 0,
+			position: 0,
+		},
+		|State {
+		   position,
+		   depth,
+		   aim,
+		 },
+		 command| match command {
+			Command::Forward(units) => State {
+				position: position + units,
+				aim,
+				depth: depth + aim * units,
+			},
+			Command::Down(units) => State {
+				position,
+				aim: aim + units,
+				depth,
+			},
+			Command::Up(units) => State {
+				position,
+				aim: aim - units,
+				depth,
+			},
+		},
+	);
+
+	Some(final_state.position * final_state.depth)
 }
