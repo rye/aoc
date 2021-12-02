@@ -1,4 +1,5 @@
 pub mod day01;
+pub mod day02;
 
 /// Fully consumes a reader of type `std::io::Read` and produces a `String` containing all read text.
 ///
