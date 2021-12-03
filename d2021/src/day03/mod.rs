@@ -69,12 +69,12 @@ enum Mode {
 	KeepLeastCommonOrZero,
 }
 
-fn find_component_rating(strings: &Vec<[char; 12]>, mode: Mode) -> String {
+fn find_component_rating(strings: &[[char; 12]], mode: Mode) -> String {
 	let mut idx = 0;
 
 	let mut partial: Vec<char> = vec![];
 
-	let mut strings: Vec<[char; 12]> = strings.clone();
+	let mut strings: Vec<[char; 12]> = strings.to_owned();
 
 	loop {
 		let statistics = strings.iter().fold([[0; 2]; 12], bit_count);
@@ -94,7 +94,7 @@ fn find_component_rating(strings: &Vec<[char; 12]>, mode: Mode) -> String {
 			idx += 1;
 
 			if idx >= 12 {
-				unreachable!()
+				unreachable!();
 			}
 		}
 	}
