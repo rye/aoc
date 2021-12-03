@@ -51,7 +51,7 @@ pub fn part_one(strings: &Intermediate) -> Option<Solution> {
 	Some(gamma_rate * epsilon_rate)
 }
 
-fn find_keep_bit(statistics: &[usize; 2], mode: Mode) -> char {
+const fn find_keep_bit(statistics: &[usize; 2], mode: Mode) -> char {
 	if statistics[0] <= statistics[1] {
 		match mode {
 			Mode::KeepMostCommonOrOne => '1',
