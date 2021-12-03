@@ -51,6 +51,76 @@ pub fn part_one(strings: &Intermediate) -> Option<Solution> {
 	Some(gamma_rate * epsilon_rate)
 }
 
-pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
-	None
+fn find_o2_generator_rating(strings: &Vec<[char; 12]>) -> String {
+	let mut idx = 0;
+
+	let mut partial: Vec<char> = vec![];
+
+	let mut strings: Vec<[char; 12]> = strings.clone();
+
+	loop {
+		let statistics = strings.iter().fold([[0; 2]; 12], bit_count);
+
+		let keep_bit = if statistics[idx][0] <= statistics[idx][1] {
+			'1'
+		} else {
+			'0'
+		};
+
+		partial.push(keep_bit);
+
+		strings = strings
+			.into_iter()
+			.filter(|string| string[0..=idx] == partial[0..=idx])
+			.collect();
+
+		if strings.len() == 1 {
+			break strings[0].iter().collect();
+		} else {
+			idx += 1;
+		}
+	}
+}
+
+fn find_co2_scrubber_rating(strings: &Vec<[char; 12]>) -> String {
+	let mut idx = 0;
+
+	let mut partial: Vec<char> = vec![];
+
+	let mut strings: Vec<[char; 12]> = strings.clone();
+
+	loop {
+		let statistics = strings.iter().fold([[0; 2]; 12], bit_count);
+
+		let keep_bit = if statistics[idx][0] > statistics[idx][1] {
+			'1'
+		} else {
+			'0'
+		};
+
+		partial.push(keep_bit);
+
+		strings = strings
+			.into_iter()
+			.filter(|string| string[0..=idx] == partial[0..=idx])
+			.collect();
+
+		if strings.len() == 1 {
+			break strings[0].iter().collect();
+		} else {
+			idx += 1;
+		}
+	}
+}
+
+pub fn part_two(strings: &Intermediate) -> Option<Solution> {
+	let oxygen_generator_rating_bits = find_o2_generator_rating(&strings);
+
+	let oxygen_generator_rating: u32 = u32::from_str_radix(&oxygen_generator_rating_bits, 2).unwrap();
+
+	let co2_scrubber_rating_bits = find_co2_scrubber_rating(&strings);
+
+	let co2_scrubber_rating: u32 = u32::from_str_radix(&co2_scrubber_rating_bits, 2).unwrap();
+
+	Some(oxygen_generator_rating * co2_scrubber_rating)
 }
