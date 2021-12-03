@@ -31,14 +31,10 @@ pub fn part_one(strings: &Intermediate) -> Option<Solution> {
 
 	let gamma_rate_bits: String = statistics
 		.iter()
-		.map(|[zc, oc]| {
-			if oc > zc {
-				'1'
-			} else if zc > oc {
-				'0'
-			} else {
-				panic!("zc = {}, oc = {}, neither is more common!", zc, oc);
-			}
+		.map(|[zc, oc]| match oc.cmp(zc) {
+			core::cmp::Ordering::Greater => '1',
+			core::cmp::Ordering::Less => '0',
+			core::cmp::Ordering::Equal => unreachable!(),
 		})
 		.collect();
 
