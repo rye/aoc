@@ -51,6 +51,20 @@ pub fn part_one(strings: &Intermediate) -> Option<Solution> {
 	Some(gamma_rate * epsilon_rate)
 }
 
+fn find_keep_bit(statistics: &[usize; 2], mode: Mode) -> char {
+	if statistics[0] <= statistics[1] {
+		match mode {
+			Mode::KeepMostCommonOrOne => '1',
+			Mode::KeepLeastCommonOrZero => '0',
+		}
+	} else {
+		match mode {
+			Mode::KeepMostCommonOrOne => '0',
+			Mode::KeepLeastCommonOrZero => '1',
+		}
+	}
+}
+
 #[derive(Clone, Copy)]
 enum Mode {
 	KeepMostCommonOrOne,
@@ -67,17 +81,7 @@ fn find_component_rating(strings: &Vec<[char; 12]>, mode: Mode) -> String {
 	loop {
 		let statistics = strings.iter().fold([[0; 2]; 12], bit_count);
 
-		let keep_bit = if statistics[idx][0] <= statistics[idx][1] {
-			match mode {
-				Mode::KeepMostCommonOrOne => '1',
-				Mode::KeepLeastCommonOrZero => '0',
-			}
-		} else {
-			match mode {
-				Mode::KeepMostCommonOrOne => '0',
-				Mode::KeepLeastCommonOrZero => '1',
-			}
-		};
+		let keep_bit = find_keep_bit(&statistics[idx], mode);
 
 		partial.push(keep_bit);
 
