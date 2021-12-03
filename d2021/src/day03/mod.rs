@@ -1,13 +1,17 @@
-type Intermediate = Vec<[char; 12]>;
+type Intermediate = (Vec<[char; 12]>, [[usize; 2]; 12]);
 
 pub fn parse(input: &str) -> Intermediate {
-	input
+	let lines: Vec<_> = input
 		.lines()
 		.map(str::chars)
 		.map(std::str::Chars::collect::<Vec<_>>)
 		.map(<[char; 12]>::try_from)
 		.map(Result::unwrap)
-		.collect()
+		.collect();
+
+	let statistics: [[usize; 2]; 12] = lines.iter().fold([[0; 2]; 12], bit_count);
+
+	(lines, statistics)
 }
 
 // Each string in the input is 12 bits long. This means that they fit in a u16.  However,
@@ -28,10 +32,8 @@ fn bit_count(accumulator: [[usize; 2]; 12], string: &[char; 12]) -> [[usize; 2];
 	accumulator
 }
 
-pub fn part_one(strings: &Intermediate) -> Option<Solution> {
-	let bit_counts: [[usize; 2]; 12] = strings.iter().fold([[0; 2]; 12], bit_count);
-
-	let gamma_rate_bits: String = bit_counts
+pub fn part_one((_strings, statistics): &Intermediate) -> Option<Solution> {
+	let gamma_rate_bits: String = statistics
 		.iter()
 		.map(|[zc, oc]| {
 			if oc > zc {
