@@ -94,6 +94,10 @@ fn find_component_rating(strings: &Vec<[char; 12]>, mode: Mode) -> String {
 			break strings[0].iter().collect();
 		} else {
 			idx += 1;
+
+			if idx >= 12 {
+				unreachable!()
+			}
 		}
 	}
 }
