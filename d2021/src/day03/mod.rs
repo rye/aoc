@@ -14,9 +14,7 @@ pub fn parse(input: &str) -> Intermediate {
 // we need to be able to multiply without overflow.  (log(2^16 * 2^16) / log(2) == 32).
 type Solution = u32;
 
-fn bit_count(accumulator: [[usize; 2]; 12], string: &[char; 12]) -> [[usize; 2]; 12] {
-	let mut accumulator = accumulator;
-
+fn bit_count(mut accumulator: [[usize; 2]; 12], string: &[char; 12]) -> [[usize; 2]; 12] {
 	for idx in 0..12 {
 		match string[idx] {
 			'0' => accumulator[idx][0] += 1,
