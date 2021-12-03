@@ -1,10 +1,12 @@
+use core::{cmp::Ordering, str::Chars};
+
 type Intermediate = Vec<[char; 12]>;
 
 pub fn parse(input: &str) -> Intermediate {
 	input
 		.lines()
 		.map(str::chars)
-		.map(std::str::Chars::collect::<Vec<_>>)
+		.map(Chars::collect::<Vec<_>>)
 		.map(<[char; 12]>::try_from)
 		.map(Result::unwrap)
 		.collect()
@@ -32,9 +34,9 @@ pub fn part_one(strings: &Intermediate) -> Option<Solution> {
 	let gamma_rate_bits: String = statistics
 		.iter()
 		.map(|[zc, oc]| match oc.cmp(zc) {
-			core::cmp::Ordering::Greater => '1',
-			core::cmp::Ordering::Less => '0',
-			core::cmp::Ordering::Equal => unreachable!(),
+			Ordering::Greater => '1',
+			Ordering::Less => '0',
+			Ordering::Equal => unreachable!(),
 		})
 		.collect();
 
