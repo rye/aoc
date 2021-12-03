@@ -101,11 +101,11 @@ fn find_component_rating(strings: &Vec<[char; 12]>, mode: Mode) -> String {
 }
 
 pub fn part_two(strings: &Intermediate) -> Option<Solution> {
-	let oxygen_generator_rating_bits = find_component_rating(&strings, Mode::KeepMostCommonOrOne);
+	let oxygen_generator_rating_bits = find_component_rating(strings, Mode::KeepMostCommonOrOne);
 
 	let oxygen_generator_rating: u32 = u32::from_str_radix(&oxygen_generator_rating_bits, 2).unwrap();
 
-	let co2_scrubber_rating_bits = find_component_rating(&strings, Mode::KeepLeastCommonOrZero);
+	let co2_scrubber_rating_bits = find_component_rating(strings, Mode::KeepLeastCommonOrZero);
 
 	let co2_scrubber_rating: u32 = u32::from_str_radix(&co2_scrubber_rating_bits, 2).unwrap();
 
