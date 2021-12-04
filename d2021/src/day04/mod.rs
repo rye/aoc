@@ -63,13 +63,7 @@ pub fn part_one((calls, boards): &Intermediate) -> Option<Solution> {
 
 	let (last_call, winning_board) = winning_board.expect("failed to find a winning board");
 
-	let score: u32 = u32::from(
-		winning_board
-			.numbers()
-			.difference(&seen_calls)
-			.map(|n| u16::from(*n))
-			.sum::<u16>(),
-	) * u32::from(last_call);
+	let score: u32 = winning_board.score(last_call, &seen_calls);
 
 	Some(score as usize)
 }
@@ -103,7 +97,7 @@ pub fn part_two((calls, boards): &Intermediate) -> Option<Solution> {
 		})
 		.collect();
 
-	let (last_call, winning_board, seen_calls) = winning_boards_per_call
+	let (&last_call, winning_board, seen_calls) = winning_boards_per_call
 		.iter()
 		.rfind(|(_idx, _call, winners)| !winners.is_empty())
 		.map(|(call_idx, last_call, winners)| {
@@ -122,13 +116,7 @@ pub fn part_two((calls, boards): &Intermediate) -> Option<Solution> {
 		})
 		.expect("no last winner?!");
 
-	let score: u32 = u32::from(
-		winning_board
-			.numbers()
-			.difference(&seen_calls)
-			.map(|n| u16::from(*n))
-			.sum::<u16>(),
-	) * u32::from(*last_call);
+	let score: u32 = winning_board.score(last_call, &seen_calls);
 
 	Some(score as usize)
 }

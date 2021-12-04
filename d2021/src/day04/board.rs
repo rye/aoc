@@ -56,6 +56,16 @@ impl Board {
 		winning_moves
 	}
 
+	pub fn score(&self, last_call: Number, seen_calls: &BTreeSet<Number>) -> u32 {
+		u32::from(
+			self
+				.numbers()
+				.difference(seen_calls)
+				.map(|&n| u16::from(n))
+				.sum::<u16>(),
+		) * u32::from(last_call)
+	}
+
 	pub fn numbers(&self) -> &BTreeSet<Number> {
 		&self.all_contents
 	}
