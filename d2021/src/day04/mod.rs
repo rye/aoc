@@ -120,10 +120,11 @@ type Intermediate = (Vec<Number>, Vec<Board>);
 
 pub fn parse(input: &str) -> Intermediate {
 	let mut results = input.split("\n\n");
-	let calls = results.next().unwrap();
+	let calls = results.next();
 	let boards = results;
 
 	let calls: Vec<Number> = calls
+		.unwrap_or("")
 		.split(',')
 		.map(str::parse)
 		.filter_map(Result::ok)
