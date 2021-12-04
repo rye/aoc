@@ -78,7 +78,7 @@ fn parse_board_line(line: &str) -> Result<[Number; 5], Error> {
 
 fn parse_board(board: &str) -> Result<[[Number; 5]; 5], Error> {
 	let result: Result<Vec<[Number; 5]>, Error> = board
-		.split("\n")
+		.split('\n')
 		.map(parse_board_line)
 		.collect::<Result<Vec<[Number; 5]>, Error>>();
 
