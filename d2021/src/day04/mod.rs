@@ -31,13 +31,11 @@ impl Board {
 		winning_moves
 	}
 
-	fn check_win(&self, seen_calls: &BTreeSet<Number>) -> (bool, Option<&BTreeSet<Number>>) {
-		let winning_move = self
+	fn find_winning_move(&self, seen_calls: &BTreeSet<Number>) -> Option<&BTreeSet<Number>> {
+		self
 			.winning_moves
 			.iter()
-			.find(|winning_move| seen_calls.is_superset(winning_move));
-
-		(winning_move.is_some(), winning_move)
+			.find(|winning_move| seen_calls.is_superset(winning_move))
 	}
 
 	fn from_contents(contents: [[Number; 5]; 5]) -> Self {
@@ -153,13 +151,8 @@ pub fn part_one((calls, boards): &Intermediate) -> Option<Solution> {
 			for board in boards {
 				if board.all_contents.intersection(&seen_calls).count() < 5 {
 					continue;
-				} else {
-					let check = board.check_win(&seen_calls);
-
-					// The board did win!
-					if check.0 {
-						break 'main Some((call, board));
-					}
+				} else if let Some(_winning_move) = board.find_winning_move(&seen_calls) {
+					break 'main Some((call, board));
 				}
 			}
 		} else {
