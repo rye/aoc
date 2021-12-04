@@ -7,7 +7,6 @@ type Number = u8;
 
 #[derive(Debug, Hash, PartialEq, Eq)]
 pub struct Board {
-	//contents: [[Number; 5]; 5],
 	winning_moves: Vec<BTreeSet<Number>>,
 	all_contents: BTreeSet<Number>,
 }
