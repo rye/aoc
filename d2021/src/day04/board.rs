@@ -21,7 +21,7 @@ fn parse_board_line(line: &str) -> Result<[Number; 5], Error> {
 	}
 }
 
-fn parse_board(board: &str) -> Result<[[Number; 5]; 5], Error> {
+fn parse_board_block(board: &str) -> Result<[[Number; 5]; 5], Error> {
 	let result: Result<Vec<[Number; 5]>, Error> = board
 		.split('\n')
 		.map(parse_board_line)
@@ -106,6 +106,6 @@ impl core::str::FromStr for Board {
 	type Err = Error;
 
 	fn from_str(board: &str) -> Result<Self, Self::Err> {
-		parse_board(board).map(Board::from_contents)
+		parse_board_block(board).map(Board::from_contents)
 	}
 }
