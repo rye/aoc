@@ -1,8 +1,11 @@
-use std::{collections::BTreeSet, num::ParseIntError};
+use std::{
+	collections::{BTreeSet, HashSet},
+	num::ParseIntError,
+};
 
 type Number = u8;
 
-#[derive(Debug)]
+#[derive(Debug, Hash, PartialEq, Eq)]
 pub struct Board {
 	//contents: [[Number; 5]; 5],
 	winning_moves: Vec<BTreeSet<Number>>,
@@ -172,6 +175,60 @@ pub fn part_one((calls, boards): &Intermediate) -> Option<Solution> {
 	Some(score as usize)
 }
 
-pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
-	None
+pub fn part_two((calls, boards): &Intermediate) -> Option<Solution> {
+	let mut seen_calls = BTreeSet::new();
+
+	let mut remaining_boards: HashSet<&Board> = boards.iter().collect();
+
+	let winning_boards_per_call: Vec<(usize, Number, Vec<&Board>)> = calls
+		.iter()
+		.enumerate()
+		.map(|(idx, &call)| {
+			seen_calls.insert(call);
+
+			let mut winners_this_round: Vec<&Board> = vec![];
+
+			for &board in &remaining_boards {
+				if board.all_contents.intersection(&seen_calls).count() < 5 {
+					continue;
+				} else if let Some(_winning_move) = board.find_winning_move(&seen_calls) {
+					winners_this_round.push(board);
+				}
+			}
+
+			for &board in winners_this_round.iter() {
+				remaining_boards.remove(board);
+			}
+
+			(idx, call, winners_this_round)
+		})
+		.collect();
+
+	let (last_call, winning_board, seen_calls) = winning_boards_per_call
+		.iter()
+		.rfind(|(_idx, _call, winners)| winners.len() > 0)
+		.map(|(call_idx, last_call, winners)| {
+			let calls_to_this_point = &calls[0..=*call_idx];
+			let calls_to_this_point: BTreeSet<Number> = calls_to_this_point.iter().copied().collect();
+
+			assert_eq!(
+				winners.len(),
+				1,
+				"should only have one winner on the last day"
+			);
+
+			let winning_board = winners[0];
+
+			(last_call, winning_board, calls_to_this_point)
+		})
+		.expect("no last winner?!");
+
+	let score: u32 = winning_board
+		.all_contents
+		.difference(&seen_calls)
+		.map(|n| u16::from(*n))
+		.sum::<u16>() as u32
+		* u32::from(*last_call);
+
+	Some(score as usize)
 }
