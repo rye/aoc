@@ -54,9 +54,9 @@ fn record_all_rounds<'a>(
 			let mut winners: Vec<&'a Board> = vec![];
 
 			for &board in remaining_boards.iter() {
-				if board.numbers().intersection(&seen_calls).count() < 5 {
+				if board.numbers().intersection(seen_calls).count() < 5 {
 					continue;
-				} else if let Some(_winning_move) = board.find_winning_move(&seen_calls) {
+				} else if let Some(_winning_move) = board.find_winning_move(seen_calls) {
 					winners.push(board);
 				}
 			}
