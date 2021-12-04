@@ -36,38 +36,6 @@ pub fn parse(input: &str) -> Intermediate {
 	(calls, boards)
 }
 
-type Solution = usize;
-
-pub fn part_one((calls, boards): &Intermediate) -> Option<Solution> {
-	let mut seen_calls = BTreeSet::new();
-
-	let mut calls = calls.iter();
-
-	let winning_board: Option<(Number, &Board)> = 'main: loop {
-		let call = calls.next();
-
-		if let Some(&call) = call {
-			seen_calls.insert(call);
-
-			for board in boards {
-				if board.numbers().intersection(&seen_calls).count() < 5 {
-					continue;
-				} else if let Some(_winning_move) = board.find_winning_move(&seen_calls) {
-					break 'main Some((call, board));
-				}
-			}
-		} else {
-			break None;
-		}
-	};
-
-	let (last_call, winning_board) = winning_board.expect("failed to find a winning board");
-
-	let score: u32 = winning_board.score(last_call, &seen_calls);
-
-	Some(score as usize)
-}
-
 struct Turn<'a> {
 	call: Number,
 	winners: Vec<&'a Board>,
@@ -106,6 +74,26 @@ fn record_all_rounds<'a>(
 			})
 		},
 	)
+}
+
+type Solution = usize;
+
+pub fn part_one((calls, boards): &Intermediate) -> Option<Solution> {
+	let Turn {
+		call,
+		winners,
+		calls_so_far,
+	} = record_all_rounds(calls, boards)
+		.find(|turn| !turn.winners.is_empty())
+		.unwrap();
+
+	let last_call = call;
+	let winning_board = winners[0];
+	let seen_calls = calls_so_far.iter().copied().collect();
+
+	let score: u32 = winning_board.score(last_call, &seen_calls);
+
+	Some(score as usize)
 }
 
 pub fn part_two((calls, boards): &Intermediate) -> Option<Solution> {
