@@ -5,57 +5,6 @@ use std::{
 
 type Number = u8;
 
-#[derive(Debug, Hash, PartialEq, Eq)]
-pub struct Board {
-	winning_moves: Vec<BTreeSet<Number>>,
-	all_contents: BTreeSet<Number>,
-}
-
-impl Board {
-	fn generate_winning_moves(contents: &[[Number; 5]; 5]) -> Vec<BTreeSet<Number>> {
-		let mut winning_moves = Vec::new();
-
-		for &row in contents {
-			let rank_set: BTreeSet<Number> = BTreeSet::from(row);
-			winning_moves.push(rank_set);
-		}
-
-		for column in 0..5 {
-			let mut file_set: BTreeSet<Number> = BTreeSet::new();
-
-			for &row in contents.iter() {
-				file_set.insert(row[column]);
-			}
-
-			winning_moves.push(file_set);
-		}
-
-		winning_moves
-	}
-
-	fn find_winning_move(&self, seen_calls: &BTreeSet<Number>) -> Option<&BTreeSet<Number>> {
-		self
-			.winning_moves
-			.iter()
-			.find(|winning_move| seen_calls.is_superset(winning_move))
-	}
-
-	fn from_contents(contents: [[Number; 5]; 5]) -> Self {
-		let winning_moves = Self::generate_winning_moves(&contents);
-
-		let all_contents: BTreeSet<Number> = contents
-			.iter()
-			.flat_map(|row| row.iter().copied())
-			.collect();
-
-		Self {
-			//contents,
-			winning_moves,
-			all_contents,
-		}
-	}
-}
-
 #[derive(Debug, thiserror::Error, PartialEq)]
 pub enum Error {
 	#[error("failed to parse a number")]
@@ -65,58 +14,8 @@ pub enum Error {
 	BoardParse,
 }
 
-fn parse_board_line(line: &str) -> Result<[Number; 5], Error> {
-	let result: Result<Vec<Number>, Error> = line
-		.split_ascii_whitespace()
-		.map(str::parse)
-		.collect::<Result<Vec<Number>, _>>()
-		.map_err(Error::from);
-
-	match result {
-		Ok(vec) => <[Number; 5]>::try_from(vec).map_err(|_| Error::BoardParse),
-		Err(e) => Err(e),
-	}
-}
-
-fn parse_board(board: &str) -> Result<[[Number; 5]; 5], Error> {
-	let result: Result<Vec<[Number; 5]>, Error> = board
-		.split('\n')
-		.map(parse_board_line)
-		.collect::<Result<Vec<[Number; 5]>, Error>>();
-
-	match result {
-		Ok(vec) => <[[Number; 5]; 5]>::try_from(vec).map_err(|_| Error::BoardParse),
-		Err(e) => Err(e),
-	}
-}
-
-#[cfg(test)]
-mod parse_board_line {
-	use super::{parse_board_line, Error};
-
-	#[test]
-	fn line_62_5_77_94_75() {
-		assert_eq!(parse_board_line("62  5 77 94 75"), Ok([62, 5, 77, 94, 75]));
-	}
-
-	#[test]
-	fn line_62_5_77_94() {
-		assert_eq!(parse_board_line("62  5 77 94"), Err(Error::BoardParse));
-	}
-
-	#[test]
-	fn line_62_5_77_94_asdf() {
-		assert!(parse_board_line("62  5 77 94 asdf").is_err())
-	}
-}
-
-impl core::str::FromStr for Board {
-	type Err = Error;
-
-	fn from_str(board: &str) -> Result<Self, Self::Err> {
-		parse_board(board).map(Board::from_contents)
-	}
-}
+mod board;
+pub use board::*;
 
 type Intermediate = (Vec<Number>, Vec<Board>);
 
@@ -151,7 +50,7 @@ pub fn part_one((calls, boards): &Intermediate) -> Option<Solution> {
 			seen_calls.insert(call);
 
 			for board in boards {
-				if board.all_contents.intersection(&seen_calls).count() < 5 {
+				if board.numbers().intersection(&seen_calls).count() < 5 {
 					continue;
 				} else if let Some(_winning_move) = board.find_winning_move(&seen_calls) {
 					break 'main Some((call, board));
@@ -166,7 +65,7 @@ pub fn part_one((calls, boards): &Intermediate) -> Option<Solution> {
 
 	let score: u32 = u32::from(
 		winning_board
-			.all_contents
+			.numbers()
 			.difference(&seen_calls)
 			.map(|n| u16::from(*n))
 			.sum::<u16>(),
@@ -189,7 +88,7 @@ pub fn part_two((calls, boards): &Intermediate) -> Option<Solution> {
 			let mut winners_this_round: Vec<&Board> = vec![];
 
 			for &board in &remaining_boards {
-				if board.all_contents.intersection(&seen_calls).count() < 5 {
+				if board.numbers().intersection(&seen_calls).count() < 5 {
 					continue;
 				} else if let Some(_winning_move) = board.find_winning_move(&seen_calls) {
 					winners_this_round.push(board);
@@ -225,7 +124,7 @@ pub fn part_two((calls, boards): &Intermediate) -> Option<Solution> {
 
 	let score: u32 = u32::from(
 		winning_board
-			.all_contents
+			.numbers()
 			.difference(&seen_calls)
 			.map(|n| u16::from(*n))
 			.sum::<u16>(),
