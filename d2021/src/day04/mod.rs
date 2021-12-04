@@ -68,50 +68,63 @@ pub fn part_one((calls, boards): &Intermediate) -> Option<Solution> {
 	Some(score as usize)
 }
 
-pub fn part_two((calls, boards): &Intermediate) -> Option<Solution> {
-	let mut seen_calls = BTreeSet::new();
+struct Turn<'a, 'b: 'a> {
+	call: Number,
+	winners: Vec<&'a Board>,
+	calls_so_far: &'b [Number],
+}
+
+fn record_all_rounds<'a, 'b>(calls: &'b [Number], boards: &'b [Board]) -> Vec<Turn<'a, 'b>> {
+	let mut seen_calls: BTreeSet<Number> = BTreeSet::new();
 
 	let mut remaining_boards: HashSet<&Board> = boards.iter().collect();
 
-	let winning_boards_per_call: Vec<(usize, Number, Vec<&Board>)> = calls
+	calls
 		.iter()
 		.enumerate()
 		.map(|(idx, &call)| {
 			seen_calls.insert(call);
 
-			let mut winners_this_round: Vec<&Board> = vec![];
+			let mut winners: Vec<&'b Board> = vec![];
 
 			for &board in &remaining_boards {
 				if board.numbers().intersection(&seen_calls).count() < 5 {
 					continue;
 				} else if let Some(_winning_move) = board.find_winning_move(&seen_calls) {
-					winners_this_round.push(board);
+					winners.push(board);
 				}
 			}
 
-			for &board in winners_this_round.iter() {
+			for &board in winners.iter() {
 				remaining_boards.remove(board);
 			}
 
-			(idx, call, winners_this_round)
+			let calls_so_far = &calls[0..=idx];
+
+			Turn {
+				call,
+				winners,
+				calls_so_far,
+			}
 		})
-		.collect();
+		.collect()
+}
 
-	let (&last_call, winning_board, seen_calls) = winning_boards_per_call
+pub fn part_two((calls, boards): &Intermediate) -> Option<Solution> {
+	let all_turns = record_all_rounds(calls, boards);
+
+	let (&last_call, winning_board, seen_calls) = all_turns
 		.iter()
-		.rfind(|(_idx, _call, winners)| !winners.is_empty())
-		.map(|(call_idx, last_call, winners)| {
-			let calls_to_this_point: BTreeSet<Number> = calls[0..=*call_idx].iter().copied().collect();
+		.rfind(|Turn { winners, .. }| !winners.is_empty())
+		.map(|turn| {
+			let Turn {
+				call,
+				winners,
+				calls_so_far,
+				..
+			} = turn;
 
-			assert_eq!(
-				winners.len(),
-				1,
-				"should only have one winner on the last day"
-			);
-
-			let winning_board = winners[0];
-
-			(last_call, winning_board, calls_to_this_point)
+			(call, winners[0], calls_so_far.iter().copied().collect())
 		})
 		.expect("no last winner?!");
 
