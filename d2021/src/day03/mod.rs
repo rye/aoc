@@ -42,7 +42,7 @@ pub fn part_one(strings: &Intermediate) -> Option<Solution> {
 
 	let gamma_rate: u32 = u32::from_str_radix(&gamma_rate_bits, 2).unwrap();
 
-	let epsilon_rate: u32 = !gamma_rate & 0b00001111_11111111;
+	let epsilon_rate: u32 = !gamma_rate & 0b0000_1111_1111_1111;
 
 	Some(gamma_rate * epsilon_rate)
 }
