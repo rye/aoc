@@ -13,16 +13,16 @@ impl Board {
 	fn generate_winning_moves(contents: &[[Number; 5]; 5]) -> Vec<BTreeSet<Number>> {
 		let mut winning_moves = Vec::new();
 
-		for row in 0..5 {
-			let rank_set: BTreeSet<Number> = BTreeSet::from(contents[row]);
+		for &row in contents {
+			let rank_set: BTreeSet<Number> = BTreeSet::from(row);
 			winning_moves.push(rank_set);
 		}
 
 		for column in 0..5 {
 			let mut file_set: BTreeSet<Number> = BTreeSet::new();
 
-			for idx in 0..5 {
-				file_set.insert(contents[idx][column]);
+			for &row in contents.iter() {
+				file_set.insert(row[column]);
 			}
 
 			winning_moves.push(file_set);
