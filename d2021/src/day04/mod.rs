@@ -126,7 +126,7 @@ pub fn part_two((calls, boards): &Intermediate) -> Option<Solution> {
 
 			(call, winners[0], calls_so_far.iter().copied().collect())
 		})
-		.expect("no last winner?!");
+		.unwrap();
 
 	let score: u32 = winning_board.score(last_call, &seen_calls);
 
