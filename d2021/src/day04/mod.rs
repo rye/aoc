@@ -165,9 +165,9 @@ pub fn part_one((calls, boards): &Intermediate) -> Option<Solution> {
 	let score: u32 = winning_board
 		.all_contents
 		.difference(&seen_calls)
-		.map(|n| *n as u32)
-		.sum::<u32>()
-		* last_call as u32;
+		.map(|n| u16::from(*n))
+		.sum::<u16>() as u32
+		* u32::from(last_call);
 
 	Some(score as usize)
 }
