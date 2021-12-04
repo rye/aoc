@@ -43,8 +43,7 @@ impl Board {
 
 		let all_contents: BTreeSet<Number> = contents
 			.iter()
-			.map(|row| row.iter().copied())
-			.flatten()
+			.flat_map(|row| row.iter().copied())
 			.collect();
 
 		Self {
