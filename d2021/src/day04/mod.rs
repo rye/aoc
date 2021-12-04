@@ -73,7 +73,7 @@ fn parse_board_line(line: &str) -> Result<[Number; 5], Error> {
 		.map_err(Error::from);
 
 	match result {
-		Ok(vec) => <[Number; 5]>::try_from(vec).or_else(|_| Err(Error::BoardParse)),
+		Ok(vec) => <[Number; 5]>::try_from(vec).map_err(|_| Error::BoardParse),
 		Err(e) => Err(e),
 	}
 }
@@ -85,7 +85,7 @@ fn parse_board(board: &str) -> Result<[[Number; 5]; 5], Error> {
 		.collect::<Result<Vec<[Number; 5]>, Error>>();
 
 	match result {
-		Ok(vec) => <[[Number; 5]; 5]>::try_from(vec).or_else(|_| Err(Error::BoardParse)),
+		Ok(vec) => <[[Number; 5]; 5]>::try_from(vec).map_err(|_| Error::BoardParse),
 		Err(e) => Err(e),
 	}
 }
