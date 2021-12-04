@@ -206,7 +206,7 @@ pub fn part_two((calls, boards): &Intermediate) -> Option<Solution> {
 
 	let (last_call, winning_board, seen_calls) = winning_boards_per_call
 		.iter()
-		.rfind(|(_idx, _call, winners)| winners.len() > 0)
+		.rfind(|(_idx, _call, winners)| !winners.is_empty())
 		.map(|(call_idx, last_call, winners)| {
 			let calls_to_this_point = &calls[0..=*call_idx];
 			let calls_to_this_point: BTreeSet<Number> = calls_to_this_point.iter().copied().collect();
