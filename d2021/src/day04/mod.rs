@@ -19,6 +19,7 @@ pub use board::*;
 
 type Intermediate = (Vec<Number>, Vec<Board>);
 
+/// Parses the input down to a list of calls and a set of boards.
 pub fn parse(input: &str) -> Intermediate {
 	let mut results = input.split("\n\n");
 	let calls = results.next();
@@ -42,6 +43,11 @@ struct Turn<'a> {
 	calls_so_far: &'a [Number],
 }
 
+/// From starting conditions, produces an iterator over all of the 'turns'.
+///
+/// (A 'turn' consists of information about what happens when you call out a number. Some of the
+/// boards are winners, and the remaining boards have some number of their spaces filled by the
+/// calls you have made so far.)
 fn record_all_rounds<'a>(
 	calls: &'a [Number],
 	boards: &'a [Board],
@@ -79,6 +85,8 @@ fn record_all_rounds<'a>(
 type Solution = usize;
 
 pub fn part_one((calls, boards): &Intermediate) -> Option<Solution> {
+	// Since we are only looking for the _first_ winning board in this step, we use `Iterator::find`
+	// to stop at the first case.
 	let Turn {
 		call,
 		winners,
@@ -97,6 +105,9 @@ pub fn part_one((calls, boards): &Intermediate) -> Option<Solution> {
 }
 
 pub fn part_two((calls, boards): &Intermediate) -> Option<Solution> {
+	// Sadly, Bingo games are temporal. If you want to find the last board, you do _actually_ have
+	// to play all the boards out, since you get very different results depending on the order in
+	// which you call numbers. (In hindsight, this is obvious.)
 	let all_turns: Vec<Turn> = record_all_rounds(calls, boards).collect();
 
 	let last_turn = all_turns
