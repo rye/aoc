@@ -165,12 +165,13 @@ pub fn part_one((calls, boards): &Intermediate) -> Option<Solution> {
 
 	let (last_call, winning_board) = winning_board.expect("failed to find a winning board");
 
-	let score: u32 = winning_board
-		.all_contents
-		.difference(&seen_calls)
-		.map(|n| u16::from(*n))
-		.sum::<u16>() as u32
-		* u32::from(last_call);
+	let score: u32 = u32::from(
+		winning_board
+			.all_contents
+			.difference(&seen_calls)
+			.map(|n| u16::from(*n))
+			.sum::<u16>(),
+	) * u32::from(last_call);
 
 	Some(score as usize)
 }
@@ -223,12 +224,13 @@ pub fn part_two((calls, boards): &Intermediate) -> Option<Solution> {
 		})
 		.expect("no last winner?!");
 
-	let score: u32 = winning_board
-		.all_contents
-		.difference(&seen_calls)
-		.map(|n| u16::from(*n))
-		.sum::<u16>() as u32
-		* u32::from(*last_call);
+	let score: u32 = u32::from(
+		winning_board
+			.all_contents
+			.difference(&seen_calls)
+			.map(|n| u16::from(*n))
+			.sum::<u16>(),
+	) * u32::from(*last_call);
 
 	Some(score as usize)
 }
