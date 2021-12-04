@@ -4,7 +4,7 @@ type Number = u8;
 
 #[derive(Debug)]
 pub struct Board {
-	contents: [[Number; 5]; 5],
+	//contents: [[Number; 5]; 5],
 	winning_moves: Vec<BTreeSet<Number>>,
 	all_contents: BTreeSet<Number>,
 }
@@ -50,7 +50,7 @@ impl Board {
 			.collect();
 
 		Self {
-			contents,
+			//contents,
 			winning_moves,
 			all_contents,
 		}
