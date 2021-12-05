@@ -96,24 +96,16 @@ pub fn parse(input: &str) -> Intermediate {
 type Solution = usize;
 
 pub fn part_one(segments: &Intermediate) -> Option<Solution> {
-	println!("Starting with {} segments", segments.len());
-
 	let segments: Vec<LineSegment> = segments
 		.into_iter()
 		.filter(|segment| segment.is_horizontal() || segment.is_vertical())
 		.copied()
 		.collect();
 
-	println!("Ended up with {} segments after filtering", segments.len());
-
 	let mut points: BTreeMap<Point, usize> = BTreeMap::new();
 
 	for segment in segments {
-		println!("Segment: {:?}", segment);
-
 		for point in segment.points() {
-			println!("  {:?}", point);
-
 			use std::collections::btree_map::Entry;
 
 			match points.entry(point) {
