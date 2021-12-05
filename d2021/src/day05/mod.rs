@@ -1,6 +1,9 @@
-use std::{
-	collections::{BTreeMap, BTreeSet},
-	convert::Infallible,
+use {
+	core::str::FromStr,
+	std::{
+		collections::{btree_map::Entry, BTreeMap, BTreeSet},
+		convert::Infallible,
+	},
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -9,7 +12,7 @@ struct Point {
 	y: i16,
 }
 
-impl core::str::FromStr for Point {
+impl FromStr for Point {
 	// I think you will find this FromStr quite fallible!
 	// For the input, though, this works just fine.
 	type Err = Infallible;
@@ -134,7 +137,7 @@ fn points_diagonal_dsc() {
 
 type Intermediate = Vec<LineSegment>;
 
-impl core::str::FromStr for LineSegment {
+impl FromStr for LineSegment {
 	type Err = Infallible;
 
 	fn from_str(line: &str) -> Result<Self, Self::Err> {
@@ -175,8 +178,6 @@ pub fn part_one(segments: &Intermediate) -> Option<Solution> {
 
 	for segment in segments {
 		for point in segment.points() {
-			use std::collections::btree_map::Entry;
-
 			match points.entry(point) {
 				Entry::Occupied(mut e) => e.insert(e.get() + 1),
 				Entry::Vacant(e) => *e.insert(1),
@@ -194,8 +195,6 @@ pub fn part_two(segments: &Intermediate) -> Option<Solution> {
 
 	for segment in segments {
 		for point in segment.points() {
-			use std::collections::btree_map::Entry;
-
 			match points.entry(point) {
 				Entry::Occupied(mut e) => e.insert(e.get() + 1),
 				Entry::Vacant(e) => *e.insert(1),
