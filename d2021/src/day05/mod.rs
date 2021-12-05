@@ -5,8 +5,8 @@ use std::{
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 struct Point {
-	x: u16,
-	y: u16,
+	x: i16,
+	y: i16,
 }
 
 impl core::str::FromStr for Point {
@@ -51,10 +51,7 @@ impl LineSegment {
 	}
 
 	fn is_diagonal(&self) -> bool {
-		let (dx, dy) = (
-			self.b.x as i32 - self.a.x as i32,
-			self.b.y as i32 - self.a.y as i32,
-		);
+		let (dx, dy) = (self.b.x - self.a.x, self.b.y - self.a.y);
 
 		dx.abs() == dy.abs()
 	}
@@ -71,28 +68,20 @@ impl LineSegment {
 
 			Box::new((self.a.y..=self.b.y).map(move |y| Point { x, y }))
 		} else if self.is_diagonal() {
-			let (dir, steps): ((i32, i32), u16) = (
+			let (dir, steps): ((i16, i16), i16) = (
 				(
-					if self.b.x as i32 - self.a.x as i32 > 0 {
-						1
-					} else {
-						-1
-					},
-					if self.b.y as i32 - self.a.y as i32 > 0 {
-						1
-					} else {
-						-1
-					},
+					if self.b.x - self.a.x > 0 { 1 } else { -1 },
+					if self.b.y - self.a.y > 0 { 1 } else { -1 },
 				),
-				(self.b.x as i32 - self.a.x as i32).abs() as u16,
+				(self.b.x - self.a.x).abs(),
 			);
 
 			let x0 = self.a.x;
 			let y0 = self.a.y;
 
 			Box::new((0..=steps).map(move |i| {
-				let x: u16 = (x0 as i32 + (i as i32 * dir.0)) as u16;
-				let y: u16 = (y0 as i32 + (i as i32 * dir.1)) as u16;
+				let x = x0 + (i * dir.0);
+				let y = y0 + (i * dir.1);
 
 				Point { x, y }
 			}))
