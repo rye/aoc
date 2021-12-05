@@ -134,26 +134,30 @@ fn points_diagonal_dsc() {
 
 type Intermediate = Vec<LineSegment>;
 
-fn parse_line(line: &str) -> Result<LineSegment, Infallible> {
-	let points: BTreeSet<Point> = line
-		.split(" -> ")
-		.map(str::parse)
-		.collect::<Result<BTreeSet<_>, Infallible>>()?;
+impl core::str::FromStr for LineSegment {
+	type Err = Infallible;
 
-	assert_eq!(points.len(), 2);
+	fn from_str(line: &str) -> Result<Self, Self::Err> {
+		let points: BTreeSet<Point> = line
+			.split(" -> ")
+			.map(str::parse)
+			.collect::<Result<BTreeSet<_>, Infallible>>()?;
 
-	let points: Vec<Point> = points.into_iter().collect();
+		assert_eq!(points.len(), 2);
 
-	Ok(LineSegment {
-		a: points[0],
-		b: points[1],
-	})
+		let points: Vec<Point> = points.into_iter().collect();
+
+		Ok(LineSegment {
+			a: points[0],
+			b: points[1],
+		})
+	}
 }
 
 pub fn parse(input: &str) -> Intermediate {
 	input
 		.lines()
-		.map(parse_line)
+		.map(str::parse)
 		.collect::<Result<Vec<LineSegment>, Infallible>>()
 		.unwrap()
 }
