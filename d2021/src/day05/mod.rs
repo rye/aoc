@@ -7,10 +7,7 @@ use {
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
-struct Point {
-	x: i16,
-	y: i16,
-}
+struct Point(i16, i16);
 
 impl FromStr for Point {
 	// I think you will find this FromStr quite fallible!
@@ -24,7 +21,7 @@ impl FromStr for Point {
 		let y = split.next().map(str::parse);
 
 		match (x, y) {
-			(Some(Ok(x)), Some(Ok(y))) => Ok(Self { x, y }),
+			(Some(Ok(x)), Some(Ok(y))) => Ok(Self(x, y)),
 			_ => unreachable!(),
 		}
 	}
@@ -36,7 +33,7 @@ mod point {
 
 	#[test]
 	fn from_str_simple() {
-		assert_eq!("1,2".parse(), Ok(Point { x: 1, y: 2 }))
+		assert_eq!("1,2".parse(), Ok(Point(1, 2)))
 	}
 }
 
@@ -48,47 +45,47 @@ pub struct LineSegment {
 
 impl LineSegment {
 	fn is_horizontal(&self) -> bool {
-		self.a.y == self.b.y
+		self.a.1 == self.b.1
 	}
 
 	fn is_vertical(&self) -> bool {
-		self.a.x == self.b.x
+		self.a.0 == self.b.0
 	}
 
 	fn is_diagonal(&self) -> bool {
-		let (dx, dy) = (self.b.x - self.a.x, self.b.y - self.a.y);
+		let (dx, dy) = (self.b.0 - self.a.0, self.b.1 - self.a.1);
 
 		dx.abs() == dy.abs()
 	}
 
 	fn points(&self) -> Box<dyn Iterator<Item = Point>> {
 		if self.is_horizontal() {
-			let y = self.a.y;
-			assert_eq!(y, self.b.y);
+			let y = self.a.1;
+			assert_eq!(y, self.b.1);
 
-			Box::new((self.a.x..=self.b.x).map(move |x| Point { x, y }))
+			Box::new((self.a.0..=self.b.0).map(move |x| Point(x, y)))
 		} else if self.is_vertical() {
-			let x = self.a.x;
-			assert_eq!(x, self.b.x);
+			let x = self.a.0;
+			assert_eq!(x, self.b.0);
 
-			Box::new((self.a.y..=self.b.y).map(move |y| Point { x, y }))
+			Box::new((self.a.1..=self.b.1).map(move |y| Point(x, y)))
 		} else if self.is_diagonal() {
 			let (dir, steps): ((i16, i16), i16) = (
 				(
-					if self.b.x - self.a.x > 0 { 1 } else { -1 },
-					if self.b.y - self.a.y > 0 { 1 } else { -1 },
+					if self.b.0 - self.a.0 > 0 { 1 } else { -1 },
+					if self.b.1 - self.a.1 > 0 { 1 } else { -1 },
 				),
-				(self.b.x - self.a.x).abs(),
+				(self.b.0 - self.a.0).abs(),
 			);
 
-			let x0 = self.a.x;
-			let y0 = self.a.y;
+			let x0 = self.a.0;
+			let y0 = self.a.1;
 
 			Box::new((0..=steps).map(move |i| {
 				let x = x0 + (i * dir.0);
 				let y = y0 + (i * dir.1);
 
-				Point { x, y }
+				Point(x, y)
 			}))
 		} else {
 			// Technically _definitely_ reachable, but not in the problem space.
@@ -100,39 +97,25 @@ impl LineSegment {
 #[test]
 fn points_diagonal_asc() {
 	let segment = LineSegment {
-		a: Point { x: 1, y: 1 },
-		b: Point { x: 3, y: 3 },
+		a: Point(1, 1),
+		b: Point(3, 3),
 	};
 	assert!(segment.is_diagonal());
 
 	let points: Vec<Point> = segment.points().collect();
-	assert_eq!(
-		points,
-		vec![
-			Point { x: 1, y: 1 },
-			Point { x: 2, y: 2 },
-			Point { x: 3, y: 3 }
-		]
-	)
+	assert_eq!(points, vec![Point(1, 1), Point(2, 2), Point(3, 3)])
 }
 
 #[test]
 fn points_diagonal_dsc() {
 	let segment = LineSegment {
-		a: Point { x: 9, y: 7 },
-		b: Point { x: 7, y: 9 },
+		a: Point(9, 7),
+		b: Point(7, 9),
 	};
 	assert!(segment.is_diagonal());
 
 	let points: Vec<Point> = segment.points().collect();
-	assert_eq!(
-		points,
-		vec![
-			Point { x: 9, y: 7 },
-			Point { x: 8, y: 8 },
-			Point { x: 7, y: 9 }
-		]
-	)
+	assert_eq!(points, vec![Point(9, 7), Point(8, 8), Point(7, 9)])
 }
 
 type Intermediate = Vec<LineSegment>;
