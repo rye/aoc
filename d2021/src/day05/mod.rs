@@ -7,9 +7,9 @@ use {
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
-struct Point(i16, i16);
+struct Vector(i16, i16);
 
-impl FromStr for Point {
+impl FromStr for Vector {
 	// I think you will find this FromStr quite fallible!
 	// For the input, though, this works just fine.
 	type Err = Infallible;
@@ -28,19 +28,19 @@ impl FromStr for Point {
 }
 
 #[cfg(test)]
-mod point {
-	use super::Point;
+mod vector {
+	use super::Vector;
 
 	#[test]
 	fn from_str_simple() {
-		assert_eq!("1,2".parse(), Ok(Point(1, 2)))
+		assert_eq!("1,2".parse(), Ok(Vector(1, 2)))
 	}
 }
 
 #[derive(Clone, Copy, Debug)]
 pub struct LineSegment {
-	a: Point,
-	b: Point,
+	a: Vector,
+	b: Vector,
 }
 
 impl LineSegment {
@@ -58,17 +58,17 @@ impl LineSegment {
 		dx.abs() == dy.abs()
 	}
 
-	fn points(&self) -> Box<dyn Iterator<Item = Point>> {
+	fn points(&self) -> Box<dyn Iterator<Item = Vector>> {
 		if self.is_horizontal() {
 			let y = self.a.1;
 			assert_eq!(y, self.b.1);
 
-			Box::new((self.a.0..=self.b.0).map(move |x| Point(x, y)))
+			Box::new((self.a.0..=self.b.0).map(move |x| Vector(x, y)))
 		} else if self.is_vertical() {
 			let x = self.a.0;
 			assert_eq!(x, self.b.0);
 
-			Box::new((self.a.1..=self.b.1).map(move |y| Point(x, y)))
+			Box::new((self.a.1..=self.b.1).map(move |y| Vector(x, y)))
 		} else if self.is_diagonal() {
 			let (dir, steps): ((i16, i16), i16) = (
 				(
@@ -85,7 +85,7 @@ impl LineSegment {
 				let x = x0 + (i * dir.0);
 				let y = y0 + (i * dir.1);
 
-				Point(x, y)
+				Vector(x, y)
 			}))
 		} else {
 			// Technically _definitely_ reachable, but not in the problem space.
@@ -97,25 +97,25 @@ impl LineSegment {
 #[test]
 fn points_diagonal_asc() {
 	let segment = LineSegment {
-		a: Point(1, 1),
-		b: Point(3, 3),
+		a: Vector(1, 1),
+		b: Vector(3, 3),
 	};
 	assert!(segment.is_diagonal());
 
-	let points: Vec<Point> = segment.points().collect();
-	assert_eq!(points, vec![Point(1, 1), Point(2, 2), Point(3, 3)])
+	let points: Vec<Vector> = segment.points().collect();
+	assert_eq!(points, vec![Vector(1, 1), Vector(2, 2), Vector(3, 3)])
 }
 
 #[test]
 fn points_diagonal_dsc() {
 	let segment = LineSegment {
-		a: Point(9, 7),
-		b: Point(7, 9),
+		a: Vector(9, 7),
+		b: Vector(7, 9),
 	};
 	assert!(segment.is_diagonal());
 
-	let points: Vec<Point> = segment.points().collect();
-	assert_eq!(points, vec![Point(9, 7), Point(8, 8), Point(7, 9)])
+	let points: Vec<Vector> = segment.points().collect();
+	assert_eq!(points, vec![Vector(9, 7), Vector(8, 8), Vector(7, 9)])
 }
 
 type Intermediate = Vec<LineSegment>;
@@ -124,14 +124,14 @@ impl FromStr for LineSegment {
 	type Err = Infallible;
 
 	fn from_str(line: &str) -> Result<Self, Self::Err> {
-		let points: BTreeSet<Point> = line
+		let points: BTreeSet<Vector> = line
 			.split(" -> ")
 			.map(str::parse)
 			.collect::<Result<BTreeSet<_>, Infallible>>()?;
 
 		assert_eq!(points.len(), 2);
 
-		let points: Vec<Point> = points.into_iter().collect();
+		let points: Vec<Vector> = points.into_iter().collect();
 
 		Ok(LineSegment {
 			a: points[0],
@@ -157,7 +157,7 @@ pub fn part_one(segments: &Intermediate) -> Option<Solution> {
 		.copied()
 		.collect();
 
-	let mut points: BTreeMap<Point, usize> = BTreeMap::new();
+	let mut points: BTreeMap<Vector, usize> = BTreeMap::new();
 
 	for segment in segments {
 		for point in segment.points() {
@@ -174,7 +174,7 @@ pub fn part_one(segments: &Intermediate) -> Option<Solution> {
 }
 
 pub fn part_two(segments: &Intermediate) -> Option<Solution> {
-	let mut points: BTreeMap<Point, usize> = BTreeMap::new();
+	let mut points: BTreeMap<Vector, usize> = BTreeMap::new();
 
 	for segment in segments {
 		for point in segment.points() {
