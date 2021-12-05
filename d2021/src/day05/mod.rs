@@ -10,6 +10,8 @@ struct Point {
 }
 
 impl core::str::FromStr for Point {
+	// I think you will find this FromStr quite fallible!
+	// For the input, though, this works just fine.
 	type Err = Infallible;
 
 	fn from_str(s: &str) -> Result<Self, Self::Err> {
