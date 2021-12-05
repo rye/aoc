@@ -88,6 +88,7 @@ impl LineSegment {
 				Point { x, y }
 			}))
 		} else {
+			// Technically _definitely_ reachable, but not in the problem space.
 			unreachable!()
 		}
 	}
