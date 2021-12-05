@@ -87,8 +87,6 @@ impl LineSegment {
 				(self.b.x as i32 - self.a.x as i32).abs() as u16,
 			);
 
-			println!("{:?}, {}", dir, steps);
-
 			let x0 = self.a.x;
 			let y0 = self.a.y;
 
@@ -195,6 +193,21 @@ pub fn part_one(segments: &Intermediate) -> Option<Solution> {
 	Some(overlaps)
 }
 
-pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
-	None
+pub fn part_two(segments: &Intermediate) -> Option<Solution> {
+	let mut points: BTreeMap<Point, usize> = BTreeMap::new();
+
+	for segment in segments {
+		for point in segment.points() {
+			use std::collections::btree_map::Entry;
+
+			match points.entry(point) {
+				Entry::Occupied(mut e) => e.insert(e.get() + 1),
+				Entry::Vacant(e) => *e.insert(1),
+			};
+		}
+	}
+
+	let overlaps: usize = points.iter().filter(|(&_point, &count)| count >= 2).count();
+
+	Some(overlaps)
 }
