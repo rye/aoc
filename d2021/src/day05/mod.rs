@@ -50,6 +50,15 @@ impl LineSegment {
 		self.a.x == self.b.x
 	}
 
+	fn is_diagonal(&self) -> bool {
+		let (dx, dy) = (
+			self.b.x as i32 - self.a.x as i32,
+			self.b.y as i32 - self.a.y as i32,
+		);
+
+		dx.abs() == dy.abs()
+	}
+
 	fn points(&self) -> Box<dyn Iterator<Item = Point>> {
 		if self.is_horizontal() {
 			let y = self.a.y;
@@ -61,10 +70,76 @@ impl LineSegment {
 			assert_eq!(x, self.b.x);
 
 			Box::new((self.a.y..=self.b.y).map(move |y| Point { x, y }))
+		} else if self.is_diagonal() {
+			let (dir, steps): ((i32, i32), u16) = (
+				(
+					if self.b.x as i32 - self.a.x as i32 > 0 {
+						1
+					} else {
+						-1
+					},
+					if self.b.y as i32 - self.a.y as i32 > 0 {
+						1
+					} else {
+						-1
+					},
+				),
+				(self.b.x as i32 - self.a.x as i32).abs() as u16,
+			);
+
+			println!("{:?}, {}", dir, steps);
+
+			let x0 = self.a.x;
+			let y0 = self.a.y;
+
+			Box::new((0..=steps).map(move |i| {
+				let x: u16 = (x0 as i32 + (i as i32 * dir.0)) as u16;
+				let y: u16 = (y0 as i32 + (i as i32 * dir.1)) as u16;
+
+				Point { x, y }
+			}))
 		} else {
 			unreachable!()
 		}
 	}
+}
+
+#[test]
+fn points_diagonal_asc() {
+	let segment = LineSegment {
+		a: Point { x: 1, y: 1 },
+		b: Point { x: 3, y: 3 },
+	};
+	assert!(segment.is_diagonal());
+
+	let points: Vec<Point> = segment.points().collect();
+	assert_eq!(
+		points,
+		vec![
+			Point { x: 1, y: 1 },
+			Point { x: 2, y: 2 },
+			Point { x: 3, y: 3 }
+		]
+	)
+}
+
+#[test]
+fn points_diagonal_dsc() {
+	let segment = LineSegment {
+		a: Point { x: 9, y: 7 },
+		b: Point { x: 7, y: 9 },
+	};
+	assert!(segment.is_diagonal());
+
+	let points: Vec<Point> = segment.points().collect();
+	assert_eq!(
+		points,
+		vec![
+			Point { x: 9, y: 7 },
+			Point { x: 8, y: 8 },
+			Point { x: 7, y: 9 }
+		]
+	)
 }
 
 type Intermediate = Vec<LineSegment>;
