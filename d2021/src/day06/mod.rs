@@ -39,26 +39,33 @@ pub fn parse(input: &str) -> Intermediate {
 
 type Solution = usize;
 
-fn school_replacement(school: &BTreeMap<TimerValue, usize>) -> BTreeMap<TimerValue, usize> {
+fn update_school(school: &mut BTreeMap<TimerValue, usize>) {
+	// Calculate the new cell counts from the current contents of the school.
 	let new_cell_counts: Vec<(TimerValue, usize)> = school
 		.iter()
+		// Entries look like a "timer value" => "count" map. There is, by design, exactly one
+		// entry per "timer value", so this space is very small.
 		.map(|(timer_value, &count)| match (timer_value, count) {
+			// Fish with a current timer value of 0 reproduce (producing fish with timer values of 8) and reset their timer values to 6.
 			(TimerValue(0), count) => vec![(TimerValue(8), count), (TimerValue(6), count)],
+			// Otherwise, the timer value ticks down by 1.
 			(TimerValue(v), count) => vec![(TimerValue(v - 1), count)],
 		})
+		// Since we use a Vec, flatten into a big stream of individual components.
 		.flatten()
 		.collect();
 
-	let mut new_map: BTreeMap<TimerValue, usize> = BTreeMap::new();
+	// Clear out the contents of the school.
+	// TODO: Is there a way to drain the school rather than iterating-then-clearing?
+	school.clear();
 
+	// Rebuild the school from the counts we just computed.
 	for (timer_value, count) in new_cell_counts {
-		match new_map.entry(timer_value) {
+		match school.entry(timer_value) {
 			Entry::Occupied(mut e) => e.insert(e.get() + count),
 			Entry::Vacant(e) => *e.insert(count),
 		};
 	}
-
-	new_map
 }
 
 fn school_size(school: &BTreeMap<TimerValue, usize>) -> usize {
@@ -67,8 +74,7 @@ fn school_size(school: &BTreeMap<TimerValue, usize>) -> usize {
 
 fn simulate(school: &mut BTreeMap<TimerValue, usize>, cycles: usize) {
 	for cycle in 0..cycles {
-		let new_counts = school_replacement(school);
-		*school = new_counts;
+		update_school(school);
 	}
 }
 
