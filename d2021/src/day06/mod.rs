@@ -66,6 +66,10 @@ pub fn part_one(school: &Intermediate) -> Option<Solution> {
 	Some(school.len())
 }
 
-pub fn part_two(_school: &Intermediate) -> Option<Solution> {
-	None
+pub fn part_two(school: &Intermediate) -> Option<Solution> {
+	let mut school: Vec<Fish> = school.to_vec();
+
+	simulate(&mut school, 256);
+
+	Some(school.len())
 }
