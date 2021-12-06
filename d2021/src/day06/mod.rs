@@ -7,18 +7,17 @@ pub struct Fish {
 
 #[derive(Debug)]
 enum FishTickResult {
-	Nothing,
 	CreateNewFish,
 }
 
 impl Fish {
-	fn tick(&mut self) -> FishTickResult {
+	fn tick(&mut self) -> Option<FishTickResult> {
 		if self.timer_value == 0 {
 			self.timer_value = 6;
-			FishTickResult::CreateNewFish
+			Some(FishTickResult::CreateNewFish)
 		} else {
 			self.timer_value -= 1;
-			FishTickResult::Nothing
+			None
 		}
 	}
 }
@@ -47,12 +46,11 @@ type Solution = usize;
 
 fn simulate(school: &mut Vec<Fish>, cycles: usize) {
 	for cycle in 0..cycles {
-		let results: Vec<FishTickResult> = school.iter_mut().map(|fish| fish.tick()).collect();
+		let results: Vec<FishTickResult> = school.iter_mut().filter_map(|fish| fish.tick()).collect();
 
 		for result in &results {
 			match result {
 				FishTickResult::CreateNewFish => school.push(Fish { timer_value: 8_u8 }),
-				FishTickResult::Nothing => {}
 			}
 		}
 
