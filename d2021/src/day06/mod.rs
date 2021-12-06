@@ -45,14 +45,13 @@ fn update_school(school: &mut BTreeMap<TimerValue, usize>) {
 		.iter()
 		// Entries look like a "timer value" => "count" map. There is, by design, exactly one
 		// entry per "timer value", so this space is very small.
-		.map(|(timer_value, &count)| match (timer_value, count) {
+		.flat_map(|(timer_value, &count)| match (timer_value, count) {
 			// Fish with a current timer value of 0 reproduce (producing fish with timer values of 8) and reset their timer values to 6.
 			(TimerValue(0), count) => vec![(TimerValue(8), count), (TimerValue(6), count)],
 			// Otherwise, the timer value ticks down by 1.
 			(TimerValue(v), count) => vec![(TimerValue(v - 1), count)],
 		})
 		// Since we use a Vec, flatten into a big stream of individual components.
-		.flatten()
 		.collect();
 
 	// Clear out the contents of the school.
@@ -87,7 +86,7 @@ pub fn part_one(school: &Intermediate) -> Option<Solution> {
 }
 
 pub fn part_two(school: &Intermediate) -> Option<Solution> {
-	let mut school: BTreeMap<TimerValue, usize> = school.to_owned();
+	let mut school: BTreeMap<TimerValue, usize> = school.clone();
 
 	simulate(&mut school, 256);
 
