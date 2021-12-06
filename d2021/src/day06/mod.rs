@@ -72,7 +72,7 @@ fn school_size(school: &BTreeMap<TimerValue, usize>) -> usize {
 }
 
 fn simulate(school: &mut BTreeMap<TimerValue, usize>, cycles: usize) {
-	for cycle in 0..cycles {
+	for _ in 0..cycles {
 		update_school(school);
 	}
 }
