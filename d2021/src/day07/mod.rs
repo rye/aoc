@@ -58,7 +58,10 @@ fn example_cost_to_align_all_10() {
 	assert_eq!(cost_to_align_all(&positions, CrabPosition(10)), 71);
 }
 
-fn min_fuel(positions: &[CrabPosition]) -> i32 {
+fn min_fuel<F>(positions: &[CrabPosition], cost_calculator: F) -> i32
+where
+	F: Fn(&[CrabPosition], CrabPosition) -> i32,
+{
 	let (min, max) = positions.iter().fold((None, None), |(min, max), position| {
 		(
 			match min {
@@ -78,7 +81,7 @@ fn min_fuel(positions: &[CrabPosition]) -> i32 {
 	let max = max.unwrap();
 
 	let position_costs: BinaryHeap<Reverse<i32>> = (min.0..=max.0)
-		.map(|pos| Reverse(cost_to_align_all(positions, CrabPosition(pos))))
+		.map(|pos| Reverse(cost_calculator(positions, CrabPosition(pos))))
 		.collect();
 
 	position_costs.peek().unwrap().0
@@ -87,11 +90,11 @@ fn min_fuel(positions: &[CrabPosition]) -> i32 {
 #[test]
 fn example_min_fuel() {
 	let positions = example_positions().collect::<Vec<_>>();
-	assert_eq!(min_fuel(&positions), 37);
+	assert_eq!(min_fuel(&positions, cost_to_align_all), 37);
 }
 
 pub fn part_one(crabs: &Intermediate) -> Option<Solution> {
-	Some(min_fuel(crabs))
+	Some(min_fuel(crabs, cost_to_align_all))
 }
 
 pub fn part_two(_crabs: &Intermediate) -> Option<Solution> {
