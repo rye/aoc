@@ -1,10 +1,27 @@
-use std::{
-	collections::{btree_map::Entry, BTreeMap},
+use core::{
 	convert::Infallible,
+	ops::{Index, IndexMut},
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct TimerValue(u8);
+
+#[derive(Clone, Copy)]
+pub struct School([usize; 9]);
+
+impl Index<TimerValue> for School {
+	type Output = usize;
+
+	fn index(&self, index: TimerValue) -> &Self::Output {
+		&self.0[index.0 as usize]
+	}
+}
+
+impl IndexMut<TimerValue> for School {
+	fn index_mut(&mut self, index: TimerValue) -> &mut Self::Output {
+		&mut self.0[index.0 as usize]
+	}
+}
 
 impl core::str::FromStr for TimerValue {
 	type Err = Infallible;
@@ -15,7 +32,7 @@ impl core::str::FromStr for TimerValue {
 	}
 }
 
-type Intermediate = BTreeMap<TimerValue, usize>;
+type Intermediate = School;
 
 pub fn parse(input: &str) -> Intermediate {
 	let fish_values: Vec<TimerValue> = input
@@ -25,13 +42,10 @@ pub fn parse(input: &str) -> Intermediate {
 		.collect::<Result<Vec<_>, _>>()
 		.expect("failed to parse input");
 
-	let mut school: BTreeMap<TimerValue, usize> = BTreeMap::new();
+	let mut school = School([0; 9]);
 
 	for fish_value in fish_values {
-		match school.entry(fish_value) {
-			Entry::Occupied(mut e) => e.insert(e.get() + 1),
-			Entry::Vacant(e) => *e.insert(1),
-		};
+		school[fish_value] += 1;
 	}
 
 	school
@@ -39,46 +53,34 @@ pub fn parse(input: &str) -> Intermediate {
 
 type Solution = usize;
 
-fn update_school(school: &mut BTreeMap<TimerValue, usize>) {
-	// Calculate the new cell counts from the current contents of the school.
-	let new_cell_counts: Vec<(TimerValue, usize)> = school
-		.iter()
-		// Entries look like a "timer value" => "count" map. There is, by design, exactly one
-		// entry per "timer value", so this space is very small.
-		.flat_map(|(timer_value, &count)| match (timer_value, count) {
-			// Fish with a current timer value of 0 reproduce (producing fish with timer values of 8) and reset their timer values to 6.
-			(TimerValue(0), count) => vec![(TimerValue(8), count), (TimerValue(6), count)],
-			// Otherwise, the timer value ticks down by 1.
-			(TimerValue(v), count) => vec![(TimerValue(v - 1), count)],
-		})
-		// Since we use a Vec, flatten into a big stream of individual components.
-		.collect();
+fn update_school(school: &mut School) {
+	let new_values: [usize; 9] = [
+		school[TimerValue(1)],
+		school[TimerValue(2)],
+		school[TimerValue(3)],
+		school[TimerValue(4)],
+		school[TimerValue(5)],
+		school[TimerValue(6)],
+		school[TimerValue(7)] + school[TimerValue(0)],
+		school[TimerValue(8)],
+		school[TimerValue(0)],
+	];
 
-	// Clear out the contents of the school.
-	// TODO: Is there a way to drain the school rather than iterating-then-clearing?
-	school.clear();
-
-	// Rebuild the school from the counts we just computed.
-	for (timer_value, count) in new_cell_counts {
-		match school.entry(timer_value) {
-			Entry::Occupied(mut e) => e.insert(e.get() + count),
-			Entry::Vacant(e) => *e.insert(count),
-		};
-	}
+	school.0 = new_values;
 }
 
-fn school_size(school: &BTreeMap<TimerValue, usize>) -> usize {
-	school.values().sum()
+fn school_size(school: &School) -> usize {
+	school.0.iter().sum()
 }
 
-fn simulate(school: &mut BTreeMap<TimerValue, usize>, cycles: usize) {
+fn simulate(school: &mut School, cycles: usize) {
 	for _ in 0..cycles {
 		update_school(school);
 	}
 }
 
 pub fn part_one(school: &Intermediate) -> Option<Solution> {
-	let mut school: BTreeMap<TimerValue, usize> = school.clone();
+	let mut school: School = school.clone();
 
 	simulate(&mut school, 80);
 
@@ -86,7 +88,7 @@ pub fn part_one(school: &Intermediate) -> Option<Solution> {
 }
 
 pub fn part_two(school: &Intermediate) -> Option<Solution> {
-	let mut school: BTreeMap<TimerValue, usize> = school.clone();
+	let mut school: School = school.clone();
 
 	simulate(&mut school, 256);
 
