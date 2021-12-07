@@ -27,40 +27,81 @@ fn example_positions() -> impl Iterator<Item = CrabPosition> {
 		.map(CrabPosition)
 }
 
-fn cost_to_align_all(positions: &[CrabPosition], chosen_position: CrabPosition) -> i32 {
+fn cost_to_align_one_linear(position: &CrabPosition, target: &CrabPosition) -> i32 {
+	(target.0 - position.0).abs()
+}
+
+fn cost_to_align_one_revised(position: &CrabPosition, target: &CrabPosition) -> i32 {
+	let difference = (target.0 - position.0).abs();
+
+	(difference * (difference + 1)) / 2
+}
+
+#[test]
+fn example_cost_to_align_one_revised() {
+	let position = CrabPosition(16);
+	let target = CrabPosition(5);
+	assert_eq!(cost_to_align_one_revised(&position, &target), 66);
+}
+
+fn cost_to_align_all<F>(
+	positions: &[CrabPosition],
+	chosen_position: CrabPosition,
+	calculator: F,
+) -> i32
+where
+	F: Fn(&CrabPosition, &CrabPosition) -> i32,
+{
 	positions
 		.iter()
-		.map(|position| (chosen_position.0 - position.0).abs())
+		.map(|position| calculator(position, &chosen_position))
 		.sum()
 }
 
 #[test]
 fn example_cost_to_align_all_2_min() {
 	let positions = example_positions().collect::<Vec<_>>();
-	assert_eq!(cost_to_align_all(&positions, CrabPosition(2)), 37);
+	assert_eq!(
+		cost_to_align_all(&positions, CrabPosition(2), cost_to_align_one_linear),
+		37
+	);
 }
 
 #[test]
 fn example_cost_to_align_all_1() {
 	let positions = example_positions().collect::<Vec<_>>();
-	assert_eq!(cost_to_align_all(&positions, CrabPosition(1)), 41);
+	assert_eq!(
+		cost_to_align_all(&positions, CrabPosition(1), cost_to_align_one_linear),
+		41
+	);
 }
 
 #[test]
 fn example_cost_to_align_all_3() {
 	let positions = example_positions().collect::<Vec<_>>();
-	assert_eq!(cost_to_align_all(&positions, CrabPosition(3)), 39);
+	assert_eq!(
+		cost_to_align_all(&positions, CrabPosition(3), cost_to_align_one_linear),
+		39
+	);
 }
 
 #[test]
 fn example_cost_to_align_all_10() {
 	let positions = example_positions().collect::<Vec<_>>();
-	assert_eq!(cost_to_align_all(&positions, CrabPosition(10)), 71);
+	assert_eq!(
+		cost_to_align_all(&positions, CrabPosition(10), cost_to_align_one_linear),
+		71
+	);
 }
 
-fn min_fuel<F>(positions: &[CrabPosition], cost_calculator: F) -> i32
+fn min_fuel<F1, F2>(
+	positions: &[CrabPosition],
+	overall_cost_calculator: F1,
+	individual_cost_calculator: F2,
+) -> i32
 where
-	F: Fn(&[CrabPosition], CrabPosition) -> i32,
+	F1: Fn(&[CrabPosition], CrabPosition, F2) -> i32,
+	F2: Fn(&CrabPosition, &CrabPosition) -> i32 + Copy,
 {
 	let (min, max) = positions.iter().fold((None, None), |(min, max), position| {
 		(
@@ -81,7 +122,13 @@ where
 	let max = max.unwrap();
 
 	let position_costs: BinaryHeap<Reverse<i32>> = (min.0..=max.0)
-		.map(|pos| Reverse(cost_calculator(positions, CrabPosition(pos))))
+		.map(|pos| {
+			Reverse(overall_cost_calculator(
+				positions,
+				CrabPosition(pos),
+				individual_cost_calculator,
+			))
+		})
 		.collect();
 
 	position_costs.peek().unwrap().0
@@ -90,13 +137,20 @@ where
 #[test]
 fn example_min_fuel() {
 	let positions = example_positions().collect::<Vec<_>>();
-	assert_eq!(min_fuel(&positions, cost_to_align_all), 37);
+	assert_eq!(
+		min_fuel(&positions, cost_to_align_all, cost_to_align_one_linear),
+		37
+	);
 }
 
 pub fn part_one(crabs: &Intermediate) -> Option<Solution> {
-	Some(min_fuel(crabs, cost_to_align_all))
+	Some(min_fuel(crabs, cost_to_align_all, cost_to_align_one_linear))
 }
 
-pub fn part_two(_crabs: &Intermediate) -> Option<Solution> {
-	None
+pub fn part_two(crabs: &Intermediate) -> Option<Solution> {
+	Some(min_fuel(
+		crabs,
+		cost_to_align_all,
+		cost_to_align_one_revised,
+	))
 }
