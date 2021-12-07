@@ -1,7 +1,4 @@
-use {
-	core::cmp::Reverse,
-	std::collections::{BTreeMap, BTreeSet, BinaryHeap},
-};
+use {core::cmp::Reverse, std::collections::BinaryHeap};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct CrabPosition(i32);
@@ -94,14 +91,9 @@ fn example_cost_to_align_all_10() {
 	);
 }
 
-fn min_fuel<F1, F2>(
-	positions: &[CrabPosition],
-	overall_cost_calculator: F1,
-	individual_cost_calculator: F2,
-) -> i32
+fn min_fuel<F>(positions: &[CrabPosition], individual_cost_calculator: F) -> i32
 where
-	F1: Fn(&[CrabPosition], CrabPosition, F2) -> i32,
-	F2: Fn(&CrabPosition, &CrabPosition) -> i32 + Copy,
+	F: Fn(&CrabPosition, &CrabPosition) -> i32 + Copy,
 {
 	let (min, max) = positions.iter().fold((None, None), |(min, max), position| {
 		(
@@ -123,7 +115,7 @@ where
 
 	let position_costs: BinaryHeap<Reverse<i32>> = (min.0..=max.0)
 		.map(|pos| {
-			Reverse(overall_cost_calculator(
+			Reverse(cost_to_align_all(
 				positions,
 				CrabPosition(pos),
 				individual_cost_calculator,
@@ -137,20 +129,13 @@ where
 #[test]
 fn example_min_fuel() {
 	let positions = example_positions().collect::<Vec<_>>();
-	assert_eq!(
-		min_fuel(&positions, cost_to_align_all, cost_to_align_one_linear),
-		37
-	);
+	assert_eq!(min_fuel(&positions, cost_to_align_one_linear), 37);
 }
 
 pub fn part_one(crabs: &Intermediate) -> Option<Solution> {
-	Some(min_fuel(crabs, cost_to_align_all, cost_to_align_one_linear))
+	Some(min_fuel(crabs, cost_to_align_one_linear))
 }
 
 pub fn part_two(crabs: &Intermediate) -> Option<Solution> {
-	Some(min_fuel(
-		crabs,
-		cost_to_align_all,
-		cost_to_align_one_revised,
-	))
+	Some(min_fuel(crabs, cost_to_align_one_revised))
 }
