@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 type Intermediate<'a> = Vec<([&'a str; 10], [&'a str; 4])>;
 
-pub fn parse<'a>(input: &'a str) -> Intermediate<'a> {
+pub fn parse(input: &str) -> Intermediate {
 	input
 		.lines()
 		.map(|line| line.split(" | "))
