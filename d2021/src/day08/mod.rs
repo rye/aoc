@@ -22,8 +22,7 @@ pub fn part_one(parts: &Intermediate) -> Option<Solution> {
 	Some(
 		parts
 			.iter()
-			.map(|s| s.1.iter())
-			.flatten()
+			.flat_map(|s| s.1.iter())
 			.filter(|s| s.len() == 2 || s.len() == 3 || s.len() == 4 || s.len() == 7)
 			.count(),
 	)
