@@ -53,38 +53,65 @@ fn solve_segments(signals: &[&str; 10]) -> [HashSet<char>; 10] {
 
 	let signals: Vec<HashSet<char>> = signals.iter().map(|s| s.chars().collect()).collect();
 
+	// First, we can trivially infer which of the signals corresponds to 1, 4, 7, and 8, because
+	// these each have a unique number of connections.
+
+	// One is the only signal mapping with only two parts.  Either of those two parts could be the
+	// top and bottom right segments, so both are recorded as possibilities for now.
 	let one_signal = signals.iter().find(|&s| s.len() == 2).unwrap();
+
 	possibilities[SEGMENT_TOP_RIGHT] = one_signal.clone();
 	possibilities[SEGMENT_BOTTOM_RIGHT] = one_signal.clone();
 
+	// Four is the only signal mapping with only four parts.
 	let four_signal = signals.iter().find(|&s| s.len() == 4).unwrap();
+
+	// But two of four's parts are already in one, and so we can figure out could be in the center
+	// and top left accordingly.
 	possibilities[SEGMENT_CENTER] = four_signal - one_signal;
 	possibilities[SEGMENT_TOP_LEFT] = four_signal - one_signal;
 
+	// Seven is the only signal mapping with only three parts.
 	let seven_signal = signals.iter().find(|&s| s.len() == 3).unwrap();
+
+	// And again, we can use the parts from one to figure out which of the three is the top segment.
 	possibilities[SEGMENT_TOP] = seven_signal - one_signal;
 
-	let eight_signal = signals.iter().find(|&s| s.len() == 7).unwrap();
-	possibilities[SEGMENT_BOTTOM_LEFT] = eight_signal.clone();
-	possibilities[SEGMENT_BOTTOM] = eight_signal.clone();
+	// For completeness, the eight signal mapping has seven parts.  We don't need to use it anywhere
+	// though, technically, since we know that, and it's the union of everything else.
+	let _eight_signal = signals.iter().find(|&s| s.len() == 7).unwrap();
 
+	// Okay, now we move on to deducing some of the other digits, starting with the digits having
+	// six segments.
+
+	// Nine is the only 6-segment signal mapping that is a superset of four.
 	let nine_signal = signals
 		.iter()
 		.find(|&s| s.len() == 6 && s.is_superset(four_signal))
 		.unwrap();
 
+	// And once we know which signal mapping is the nine, we can figure out the only segment
+	// left out, bottom left, by subtracting that from the total set of all possibilities.
 	possibilities[SEGMENT_BOTTOM_LEFT] = &all_possibilities() - nine_signal;
 
+	// Next, six is another 6-segment digit, but its special characteristic is that it is _not_ a
+	// superset of the one signal mapping.
 	let six_signal = signals
 		.iter()
 		.find(|&s| s.len() == 6 && !s.is_superset(one_signal))
 		.unwrap();
 
+	// From this, we can figure out which segment is the top-right segment...
 	possibilities[SEGMENT_TOP_RIGHT] = &all_possibilities() - six_signal;
 
+	// and refine our determination from earlier as far as what the bottom right is, since we
+	// figured out which of the segments is the top-right one.
 	possibilities[SEGMENT_BOTTOM_RIGHT] =
 		&possibilities[SEGMENT_BOTTOM_RIGHT] - &possibilities[SEGMENT_TOP_RIGHT];
 
+	// Lastly, zero is the last 6-segment and it contains both the top-right and bottom-left digits.
+	// NOTE(rye): Could probably refine this by keeping a set of the 6-segments and removing only one,
+	// since this is the _remainder_ after 9 and 6 are used.
 	let zero_signal = signals
 		.iter()
 		.find(|&s| {
@@ -93,13 +120,19 @@ fn solve_segments(signals: &[&str; 10]) -> [HashSet<char>; 10] {
 		})
 		.unwrap();
 
+	// From zero, we can figure out the center as well.
 	possibilities[SEGMENT_CENTER] = &all_possibilities() - zero_signal;
 
+	// Now, the possibilities left over from the four mapping can be reduced, since we know which of
+	// the segments is the center.
 	possibilities[SEGMENT_TOP_LEFT] =
 		&possibilities[SEGMENT_TOP_LEFT] - &possibilities[SEGMENT_CENTER];
 
+	// Finally, the bottom is the 9 signal minus the 4 signal and minus the top segment.
 	possibilities[SEGMENT_BOTTOM] = &(nine_signal - four_signal) - &possibilities[SEGMENT_TOP];
 
+	// Now, take unions of the appropriate segments to generate the sets of segments on a per-digit
+	// basis so that callers only have to do a set comparison.
 	let digit_map: [HashSet<char>; 10] = [
 		// 0:
 		&(&(&(&(&possibilities[SEGMENT_TOP] | &possibilities[SEGMENT_TOP_RIGHT])
@@ -138,7 +171,12 @@ fn solve_segments(signals: &[&str; 10]) -> [HashSet<char>; 10] {
 		&(&possibilities[SEGMENT_TOP] | &possibilities[SEGMENT_TOP_RIGHT])
 			| &possibilities[SEGMENT_BOTTOM_RIGHT],
 		// 8
-		all_possibilities(),
+		&(&(&(&(&(&possibilities[SEGMENT_TOP] | &possibilities[SEGMENT_TOP_RIGHT])
+			| &possibilities[SEGMENT_BOTTOM_RIGHT])
+			| &possibilities[SEGMENT_BOTTOM])
+			| &possibilities[SEGMENT_BOTTOM_LEFT])
+			| &possibilities[SEGMENT_TOP_LEFT])
+			| &possibilities[SEGMENT_CENTER],
 		// 9
 		&(&(&(&(&possibilities[SEGMENT_TOP] | &possibilities[SEGMENT_TOP_RIGHT])
 			| &possibilities[SEGMENT_BOTTOM_RIGHT])
