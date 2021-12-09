@@ -71,17 +71,17 @@ fn solve_segments(signals: &[&str; 10]) -> [HashSet<char>; 10] {
 
 	let nine_signal = signals
 		.iter()
-		.find(|&s| s.len() == 6 && s.is_superset(&four_signal))
+		.find(|&s| s.len() == 6 && s.is_superset(four_signal))
 		.unwrap();
 
-	possibilities[SEGMENT_BOTTOM_LEFT] = &all_possibilities() - &nine_signal;
+	possibilities[SEGMENT_BOTTOM_LEFT] = &all_possibilities() - nine_signal;
 
 	let six_signal = signals
 		.iter()
-		.find(|&s| s.len() == 6 && !s.is_superset(&one_signal))
+		.find(|&s| s.len() == 6 && !s.is_superset(one_signal))
 		.unwrap();
 
-	possibilities[SEGMENT_TOP_RIGHT] = &all_possibilities() - &six_signal;
+	possibilities[SEGMENT_TOP_RIGHT] = &all_possibilities() - six_signal;
 
 	possibilities[SEGMENT_BOTTOM_RIGHT] =
 		&possibilities[SEGMENT_BOTTOM_RIGHT] - &possibilities[SEGMENT_TOP_RIGHT];
@@ -202,7 +202,7 @@ pub fn part_two(parts: &Intermediate) -> Option<Solution> {
 	Some(
 		parts
 			.iter()
-			.map(|(signals, outputs)| apply_segments(&solve_segments(&signals), outputs))
+			.map(|(signals, outputs)| apply_segments(&solve_segments(signals), outputs))
 			.sum(),
 	)
 }
