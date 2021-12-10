@@ -4,6 +4,23 @@ pub struct HeightMap {
 	points: BTreeMap<(u32, u32), u32>,
 }
 
+fn neighbors(x: u32, y: u32) -> impl Iterator<Item = (u32, u32)> {
+	let neighbor_offsets: [(i32, i32); 4] = [(-1, 0), (1, 0), (0, -1), (0, 1)];
+
+	neighbor_offsets
+		.into_iter()
+		.filter_map(move |(x_offset, y_offset)| {
+			if let (Some(x), Some(y)) = (
+				u32::try_from(i32::try_from(x).unwrap() + x_offset).ok(),
+				u32::try_from(i32::try_from(y).unwrap() + y_offset).ok(),
+			) {
+				Some((x, y))
+			} else {
+				None
+			}
+		})
+}
+
 impl HeightMap {
 	fn low_points(&self) -> impl Iterator<Item = (&(u32, u32), &u32)> {
 		self.points.iter().filter(|((x, y), height)| {
