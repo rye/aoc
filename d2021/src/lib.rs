@@ -8,6 +8,7 @@ pub mod day07;
 pub mod day08;
 pub mod day09;
 pub mod day10;
+pub mod day14;
 
 /// Fully consumes a reader of type `std::io::Read` and produces a `String` containing all read text.
 ///
