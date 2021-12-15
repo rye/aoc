@@ -1,15 +1,22 @@
-type Intermediate<'input> = (&'input str, [&'input str; 100]);
+type Intermediate<'input> = (&'input str, [[&'input str; 2]; 100]);
 
 pub fn parse<'input>(input: &'input str) -> Intermediate<'input> {
 	let mut split = input.split("\n\n");
 	let first_line: &'input str = split.next().expect("missing template");
 	let insertion_rules: &'input str = split.next().expect("missing rules");
 
-	let insertion_rules: [&'input str; 100] = insertion_rules
+	let insertion_rules: [[&'input str; 2]; 100] = insertion_rules
 		.lines()
-		.collect::<Vec<_>>()
+		.map(|line| {
+			line
+				.split(" -> ")
+				.collect::<Vec<_>>()
+				.try_into()
+				.expect("failed to collect both parts of a rule")
+		})
+		.collect::<Vec<[&'input str; 2]>>()
 		.try_into()
-		.unwrap();
+		.expect("failed to collect 100 rules");
 
 	(first_line, insertion_rules)
 }
