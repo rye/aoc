@@ -22,7 +22,7 @@ pub mod day14;
 // pub mod day22;
 // pub mod day23;
 // pub mod day24;
-// pub mod day25;
+pub mod day25;
 
 /// Fully consumes a reader of type `std::io::Read` and produces a `String` containing all read text.
 ///
