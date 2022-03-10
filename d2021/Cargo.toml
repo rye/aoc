@@ -5,8 +5,8 @@ rust-version = "1.56.0"
 edition = "2021"
 
 [dependencies]
-itertools = "=0.10.1"
-md5 = "=0.7.0"
-rayon = "=1.5.1"
-regex = "=1.5.4"
-thiserror = "=1.0.30"
+itertools = "0.10.3"
+md5 = "0.7.0"
+rayon = "1.5.1"
+regex = "1.5.5"
+thiserror = "1.0.30"
