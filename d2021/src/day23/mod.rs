@@ -1,3 +1,5 @@
+#![allow(dead_code, unused)]
+
 use std::collections::HashSet;
 
 // The puzzle input is given in the form

@@ -1,3 +1,5 @@
+#![allow(dead_code, unused)]
+
 use std::collections::{hash_map::Entry, HashMap};
 
 use itertools::Itertools;
