@@ -73,9 +73,8 @@ mod tick {
 		};
 	}
 
-	#[test]
-	fn test_0() {
-		let state = State {
+	fn state_5_0() -> State<5> {
+		State {
 			octopi: [
 				[state!(1), state!(1), state!(1), state!(1), state!(1)],
 				[state!(1), state!(9), state!(9), state!(9), state!(1)],
@@ -83,7 +82,12 @@ mod tick {
 				[state!(1), state!(9), state!(9), state!(9), state!(1)],
 				[state!(1), state!(1), state!(1), state!(1), state!(1)],
 			],
-		};
+		}
+	}
+
+	#[test]
+	fn test_0() {
+		let state = state_5_0();
 	}
 }
 
