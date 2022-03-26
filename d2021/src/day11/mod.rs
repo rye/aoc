@@ -165,6 +165,17 @@ fn tick<const N: usize>(state: &mut State<N>) -> usize {
 		increases.push_back((y, x))
 	}
 
+	// Loop until there are no more increases to handle.
+	loop {
+		if let Some((y, x)) = increases.pop_front() {
+			// For now, just print something out.
+			println!("increment at {y},{x}");
+		} else {
+			// If we didn't pop an increase, break out.
+			break;
+		}
+	}
+
 	flashes
 }
 
