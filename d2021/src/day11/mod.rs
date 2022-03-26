@@ -2,7 +2,7 @@ use std::collections::VecDeque;
 
 type Intermediate = State<10>;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 #[cfg_attr(test, derive(PartialEq))]
 struct EnergyLevel(u8);
 
@@ -30,7 +30,7 @@ impl From<char> for EnergyLevel {
 	}
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 #[cfg_attr(test, derive(PartialEq))]
 struct Octopus(EnergyLevel);
 
@@ -40,7 +40,7 @@ impl From<char> for Octopus {
 	}
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 #[cfg_attr(test, derive(PartialEq))]
 pub struct State<const N: usize> {
 	octopi: [[Octopus; N]; N],
@@ -311,8 +311,16 @@ mod tick {
 
 type Solution = usize;
 
-pub fn part_one(_intermediate: &Intermediate) -> Option<Solution> {
-	None
+pub fn part_one(state: &Intermediate) -> Option<Solution> {
+	let mut state: State<10> = state.clone();
+
+	let mut total_flashes: usize = 0;
+
+	for i in (0..100) {
+		total_flashes += tick(&mut state);
+	}
+
+	Some(total_flashes)
 }
 
 pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
