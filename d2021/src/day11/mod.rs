@@ -59,6 +59,10 @@ pub fn parse(input: &str) -> Intermediate {
 	State { octopi }
 }
 
+fn tick<const N: usize>(state: &mut State<N>) -> usize {
+	0
+}
+
 type Solution = usize;
 
 pub fn part_one(_intermediate: &Intermediate) -> Option<Solution> {
