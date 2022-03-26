@@ -81,55 +81,55 @@ mod tick {
 		};
 	}
 
-	fn state_5_0() -> State<5> {
-		State {
-			octopi: [
-				state![1 1 1 1 1],
-				state![1 9 9 9 1],
-				state![1 9 1 9 1],
-				state![1 9 9 9 1],
-				state![1 1 1 1 1],
-			],
+	#[cfg(test)]
+	mod _5 {
+		use super::{tick, EnergyLevel, Octopus, State};
+
+		fn state_0() -> State<5> {
+			State {
+				octopi: [
+					state![1 1 1 1 1],
+					state![1 9 9 9 1],
+					state![1 9 1 9 1],
+					state![1 9 9 9 1],
+					state![1 1 1 1 1],
+				],
+			}
 		}
-	}
 
-	fn state_5_1() -> State<5> {
-		State {
-			octopi: [
-				state![3 4 5 4 3],
-				state![4 0 0 0 4],
-				state![5 0 0 0 5],
-				state![4 0 0 0 4],
-				state![3 4 5 4 3],
-			],
+		fn state_1() -> State<5> {
+			State {
+				octopi: [
+					state![3 4 5 4 3],
+					state![4 0 0 0 4],
+					state![5 0 0 0 5],
+					state![4 0 0 0 4],
+					state![3 4 5 4 3],
+				],
+			}
 		}
-	}
 
-	fn state_5_2() -> State<5> {
-		State {
-			octopi: [
-				state![4 5 6 5 4],
-				state![5 1 1 1 5],
-				state![6 1 1 1 6],
-				state![5 1 1 1 5],
-				state![4 5 6 5 4],
-			],
+		fn state_2() -> State<5> {
+			State {
+				octopi: [
+					state![4 5 6 5 4],
+					state![5 1 1 1 5],
+					state![6 1 1 1 6],
+					state![5 1 1 1 5],
+					state![4 5 6 5 4],
+				],
+			}
 		}
-	}
 
-	#[test]
-	fn test_0() {
-		let mut state = state_5_0();
-
-		assert_eq!(state, state_5_0());
-
-		assert_eq!(tick(&mut state), 9_usize);
-
-		assert_eq!(state, state_5_1());
-
-		assert_eq!(tick(&mut state), 0_usize);
-
-		assert_eq!(state, state_5_2());
+		#[test]
+		fn tick_flow() {
+			let mut state = state_0();
+			assert_eq!(state, state_0());
+			assert_eq!(tick(&mut state), 9_usize);
+			assert_eq!(state, state_1());
+			assert_eq!(tick(&mut state), 0_usize);
+			assert_eq!(state, state_2());
+		}
 	}
 }
 
