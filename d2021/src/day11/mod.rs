@@ -197,7 +197,7 @@ fn tick<const N: usize>(state: &mut State<N>) -> usize {
 
 #[cfg(test)]
 mod tick {
-	use super::{tick, EnergyLevel, Octopus, State};
+	use super::{tick, Octopus, State};
 
 	macro_rules! state {
 		($lvl:literal) => {
@@ -211,7 +211,7 @@ mod tick {
 
 	#[cfg(test)]
 	mod _5 {
-		use super::{tick, EnergyLevel, Octopus, State};
+		use super::{tick, Octopus, State};
 
 		fn state_0() -> State<5> {
 			State {
@@ -262,7 +262,7 @@ mod tick {
 
 	#[cfg(test)]
 	mod _10 {
-		use super::{tick, EnergyLevel, Octopus, State};
+		use super::{tick, Octopus, State};
 
 		fn state_0() -> State<10> {
 			State {
@@ -316,7 +316,7 @@ pub fn part_one(state: &Intermediate) -> Option<Solution> {
 
 	let mut total_flashes: usize = 0;
 
-	for i in 0..100 {
+	for _ in 0..100 {
 		total_flashes += tick(&mut state);
 	}
 
