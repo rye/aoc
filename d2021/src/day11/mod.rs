@@ -166,34 +166,29 @@ fn tick<const N: usize>(state: &mut State<N>) -> usize {
 	}
 
 	// Loop until there are no more increases to handle.
-	loop {
-		if let Some((y, x)) = increases.pop_front() {
-			let y_idx: usize = y as usize;
-			let x_idx: usize = x as usize;
+	while let Some((y, x)) = increases.pop_front() {
+		let y_idx: usize = y as usize;
+		let x_idx: usize = x as usize;
 
-			// If we already flashed in this spot, we're done with this increase.
-			if flashed[y_idx][x_idx] {
-				continue;
-			} else {
-				// First, bump the value.
-				state.octopi[y_idx][x_idx].0 .0 += 1;
+		// If we already flashed in this spot, we're done with this increase.
+		if flashed[y_idx][x_idx] {
+			continue;
+		} else {
+			// First, bump the value.
+			state.octopi[y_idx][x_idx].0 .0 += 1;
 
-				// If that caused the octopus to have an energy level greater than 9, it flashes.
-				if state.octopi[y_idx][x_idx].0 .0 > 9 {
-					// Mark this cell as flashed and reset its value to 0.
-					flashes += 1;
-					flashed[y_idx][x_idx] = true;
-					state.octopi[y_idx][x_idx].0 .0 = 0;
+			// If that caused the octopus to have an energy level greater than 9, it flashes.
+			if state.octopi[y_idx][x_idx].0 .0 > 9 {
+				// Mark this cell as flashed and reset its value to 0.
+				flashes += 1;
+				flashed[y_idx][x_idx] = true;
+				state.octopi[y_idx][x_idx].0 .0 = 0;
 
-					// And also causes its (unflashed) neighbors to increase in level.
-					for (y, x) in neighbors::<N>(y, x) {
-						increases.push_back((y, x));
-					}
+				// And also causes its (unflashed) neighbors to increase in level.
+				for (y, x) in neighbors::<N>(y, x) {
+					increases.push_back((y, x));
 				}
 			}
-		} else {
-			// If we didn't pop an increase, break out.
-			break;
 		}
 	}
 
