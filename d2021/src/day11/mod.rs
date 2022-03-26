@@ -1,4 +1,4 @@
-type Intermediate = State;
+type Intermediate = State<10>;
 
 #[derive(Debug)]
 struct EnergyLevel(u8);
@@ -36,8 +36,8 @@ impl From<char> for Octopus {
 	}
 }
 
-pub struct State {
-	octopi: [[Octopus; 10]; 10],
+pub struct State<const N: usize> {
+	octopi: [[Octopus; N]; N],
 }
 
 pub fn parse(input: &str) -> Intermediate {
