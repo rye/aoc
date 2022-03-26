@@ -52,7 +52,16 @@ macro_rules! day_solver {
 			use std::io::stdin;
 			use $crate::string_from;
 
-			let data: String = string_from(stdin())?;
+			let mut args = std::env::args();
+
+			// Skip the 0th argument (the name of the process).
+			let _ = args.next();
+
+			// If we have a first argument, use that as a filename.
+			let data: String = match args.next() {
+				Some(filename) => string_from(std::fs::File::open(filename)?)?,
+				None => string_from(stdin())?,
+			};
 
 			let intermediate = $transform(&data);
 
