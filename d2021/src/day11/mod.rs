@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 type Intermediate = State<10>;
 
 #[derive(Debug)]
@@ -146,7 +148,24 @@ mod neighbors {
 }
 
 fn tick<const N: usize>(state: &mut State<N>) -> usize {
-	0
+	assert!(N <= u8::MAX.into());
+
+	let mut flashed: [[bool; N]; N] = [[false; N]; N];
+	let mut flashes: usize = 0_usize; // This *could* be reconstructed from flashed later.
+
+	let mut increases: VecDeque<(u8, u8)> = VecDeque::new();
+
+	// First, the energy level of each octopus increases by 1.
+	for (y, x) in (0..N).flat_map(|y| {
+		(0..N).map(move |x| {
+			// This "as" is safe due to assert at start.
+			(y as u8, x as u8)
+		})
+	}) {
+		increases.push_back((y, x))
+	}
+
+	flashes
 }
 
 #[cfg(test)]
