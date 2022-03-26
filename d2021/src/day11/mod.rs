@@ -335,7 +335,7 @@ pub fn part_two(state: &Intermediate) -> Option<Solution> {
 		let flashes = tick(&mut state);
 		step_counter += 1;
 
-		if flashes == 100_usize {
+		if flashes == 10_usize * 10_usize {
 			break;
 		}
 	}
