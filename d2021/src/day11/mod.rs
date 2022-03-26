@@ -316,7 +316,7 @@ pub fn part_one(state: &Intermediate) -> Option<Solution> {
 
 	let mut total_flashes: usize = 0;
 
-	for i in (0..100) {
+	for i in 0..100 {
 		total_flashes += tick(&mut state);
 	}
 
