@@ -89,6 +89,18 @@ mod tick {
 		}
 	}
 
+	fn state_5_1() -> State<5> {
+		State {
+			octopi: [
+				state![3 4 5 4 3],
+				state![4 0 0 0 4],
+				state![5 0 0 0 5],
+				state![4 0 0 0 4],
+				state![3 4 5 4 3],
+			],
+		}
+	}
+
 	#[test]
 	fn test_0() {
 		let state = state_5_0();
