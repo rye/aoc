@@ -197,11 +197,11 @@ fn tick<const N: usize>(state: &mut State<N>) -> usize {
 
 #[cfg(test)]
 mod tick {
-	use super::{tick, Octopus, State};
+	use super::{tick, EnergyLevel, Octopus, State};
 
 	macro_rules! state {
 		($lvl:literal) => {
-			Octopus($lvl.into())
+			Octopus(EnergyLevel($lvl))
 		};
 
 		[$($lvl:literal)+] => {
@@ -225,7 +225,7 @@ mod tick {
 
 	#[cfg(test)]
 	mod _5 {
-		use super::{tick, Octopus, State};
+		use super::{tick, EnergyLevel, Octopus, State};
 
 		fn state_0() -> State<5> {
 			state![
@@ -270,7 +270,7 @@ mod tick {
 
 	#[cfg(test)]
 	mod _10 {
-		use super::{tick, Octopus, State};
+		use super::{tick, EnergyLevel, Octopus, State};
 
 		fn state_0() -> State<10> {
 			state![
