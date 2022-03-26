@@ -71,16 +71,20 @@ mod tick {
 		($lvl:literal) => {
 			Octopus($lvl.into())
 		};
+
+		[$($lvl:literal)+] => {
+			[$(state!($lvl)),+]
+		};
 	}
 
 	fn state_5_0() -> State<5> {
 		State {
 			octopi: [
-				[state!(1), state!(1), state!(1), state!(1), state!(1)],
-				[state!(1), state!(9), state!(9), state!(9), state!(1)],
-				[state!(1), state!(9), state!(1), state!(9), state!(1)],
-				[state!(1), state!(9), state!(9), state!(9), state!(1)],
-				[state!(1), state!(1), state!(1), state!(1), state!(1)],
+				state![1 1 1 1 1],
+				state![1 9 9 9 1],
+				state![1 9 1 9 1],
+				state![1 9 9 9 1],
+				state![1 1 1 1 1],
 			],
 		}
 	}
