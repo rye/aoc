@@ -207,6 +207,24 @@ mod tick {
 		[$($lvl:literal)+] => {
 			[$(state!($lvl)),+]
 		};
+
+
+	}
+
+	macro_rules! statev2 {
+		(
+			$(
+				$($lit:literal)+
+			),+ ,
+		) => {
+			State {
+				octopi: [
+				$(
+					state![$($lit)+],
+				)+
+				]
+			}
+		};
 	}
 
 	#[cfg(test)]
@@ -214,15 +232,13 @@ mod tick {
 		use super::{tick, Octopus, State};
 
 		fn state_0() -> State<5> {
-			State {
-				octopi: [
-					state![1 1 1 1 1],
-					state![1 9 9 9 1],
-					state![1 9 1 9 1],
-					state![1 9 9 9 1],
-					state![1 1 1 1 1],
-				],
-			}
+			statev2![
+				1 1 1 1 1,
+				1 9 9 9 1,
+				1 9 1 9 1,
+				1 9 9 9 1,
+				1 1 1 1 1,
+			]
 		}
 
 		fn state_1() -> State<5> {
