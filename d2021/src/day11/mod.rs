@@ -115,7 +115,17 @@ mod tick {
 
 	#[test]
 	fn test_0() {
-		let state = state_5_0();
+		let mut state = state_5_0();
+
+		assert_eq!(state, state_5_0());
+
+		assert_eq!(tick(&mut state), 9_usize);
+
+		assert_eq!(state, state_5_1());
+
+		assert_eq!(tick(&mut state), 0_usize);
+
+		assert_eq!(state, state_5_2());
 	}
 }
 
