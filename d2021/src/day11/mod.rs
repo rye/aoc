@@ -1,6 +1,7 @@
 type Intermediate = State<10>;
 
 #[derive(Debug)]
+#[cfg_attr(test, derive(PartialEq))]
 struct EnergyLevel(u8);
 
 impl From<u8> for EnergyLevel {
@@ -28,6 +29,7 @@ impl From<char> for EnergyLevel {
 }
 
 #[derive(Debug)]
+#[cfg_attr(test, derive(PartialEq))]
 struct Octopus(EnergyLevel);
 
 impl From<char> for Octopus {
@@ -36,6 +38,8 @@ impl From<char> for Octopus {
 	}
 }
 
+#[derive(Debug)]
+#[cfg_attr(test, derive(PartialEq))]
 pub struct State<const N: usize> {
 	octopi: [[Octopus; N]; N],
 }
