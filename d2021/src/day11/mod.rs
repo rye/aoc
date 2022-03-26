@@ -63,6 +63,30 @@ fn tick<const N: usize>(state: &mut State<N>) -> usize {
 	0
 }
 
+#[cfg(test)]
+mod tick {
+	use super::{tick, EnergyLevel, Octopus, State};
+
+	macro_rules! state {
+		($lvl:literal) => {
+			Octopus($lvl.into())
+		};
+	}
+
+	#[test]
+	fn test_0() {
+		let state = State {
+			octopi: [
+				[state!(1), state!(1), state!(1), state!(1), state!(1)],
+				[state!(1), state!(9), state!(9), state!(9), state!(1)],
+				[state!(1), state!(9), state!(1), state!(9), state!(1)],
+				[state!(1), state!(9), state!(9), state!(9), state!(1)],
+				[state!(1), state!(1), state!(1), state!(1), state!(1)],
+			],
+		};
+	}
+}
+
 type Solution = usize;
 
 pub fn part_one(_intermediate: &Intermediate) -> Option<Solution> {
