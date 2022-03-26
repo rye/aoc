@@ -323,6 +323,18 @@ pub fn part_one(state: &Intermediate) -> Option<Solution> {
 	Some(total_flashes)
 }
 
-pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
-	None
+pub fn part_two(state: &Intermediate) -> Option<Solution> {
+	let mut state: State<10> = state.clone();
+	let mut step_counter: usize = 0;
+
+	loop {
+		let flashes = tick(&mut state);
+		step_counter += 1;
+
+		if flashes == 100_usize {
+			break;
+		}
+	}
+
+	Some(step_counter)
 }
