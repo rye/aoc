@@ -28,6 +28,17 @@ pub fn parse_day_identifier(str: &str) -> Option<u32> {
 	}
 }
 
+#[cfg(test)]
+mod parse_day_identifier {
+	use super::parse_day_identifier;
+
+	#[test]
+	fn parse_bare() {
+		let str = "23";
+		assert_eq!(Some(23), parse_day_identifier(str));
+	}
+}
+
 #[macro_export]
 macro_rules! generate_solver {
 	($place:path, $fn_name:ident) => {
