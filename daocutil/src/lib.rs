@@ -21,7 +21,7 @@ pub fn parse_day_identifier(str: &str) -> Option<u32> {
 }
 
 #[macro_export]
-macro_rules! day_solver {
+macro_rules! generate_solver {
 	($place:path, $fn_name:ident) => {
 		fn $fn_name(data: &str) -> Result<(), Box<dyn std::error::Error>> {
 			use $place::{parse, part_one, part_two, Intermediate};
@@ -39,14 +39,11 @@ macro_rules! day_solver {
 			Ok(())
 		}
 	};
-}
 
-#[macro_export]
-macro_rules! generate_solvers {
 	($($n:literal => $place:path as $fn_name:ident),* $(,)?) => {
 		{
 			$(
-				daocutil::day_solver!($place, $fn_name);
+				daocutil::generate_solver!($place, $fn_name);
 			)*
 
 			{
@@ -61,50 +58,39 @@ macro_rules! generate_solvers {
 		}
 	};
 
-}
-
-#[macro_export]
-macro_rules! generate_solvers_from {
-	($place:path) => {
-		{
-			use $place as base;
-
-			daocutil::generate_solvers![
-				1_u32 => base::day01 as day01,
-				2_u32 => base::day02 as day02,
-				3_u32 => base::day03 as day03,
-				4_u32 => base::day04 as day04,
-				5_u32 => base::day05 as day05,
-				6_u32 => base::day06 as day06,
-				7_u32 => base::day07 as day07,
-				8_u32 => base::day08 as day08,
-				9_u32 => base::day09 as day09,
-				10_u32 => base::day10 as day10,
-				11_u32 => base::day11 as day11,
-				12_u32 => base::day12 as day12,
-				13_u32 => base::day13 as day13,
-				14_u32 => base::day14 as day14,
-				15_u32 => base::day15 as day15,
-				16_u32 => base::day16 as day16,
-				17_u32 => base::day17 as day17,
-				18_u32 => base::day18 as day18,
-				19_u32 => base::day19 as day19,
-				20_u32 => base::day20 as day20,
-				21_u32 => base::day21 as day21,
-				22_u32 => base::day22 as day22,
-				23_u32 => base::day23 as day23,
-				24_u32 => base::day24 as day24,
-				25_u32 => base::day25 as day25,
-			]
-		}
-	};
-}
-
-#[macro_export]
-macro_rules! generate_solution_hub_from {
 	($place:path) => {
 		fn main() -> Result<(), Box<dyn std::error::Error>> {
-			let solvers = daocutil::generate_solvers_from!($place);
+			let solvers = {
+				use $place as base;
+
+				daocutil::generate_solver![
+					1_u32 => base::day01 as day01,
+					2_u32 => base::day02 as day02,
+					3_u32 => base::day03 as day03,
+					4_u32 => base::day04 as day04,
+					5_u32 => base::day05 as day05,
+					6_u32 => base::day06 as day06,
+					7_u32 => base::day07 as day07,
+					8_u32 => base::day08 as day08,
+					9_u32 => base::day09 as day09,
+					10_u32 => base::day10 as day10,
+					11_u32 => base::day11 as day11,
+					12_u32 => base::day12 as day12,
+					13_u32 => base::day13 as day13,
+					14_u32 => base::day14 as day14,
+					15_u32 => base::day15 as day15,
+					16_u32 => base::day16 as day16,
+					17_u32 => base::day17 as day17,
+					18_u32 => base::day18 as day18,
+					19_u32 => base::day19 as day19,
+					20_u32 => base::day20 as day20,
+					21_u32 => base::day21 as day21,
+					22_u32 => base::day22 as day22,
+					23_u32 => base::day23 as day23,
+					24_u32 => base::day24 as day24,
+					25_u32 => base::day25 as day25,
+				]
+			};
 
 			let mut args = std::env::args();
 
