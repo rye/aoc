@@ -18,9 +18,5 @@ daocutil = { path = "../daocutil" }
 static_assertions = "1.1.0"
 
 [[bin]]
-name = "day13"
-path = "src/day13/main.rs"
-
-[[bin]]
 name = "day19"
 path = "src/day19/main.rs"
