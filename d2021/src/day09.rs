@@ -97,83 +97,61 @@ pub fn part_two(height_map: &Intermediate) -> Option<Solution> {
 		{BTreeMap, BTreeSet}, {HashMap, HashSet, VecDeque},
 	};
 
-	let mut seen: HashSet<(u32, u32)> = HashSet::new();
+	// First, figure out all the basin sizes for all the low points.
+	let set_sizes = height_map
+		.low_points()
+		.map(|((x, y), _height)| (basin_size(height_map, (*x, *y)), (*x, *y)))
+		.collect::<BTreeMap<u32, (u32, u32)>>();
 
-	// Map from low point -> which points are in the basin.
-	let mut basin_points: HashMap<(u32, u32), HashSet<(u32, u32)>> = HashMap::new();
+	// Take the top three.
+	let top_three = set_sizes.iter().rev().take(3);
 
-	// Map from point -> which basin it belongs to.
-	let mut points_to_basin: HashMap<(u32, u32), (u32, u32)> = HashMap::new();
+	// And then product of their sizes.
+	Some(top_three.map(|(size, _point)| size).product())
+}
+
+fn basin_size(height_map: &HeightMap, (x, y): (u32, u32)) -> u32 {
+	use std::collections::{
+		hash_map::Entry,
+		{BTreeMap, BTreeSet}, {HashMap, HashSet, VecDeque},
+	};
 
 	let mut queue: VecDeque<(u32, u32)> = VecDeque::new();
+	queue.push_back((x, y));
 
-	for ((x, y), h) in height_map.low_points() {
-		let mut basic = HashSet::new();
-		basic.insert((*x, *y));
-		basin_points.insert((*x, *y), basic);
+	let mut set: HashSet<(u32, u32)> = HashSet::new();
 
-		points_to_basin.insert((*x, *y), (*x, *y));
-
-		queue.push_back((*x, *y));
-	}
-
+	// Pop a point, add it to the set, and then add its higher-level neighbors.
 	while let Some((x, y)) = queue.pop_front() {
-		seen.insert((x, y));
+		set.insert((x, y));
 
-		let basin_origin: (u32, u32) = *points_to_basin
-			.get(&(x, y))
-			.expect("basin point with no origin");
-
-		let self_height = height_map.height_at((x, y));
-
-		// Remove a point from the queue.
+		let height = height_map.height_at((x, y));
 
 		for (nx, ny) in neighbors(x, y) {
 			let neighbor_height = height_map.height_at((nx, ny));
 
-			// If the neighbor's height is 9, it doesn't count.
 			if neighbor_height == 9 {
 				continue;
-			} else if neighbor_height > self_height {
-				// Add the neighbor to the queue to explore.
+			} else if neighbor_height > height {
 				queue.push_back((nx, ny));
-				points_to_basin.insert((nx, ny), basin_origin);
-
-				match basin_points.entry(basin_origin) {
-					Entry::Occupied(mut e) => e.get_mut().insert((nx, ny)),
-					Entry::Vacant(e) => panic!("no basin entry D:"),
-				};
 			}
-
-			// If the neighbor is lower or equal, don't add it to the queue.
 		}
 	}
 
-	let basin_sizes = basin_points
-		.iter()
-		.map(|((x, y), set)| (set.len(), (*x, *y)))
-		.collect::<BTreeSet<(usize, (u32, u32))>>();
-
-	let top_3_sizes = basin_sizes
-		.iter()
-		.rev()
-		.take(3)
-		.map(|(sz, _)| *sz)
-		.collect::<Vec<usize>>();
-
-	Some(
-		top_3_sizes
-			.iter()
-			.fold(1_u32, |mut acc, sz| acc * (*sz as u32)),
-	)
+	set.len() as u32
 }
 
 #[test]
-fn part_two_example_0() {
+fn part_two_examples() {
 	let string = "2199943210
 3987894921
 9856789892
 8767896789
 9899965678";
 	let height_map = parse(string).expect("failed to parse");
+
+	assert_eq!(3, basin_size(&height_map, (1, 0)));
+	assert_eq!(9, basin_size(&height_map, (9, 0)));
+	assert_eq!(14, basin_size(&height_map, (2, 2)));
+	assert_eq!(9, basin_size(&height_map, (6, 4)));
 }
