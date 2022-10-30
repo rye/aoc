@@ -41,17 +41,42 @@ pub fn ruleify(container: String, contents: Vec<(usize, String)>) -> String {
 	format!("in({}, [{}]).", container, colors.join(", "))
 }
 
-pub type Intermediate = ();
-type Solution = usize;
+pub fn generate_output(data: &str) -> Result<(), Box<dyn std::error::Error>> {
+	let bag_re = Regex::new("(.+) bags contain (.*).").unwrap();
 
-pub fn parse(_: &str) -> Result<Intermediate, core::convert::Infallible> {
+	for line in data.lines() {
+		let caps = bag_re.captures(line).unwrap();
+
+		let color = process_color(caps.get(1).unwrap().as_str());
+		let content = process_contents(caps.get(2).unwrap().as_str());
+
+		println!("{}", ruleify(color, content));
+	}
+
+	println!(
+		"
+contains(X,Y) :- in(X,Z), member(Y,Z).
+
+:- table contents/2.
+contents(X,Y) :- contains(X,Y).
+contents(X,Y) :- contents(X,Z), contents(Z,Y).
+
+expand([],[]).
+expand([BAG|BAG_LIST],EXPANSION) :-
+    expand(BAG_LIST,LIST_EXPANSION),
+    in(BAG,CONTENTS),
+    append(CONTENTS,LIST_EXPANSION,EXPANSION).
+
+expand_contents(X,[],[]) :- expand(X,[]).
+expand_contents(X,Y,TRACE) :-
+    expand(X,Z),
+    expand_contents(Z,Y,TRACE1),
+    append(Z,TRACE1,TRACE).
+
+size(X,Z) :-
+    expand_contents(X,_,TRACE),
+    length(TRACE,Z)."
+	);
+
 	Ok(())
-}
-
-pub fn part_one(_: &Intermediate) -> Option<Solution> {
-	None
-}
-
-pub fn part_two(_: &Intermediate) -> Option<Solution> {
-	None
 }

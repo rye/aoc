@@ -41,7 +41,7 @@ mod parse_day_identifier {
 
 #[macro_export]
 macro_rules! generate_solver {
-	($place:path, $fn_name:ident) => {
+	($fn_name:ident, =>, $place:path ) => {
 		fn $fn_name(data: &str) -> Result<(), Box<dyn std::error::Error>> {
 			use $place::{parse, part_one, part_two, Intermediate};
 
@@ -59,17 +59,26 @@ macro_rules! generate_solver {
 		}
 	};
 
-	($($n:literal => $place:path as $fn_name:ident),* $(,)?) => {
+	($fn_name:ident, -> , $inner:path) => {
+		fn $fn_name(data: &str) -> Result<(), Box<dyn std::error::Error>> {
+			$inner(data)
+		}
+	};
+}
+
+#[macro_export]
+macro_rules! generate_solvers {
+	($($id:literal $fn_name:ident | $tok:tt $expr:path ),* $(,)?) => {
 		{
 			$(
-				daocutil::generate_solver!($place, $fn_name);
+				daocutil::generate_solver!($fn_name, $tok, $expr);
 			)*
 
 			{
 				let mut map: std::collections::HashMap<u32, daocutil::Solver> = std::collections::HashMap::new();
 
 				$(
-					map.insert($n, $fn_name);
+					map.insert($id, $fn_name);
 				)*
 
 				map
@@ -78,38 +87,49 @@ macro_rules! generate_solver {
 	};
 
 	($place:path) => {
-		fn main() -> Result<(), Box<dyn std::error::Error>> {
-			let solvers = {
-				use $place as base;
+		{
+			use $place as base;
 
-				daocutil::generate_solver![
-					1_u32 => base::day01 as day01,
-					2_u32 => base::day02 as day02,
-					3_u32 => base::day03 as day03,
-					4_u32 => base::day04 as day04,
-					5_u32 => base::day05 as day05,
-					6_u32 => base::day06 as day06,
-					7_u32 => base::day07 as day07,
-					8_u32 => base::day08 as day08,
-					9_u32 => base::day09 as day09,
-					10_u32 => base::day10 as day10,
-					11_u32 => base::day11 as day11,
-					12_u32 => base::day12 as day12,
-					13_u32 => base::day13 as day13,
-					14_u32 => base::day14 as day14,
-					15_u32 => base::day15 as day15,
-					16_u32 => base::day16 as day16,
-					17_u32 => base::day17 as day17,
-					18_u32 => base::day18 as day18,
-					19_u32 => base::day19 as day19,
-					20_u32 => base::day20 as day20,
-					21_u32 => base::day21 as day21,
-					22_u32 => base::day22 as day22,
-					23_u32 => base::day23 as day23,
-					24_u32 => base::day24 as day24,
-					25_u32 => base::day25 as day25,
-				]
-			};
+			daocutil::generate_solvers![
+				1_u32 day01 | => base::day01,
+				2_u32 day02 | => base::day02,
+				3_u32 day03 | => base::day03,
+				4_u32 day04 | => base::day04,
+				5_u32 day05 | => base::day05,
+				6_u32 day06 | => base::day06,
+				7_u32 day07 | => base::day07,
+				8_u32 day08 | => base::day08,
+				9_u32 day09 | => base::day09,
+				10_u32 day10 | => base::day10,
+				11_u32 day11 | => base::day11,
+				12_u32 day12 | => base::day12,
+				13_u32 day13 | => base::day13,
+				14_u32 day14 | => base::day14,
+				15_u32 day15 | => base::day15,
+				16_u32 day16 | => base::day16,
+				17_u32 day17 | => base::day17,
+				18_u32 day18 | => base::day18,
+				19_u32 day19 | => base::day19,
+				20_u32 day20 | => base::day20,
+				21_u32 day21 | => base::day21,
+				22_u32 day22 | => base::day22,
+				23_u32 day23 | => base::day23,
+				24_u32 day24 | => base::day24,
+				25_u32 day25 | => base::day25,
+			]
+		}
+	};
+}
+
+#[macro_export]
+macro_rules! generate_main {
+	($loc:path) => {
+		daocutil::generate_main!(daocutil::generate_solvers!($loc));
+	};
+
+	($solvers_expr:expr) => {
+		fn main() -> Result<(), Box<dyn std::error::Error>> {
+			let solvers: std::collections::HashMap<u32, daocutil::Solver> = { $solvers_expr };
 
 			let mut args = std::env::args();
 
