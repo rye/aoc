@@ -101,7 +101,7 @@ pub fn part_two(height_map: &Intermediate) -> Option<Solution> {
 	let set_sizes = height_map
 		.low_points()
 		.map(|((x, y), _height)| (basin_size(height_map, (*x, *y)), (*x, *y)))
-		.collect::<BTreeMap<u32, (u32, u32)>>();
+		.collect::<BTreeSet<(u32, (u32, u32))>>();
 
 	// Take the top three.
 	let top_three = set_sizes.iter().rev().take(3);
@@ -154,4 +154,6 @@ fn part_two_examples() {
 	assert_eq!(9, basin_size(&height_map, (9, 0)));
 	assert_eq!(14, basin_size(&height_map, (2, 2)));
 	assert_eq!(9, basin_size(&height_map, (6, 4)));
+
+	assert_eq!(Some(1134), part_two(&height_map));
 }
