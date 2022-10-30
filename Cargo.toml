@@ -1,5 +1,6 @@
 [workspace]
 members = [
+	"daocutil",
 	"d2022",
 	"d2021",
 	"d2020",
