@@ -1,7 +1,10 @@
-#[macro_export]
+use std::{error::Error, num::ParseIntError};
+
+type Solver = fn(&str) -> Result<(), Box<dyn Error>>;
+
 macro_rules! day_solver {
 	($place:path, $fn_name:ident) => {
-		fn $fn_name(data: &str) -> Result<(), Box<dyn std::error::Error>> {
+		fn $fn_name(data: &str) -> Result<(), Box<dyn Error>> {
 			use $place::{parse, part_one, part_two};
 
 			let intermediate = parse(data)?;
@@ -19,14 +22,13 @@ macro_rules! day_solver {
 	};
 }
 
-type Solver = fn(&str) -> Result<(), Box<dyn std::error::Error>>;
-
 macro_rules! day_solvers {
 	($($place:path => $fn_name:ident $n:literal),* $(,)?) => {
 		{
+			use std::collections::HashMap;
 			$(day_solver!($place, $fn_name);)*
 
-			let mut map: std::collections::HashMap<u32, Solver> = std::collections::HashMap::new();
+			let mut map: HashMap<u32, Solver> = HashMap::new();
 
 			$(
 				map.insert($n, $fn_name);
@@ -43,35 +45,29 @@ fn string_from(mut read: impl std::io::Read) -> std::io::Result<String> {
 	Ok(buf)
 }
 
-fn parse_numeric_ident(str: &str) -> Option<u32> {
-	str
-		.matches(char::is_numeric)
-		.collect::<String>()
-		.parse()
-		.ok()
+fn parse_numeric_ident(str: &str) -> Result<u32, ParseIntError> {
+	str.matches(char::is_numeric).collect::<String>().parse()
 }
 
 fn get_day_from_ident(ident: &str) -> Option<u32> {
-	if let Some(u32) = ident.parse().ok() {
-		Some(u32)
-	} else if let Some(u32) = parse_numeric_ident(ident) {
-		Some(u32)
-	} else {
-		None
+	match (ident.parse(), parse_numeric_ident(ident)) {
+		(Ok(u32), _) => Some(u32),
+		(Err(_), Ok(u32)) => Some(u32),
+		(_, _) => None,
 	}
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), Box<dyn Error>> {
 	let solvers = day_solvers![
-		d2022::day01 => day01 01,
-		d2022::day02 => day02 02,
-		d2022::day03 => day03 03,
-		d2022::day04 => day04 04,
-		d2022::day05 => day05 05,
-		d2022::day06 => day06 06,
-		d2022::day07 => day07 07,
-		d2022::day08 => day08 08,
-		d2022::day09 => day09 09,
+		d2022::day01 => day01 1,
+		d2022::day02 => day02 2,
+		d2022::day03 => day03 3,
+		d2022::day04 => day04 4,
+		d2022::day05 => day05 5,
+		d2022::day06 => day06 6,
+		d2022::day07 => day07 7,
+		d2022::day08 => day08 8,
+		d2022::day09 => day09 9,
 		d2022::day10 => day10 10,
 		d2022::day11 => day11 11,
 		d2022::day12 => day12 12,
