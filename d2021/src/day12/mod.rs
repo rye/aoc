@@ -1,7 +1,7 @@
 use core::panic;
 use std::collections::{HashMap, HashSet};
 
-#[derive(Eq, PartialEq, Hash, Clone)]
+#[derive(Debug, Eq, PartialEq, Hash, Clone)]
 enum Node {
 	Start,
 	End,
@@ -23,6 +23,7 @@ impl From<&str> for Node {
 	}
 }
 
+#[derive(Clone, Debug)]
 pub struct AdjacencyList(HashMap<Node, HashSet<Node>>);
 
 type Intermediate = AdjacencyList;
@@ -70,7 +71,11 @@ pub fn parse(input: &str) -> Intermediate {
 
 type Solution = usize;
 
-pub fn part_one(_intermediate: &Intermediate) -> Option<Solution> {
+pub fn part_one(adjacency_list: &Intermediate) -> Option<Solution> {
+	let mut adjacency_list = adjacency_list.clone();
+
+	println!("{:?}", adjacency_list);
+
 	None
 }
 
