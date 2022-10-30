@@ -5,9 +5,9 @@ type Solver = fn(&str) -> Result<(), Box<dyn Error>>;
 macro_rules! day_solver {
 	($place:path, $fn_name:ident) => {
 		fn $fn_name(data: &str) -> Result<(), Box<dyn Error>> {
-			use $place::{parse, part_one, part_two};
+			use $place::{parse, part_one, part_two, Intermediate};
 
-			let intermediate = parse(data)?;
+			let intermediate: Intermediate = parse(data)?;
 
 			if let Some(part_one) = part_one(&intermediate) {
 				println!("Part One: {}", part_one);
