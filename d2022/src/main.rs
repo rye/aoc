@@ -36,7 +36,41 @@ macro_rules! day_solvers {
 
 			map
 		}
-	}
+	};
+
+	($place:path) => {
+		{
+			use $place as base;
+
+			day_solvers![
+				base::day01 => day01 1,
+				base::day02 => day02 2,
+				base::day03 => day03 3,
+				base::day04 => day04 4,
+				base::day05 => day05 5,
+				base::day06 => day06 6,
+				base::day07 => day07 7,
+				base::day08 => day08 8,
+				base::day09 => day09 9,
+				base::day10 => day10 10,
+				base::day11 => day11 11,
+				base::day12 => day12 12,
+				base::day13 => day13 13,
+				base::day14 => day14 14,
+				base::day15 => day15 15,
+				base::day16 => day16 16,
+				base::day17 => day17 17,
+				base::day18 => day18 18,
+				base::day19 => day19 19,
+				base::day20 => day20 20,
+				base::day21 => day21 21,
+				base::day22 => day22 22,
+				base::day23 => day23 23,
+				base::day24 => day24 24,
+				base::day25 => day25 25,
+			]
+		}
+	};
 }
 
 fn string_from(mut read: impl std::io::Read) -> std::io::Result<String> {
@@ -58,33 +92,7 @@ fn get_day_from_ident(ident: &str) -> Option<u32> {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-	let solvers = day_solvers![
-		d2022::day01 => day01 1,
-		d2022::day02 => day02 2,
-		d2022::day03 => day03 3,
-		d2022::day04 => day04 4,
-		d2022::day05 => day05 5,
-		d2022::day06 => day06 6,
-		d2022::day07 => day07 7,
-		d2022::day08 => day08 8,
-		d2022::day09 => day09 9,
-		d2022::day10 => day10 10,
-		d2022::day11 => day11 11,
-		d2022::day12 => day12 12,
-		d2022::day13 => day13 13,
-		d2022::day14 => day14 14,
-		d2022::day15 => day15 15,
-		d2022::day16 => day16 16,
-		d2022::day17 => day17 17,
-		d2022::day18 => day18 18,
-		d2022::day19 => day19 19,
-		d2022::day20 => day20 20,
-		d2022::day21 => day21 21,
-		d2022::day22 => day22 22,
-		d2022::day23 => day23 23,
-		d2022::day24 => day24 24,
-		d2022::day25 => day25 25,
-	];
+	let solvers = day_solvers!(d2022);
 
 	let mut args = std::env::args();
 
