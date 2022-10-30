@@ -46,17 +46,52 @@ pub fn crt<T: Copy + Integer>(divisor_remainder_pairs: &[(T, T)]) -> T {
 	total % product
 }
 
-pub type Intermediate = ();
-type Solution = usize;
+pub type Intermediate = (i64, Vec<Option<i64>>);
+type Solution = i64;
 
-pub fn parse(_: &str) -> Result<Intermediate, core::convert::Infallible> {
-	Ok(())
+pub fn parse(data: &str) -> Result<Intermediate, core::convert::Infallible> {
+	let timestamp = data.lines().nth(0).unwrap().parse::<i64>().unwrap();
+
+	let bus_intervals: Vec<Option<i64>> = data
+		.lines()
+		.nth(1)
+		.unwrap()
+		.split(',')
+		.map(|n| match n {
+			"x" => None,
+			k => k.parse::<i64>().ok(),
+		})
+		.collect();
+
+	Ok((timestamp, bus_intervals))
 }
 
-pub fn part_one(_: &Intermediate) -> Option<Solution> {
-	None
+pub fn part_one((timestamp, bus_intervals): &Intermediate) -> Option<Solution> {
+	// Turn each bus ID (period) into ([time until next stop], [period])
+	let mut values: Vec<(i64, i64)> = bus_intervals
+		.iter()
+		.filter_map(|o| *o)
+		.map(|n| ((timestamp / n) * n + n - timestamp, n))
+		.collect();
+
+	// Sort. For tuples, the first subscript is sorted on first, so we'll
+	// get the earliest next stop at the start of the list.
+	values.sort();
+
+	// Answer is the time until next stop * ID of the bus.
+	let result = values[0].0 * values[0].1;
+
+	Some(result)
 }
 
-pub fn part_two(_: &Intermediate) -> Option<Solution> {
-	None
+pub fn part_two((_timestamp, bus_intervals): &Intermediate) -> Option<Solution> {
+	let divisors_and_remainders: Vec<(i64, i64)> = bus_intervals
+		.iter()
+		.enumerate()
+		.filter(|(_, x)| x.is_some())
+		.map(|(i, x)| (i, x.unwrap()))
+		.map(|(idx, bus_id)| (bus_id, bus_id - idx as i64))
+		.collect();
+
+	Some(crt(&divisors_and_remainders))
 }

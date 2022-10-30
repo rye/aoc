@@ -1,11 +1,22 @@
-#![allow(unused_imports)]
+pub type Intermediate = (usize, usize);
+type Solution = usize;
 
-use std::io::{stdin, Read};
-use std::{collections::*, str::FromStr};
+pub fn parse(data: &str) -> Result<Intermediate, core::convert::Infallible> {
+	let lines = data
+		.lines()
+		.map(|s: &str| s.parse::<usize>().unwrap())
+		.collect::<Vec<_>>();
 
-use regex::Regex;
+	Ok((lines[1].clone(), lines[0].clone()))
+}
 
-use d2020::{day25::*, *};
+pub fn part_one((card_pubkey, door_pubkey): &Intermediate) -> Option<Solution> {
+	Some(find_encryption_key(&card_pubkey, &door_pubkey))
+}
+
+pub fn part_two(_: &Intermediate) -> Option<Solution> {
+	None
+}
 
 fn transform_sub(subject: &usize, loop_size: usize) -> usize {
 	let mut value: usize = 1_usize.into();
@@ -131,24 +142,4 @@ fn find_encryption_key_d17807724_c5764801() {
 		find_encryption_key(&card_pubkey, &door_pubkey),
 		14897079_usize.into()
 	);
-}
-
-fn main() {
-	let data: String = daocutil::string_from(stdin()).unwrap();
-
-	let (card_pubkey, door_pubkey) = {
-		let lines = data
-			.lines()
-			.map(|s: &str| s.parse::<usize>().unwrap())
-			.collect::<Vec<_>>();
-
-		(lines[1].clone(), lines[0].clone())
-	};
-
-	{
-		println!(
-			"Part One: {:?}",
-			find_encryption_key(&card_pubkey, &door_pubkey)
-		);
-	}
 }

@@ -1,1 +1,1 @@
-daocutil::generate_solver!(d2022);
+daocutil::generate_main!(d2022);

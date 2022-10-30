@@ -5,8 +5,6 @@ use std::{collections::*, str::FromStr};
 
 use regex::Regex;
 
-use d2020::{day19::*, *};
-
 #[derive(Debug, PartialEq, Eq, Clone)]
 enum Rule {
 	SingleChar(char),
@@ -38,7 +36,7 @@ impl FromStr for Rule {
 }
 
 #[derive(Debug, Clone)]
-struct RuleSet {
+pub struct RuleSet {
 	rules: Vec<Rule>,
 }
 
@@ -170,33 +168,30 @@ impl From<&RuleSet> for Regex {
 }
 
 #[derive(Debug)]
-struct Message<'x>(&'x str);
+pub struct Message<'x>(&'x str);
 
-fn main() {
-	let data: String = daocutil::string_from(stdin()).unwrap();
+pub type Intermediate<'input> = (RuleSet, Vec<Message<'input>>);
+type Solution = usize;
 
-	let (rules, messages): (RuleSet, Vec<Message>) = {
-		let split: Vec<&str> = data.split("\n\n").collect();
+pub fn parse(data: &str) -> Result<Intermediate, core::convert::Infallible> {
+	let split: Vec<&str> = data.split("\n\n").collect();
 
-		let messages: Vec<Message> = split[1].lines().map(|line| Message(line)).collect();
+	let messages: Vec<Message> = split[1].lines().map(|line| Message(line)).collect();
 
-		(split[0].parse().unwrap(), messages)
-	};
+	Ok((split[0].parse().unwrap(), messages))
+}
 
-	{
-		let ruleset_regex = Regex::from(&rules);
+pub fn part_one((rules, messages): &Intermediate) -> Option<Solution> {
+	let ruleset_regex = regex::Regex::from(rules);
 
-		println!("{}", ruleset_regex.as_str());
+	let count = messages
+		.iter()
+		.filter(|message| ruleset_regex.is_match(message.0))
+		.count();
 
-		let count = messages
-			.iter()
-			.filter(|message| ruleset_regex.is_match(message.0))
-			.count();
+	Some(count)
+}
 
-		println!("Part One: {:?}", count);
-	}
-
-	{
-		println!("Part Two: {:?}", ());
-	}
+pub fn part_two(_: &Intermediate) -> Option<Solution> {
+	None
 }
