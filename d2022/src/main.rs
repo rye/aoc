@@ -23,18 +23,15 @@ macro_rules! day_solver {
 }
 
 macro_rules! day_solvers {
-	($($place:path => $fn_name:ident $n:literal),* $(,)?) => {
+	($($n:literal => $place:path as $fn_name:ident),* $(,)?) => {
 		{
-			use std::collections::HashMap;
-			$(day_solver!($place, $fn_name);)*
-
-			let mut map: HashMap<u32, Solver> = HashMap::new();
-
 			$(
-				map.insert($n, $fn_name);
+				day_solver!($place, $fn_name);
 			)*
 
-			map
+			phf::phf_map! {
+				$($n => $fn_name),*
+			}
 		}
 	};
 
@@ -43,31 +40,31 @@ macro_rules! day_solvers {
 			use $place as base;
 
 			day_solvers![
-				base::day01 => day01 1,
-				base::day02 => day02 2,
-				base::day03 => day03 3,
-				base::day04 => day04 4,
-				base::day05 => day05 5,
-				base::day06 => day06 6,
-				base::day07 => day07 7,
-				base::day08 => day08 8,
-				base::day09 => day09 9,
-				base::day10 => day10 10,
-				base::day11 => day11 11,
-				base::day12 => day12 12,
-				base::day13 => day13 13,
-				base::day14 => day14 14,
-				base::day15 => day15 15,
-				base::day16 => day16 16,
-				base::day17 => day17 17,
-				base::day18 => day18 18,
-				base::day19 => day19 19,
-				base::day20 => day20 20,
-				base::day21 => day21 21,
-				base::day22 => day22 22,
-				base::day23 => day23 23,
-				base::day24 => day24 24,
-				base::day25 => day25 25,
+				1_u32 => base::day01 as day01,
+				2_u32 => base::day02 as day02,
+				3_u32 => base::day03 as day03,
+				4_u32 => base::day04 as day04,
+				5_u32 => base::day05 as day05,
+				6_u32 => base::day06 as day06,
+				7_u32 => base::day07 as day07,
+				8_u32 => base::day08 as day08,
+				9_u32 => base::day09 as day09,
+				10_u32 => base::day10 as day10,
+				11_u32 => base::day11 as day11,
+				12_u32 => base::day12 as day12,
+				13_u32 => base::day13 as day13,
+				14_u32 => base::day14 as day14,
+				15_u32 => base::day15 as day15,
+				16_u32 => base::day16 as day16,
+				17_u32 => base::day17 as day17,
+				18_u32 => base::day18 as day18,
+				19_u32 => base::day19 as day19,
+				20_u32 => base::day20 as day20,
+				21_u32 => base::day21 as day21,
+				22_u32 => base::day22 as day22,
+				23_u32 => base::day23 as day23,
+				24_u32 => base::day24 as day24,
+				25_u32 => base::day25 as day25,
 			]
 		}
 	};
@@ -91,16 +88,16 @@ fn get_day_from_ident(ident: &str) -> Option<u32> {
 	}
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
-	let solvers = day_solvers!(d2022);
+static SOLVERS: phf::Map<u32, Solver> = day_solvers!(d2022);
 
+fn main() -> Result<(), Box<dyn Error>> {
 	let mut args = std::env::args();
 
 	let _ = args.next();
 
 	if let Some(ident) = args.next() {
 		if let Some(ident) = get_day_from_ident(&ident) {
-			if let Some(handler) = solvers.get(&ident) {
+			if let Some(handler) = SOLVERS.get(&ident) {
 				let data: String = match args.next() {
 					Some(filename) => string_from(std::fs::File::open(filename)?)?,
 					None => string_from(std::io::stdin())?,
