@@ -3,7 +3,7 @@ use {core::cmp::Reverse, std::collections::BinaryHeap};
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct CrabPosition(i32);
 
-type Intermediate = Vec<CrabPosition>;
+pub type Intermediate = Vec<CrabPosition>;
 
 pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
 	Ok(

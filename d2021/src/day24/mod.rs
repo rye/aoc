@@ -114,7 +114,7 @@ pub struct Program {
 	instructions: Vec<Instruction>,
 }
 
-type Intermediate = (ALU, Program);
+pub type Intermediate = (ALU, Program);
 
 fn generate_valid_model_numbers() -> impl Iterator<Item = Vec<u8>> {
 	(0..14).map(|_| (1..=9)).multi_cartesian_product()

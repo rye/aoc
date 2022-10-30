@@ -2,7 +2,7 @@ use std::collections::{btree_map::Entry, BTreeMap};
 
 use itertools::Itertools;
 
-type Intermediate<'input> = (&'input str, BTreeMap<&'input str, char>);
+pub type Intermediate<'input> = (&'input str, BTreeMap<&'input str, char>);
 
 pub fn parse<'input>(
 	input: &'input str,

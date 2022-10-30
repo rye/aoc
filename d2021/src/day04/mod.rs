@@ -17,7 +17,7 @@ pub enum Error {
 mod board;
 pub use board::*;
 
-type Intermediate = (Vec<Number>, Vec<Board>);
+pub type Intermediate = (Vec<Number>, Vec<Board>);
 
 /// Parses the input down to a list of calls and a set of boards.
 pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {

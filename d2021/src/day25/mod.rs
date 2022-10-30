@@ -140,7 +140,7 @@ impl<const WIDTH: usize, const HEIGHT: usize> Space<WIDTH, HEIGHT> {
 	}
 }
 
-type Intermediate = Space<139, 137>;
+pub type Intermediate = Space<139, 137>;
 
 pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
 	Ok(input.parse().expect("failed to parse input"))

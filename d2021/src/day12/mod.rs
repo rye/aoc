@@ -26,7 +26,7 @@ impl From<&str> for Node {
 #[derive(Clone, Debug)]
 pub struct AdjacencyList(HashMap<Node, HashSet<Node>>);
 
-type Intermediate = AdjacencyList;
+pub type Intermediate = AdjacencyList;
 
 // line like start-end
 // becomes

@@ -39,7 +39,7 @@ impl core::str::FromStr for Command {
 	}
 }
 
-type Intermediate = Vec<Command>;
+pub type Intermediate = Vec<Command>;
 
 pub fn parse(input: &str) -> Result<Intermediate, CommandParseError> {
 	input

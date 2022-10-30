@@ -32,7 +32,7 @@ impl core::str::FromStr for TimerValue {
 	}
 }
 
-type Intermediate = School;
+pub type Intermediate = School;
 
 pub fn parse(input: &str) -> Result<Intermediate, Infallible> {
 	let fish_values: Vec<TimerValue> = input

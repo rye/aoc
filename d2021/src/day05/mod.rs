@@ -155,7 +155,7 @@ fn points_diagonal_dsc() {
 	)
 }
 
-type Intermediate = Vec<LineSegment>;
+pub type Intermediate = Vec<LineSegment>;
 
 impl FromStr for LineSegment {
 	type Err = Infallible;

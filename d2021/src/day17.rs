@@ -1,10 +1,10 @@
 pub type Intermediate = ();
 
-pub fn parse(_input: &str) -> Result<Intermediate, core::convert::Infallible> {
+pub fn parse(_str: &str) -> Result<Intermediate, core::convert::Infallible> {
 	Ok(())
 }
 
-type Solution = usize;
+type Solution = u32;
 
 pub fn part_one(_intermediate: &Intermediate) -> Option<Solution> {
 	None

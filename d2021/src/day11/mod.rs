@@ -1,4 +1,4 @@
-type Intermediate = State<10>;
+pub type Intermediate = State<10>;
 
 pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
 	input.parse()

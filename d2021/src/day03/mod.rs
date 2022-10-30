@@ -1,6 +1,6 @@
 use core::{cmp::Ordering, str::Chars};
 
-type Intermediate = Vec<[char; 12]>;
+pub type Intermediate = Vec<[char; 12]>;
 
 pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
 	Ok(

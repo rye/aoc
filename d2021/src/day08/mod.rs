@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-type Intermediate<'a> = Vec<([&'a str; 10], [&'a str; 4])>;
+pub type Intermediate<'a> = Vec<([&'a str; 10], [&'a str; 4])>;
 
 pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
 	Ok(

@@ -91,7 +91,7 @@ impl core::str::FromStr for Amphipod {
 	}
 }
 
-type Intermediate = HashSet<(Amphipod, SlotIdentifier)>;
+pub type Intermediate = HashSet<(Amphipod, SlotIdentifier)>;
 
 #[inline]
 fn is_blank_space(char: char) -> bool {

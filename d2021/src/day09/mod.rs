@@ -46,7 +46,7 @@ impl HeightMap {
 	}
 }
 
-type Intermediate = HeightMap;
+pub type Intermediate = HeightMap;
 
 pub fn parse(points: &str) -> Result<Intermediate, core::convert::Infallible> {
 	let points = points
