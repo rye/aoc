@@ -182,7 +182,7 @@ mod tests;
 type Intermediate = Vec<Expr>;
 type Solution = u64;
 
-pub fn parse(input: &str) -> Intermediate {
+pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
 	let mut exprs: Vec<Expr> = Vec::new();
 
 	for line in input.lines() {
@@ -223,7 +223,7 @@ pub fn parse(input: &str) -> Intermediate {
 		exprs.push(Expr(tokens));
 	}
 
-	exprs
+	Ok(exprs)
 }
 
 pub fn part_one(exprs: &Intermediate) -> Option<Solution> {

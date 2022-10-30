@@ -27,8 +27,8 @@ pub fn slope(map: &Vec<Vec<char>>, (dx, dy): (usize, usize)) -> usize {
 pub type Intermediate = Vec<Vec<char>>;
 pub type Solution = usize;
 
-pub fn parse(data: &str) -> Intermediate {
-	data.lines().map(|line| line.chars().collect()).collect()
+pub fn parse(data: &str) -> Result<Intermediate, core::convert::Infallible> {
+	Ok(data.lines().map(|line| line.chars().collect()).collect())
 }
 
 pub fn part_one(map: &Intermediate) -> Option<Solution> {

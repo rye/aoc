@@ -55,11 +55,13 @@ fn find_weakness(numbers: &Vec<isize>, impostor: isize) -> Option<Vec<isize>> {
 pub type Intermediate = Vec<isize>;
 pub type Solution = isize;
 
-pub fn parse(data: &str) -> Intermediate {
-	data
-		.lines()
-		.map(|s| s.parse().expect("failed to parse line as isize"))
-		.collect()
+pub fn parse(data: &str) -> Result<Intermediate, core::convert::Infallible> {
+	Ok(
+		data
+			.lines()
+			.map(|s| s.parse().expect("failed to parse line as isize"))
+			.collect(),
+	)
 }
 
 pub fn part_one(numbers: &Intermediate) -> Option<Solution> {

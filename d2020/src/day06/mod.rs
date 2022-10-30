@@ -26,8 +26,8 @@ pub fn intersect_all(items: impl Iterator<Item = BTreeSet<Answer>>) -> Option<BT
 pub type Intermediate<'a> = Vec<&'a str>;
 pub type Solution = usize;
 
-pub fn parse(data: &str) -> Intermediate {
-	data.split("\n\n").collect()
+pub fn parse(data: &str) -> Result<Intermediate, core::convert::Infallible> {
+	Ok(data.split("\n\n").collect())
 }
 
 pub fn part_one(groups: &Intermediate) -> Option<Solution> {

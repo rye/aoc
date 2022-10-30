@@ -23,11 +23,13 @@ pub fn find_triple(list: &BTreeSet<i64>, target: &i64) -> Option<(i64, i64, i64)
 pub type Intermediate = BTreeSet<i64>;
 pub type Solution = i64;
 
-pub fn parse(data: &str) -> Intermediate {
-	data
-		.lines()
-		.map(|line| line.parse::<i64>().expect("malformed input"))
-		.collect()
+pub fn parse(data: &str) -> Result<Intermediate, core::convert::Infallible> {
+	Ok(
+		data
+			.lines()
+			.map(|line| line.parse::<i64>().expect("malformed input"))
+			.collect(),
+	)
 }
 
 pub fn part_one(list: &Intermediate) -> Option<Solution> {

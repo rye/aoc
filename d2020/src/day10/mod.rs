@@ -3,14 +3,14 @@ use std::collections::HashSet;
 pub type Intermediate = Vec<u64>;
 pub type Solution = usize;
 
-pub fn parse(input: &str) -> Intermediate {
-	jolt_differences(
+pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
+	Ok(jolt_differences(
 		input
 			.trim_end()
 			.split('\n')
 			.map(|line| line.parse::<u64>().unwrap())
 			.collect(),
-	)
+	))
 }
 
 pub fn part_one(differences: &Intermediate) -> Option<usize> {

@@ -42,7 +42,7 @@ macro_rules! day_solver {
 
 			let data: String = string_from(stdin())?;
 
-			let intermediate = $transform(&data);
+			let intermediate = $transform(&data)?;
 
 			if let Some(part_one) = $part_one(&intermediate) {
 				println!("Part One: {}", part_one);

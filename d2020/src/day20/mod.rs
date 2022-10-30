@@ -201,7 +201,7 @@ pub fn part_two((images, matches): &Intermediate) -> Option<Solution> {
 	}
 }
 
-pub fn parse(input: &str) -> Intermediate {
+pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
 	let images: Vec<(usize, Image)> = input
 		.split("\n\n")
 		.map(|spec| {
@@ -241,5 +241,5 @@ pub fn parse(input: &str) -> Intermediate {
 		}
 	}
 
-	(images, matches)
+	Ok((images, matches))
 }

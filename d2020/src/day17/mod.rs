@@ -3,21 +3,23 @@ use std::collections::{HashMap, HashSet};
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Pos(i8, i8, i8, i8);
 
-type Intermediate = HashSet<Pos>;
+pub type Intermediate = HashSet<Pos>;
 type Solution = u64;
 
-pub fn parse(input: &str) -> Intermediate {
-	input
-		.lines()
-		.enumerate()
-		.flat_map(|(y, line)| {
-			line
-				.chars()
-				.enumerate()
-				.filter(|&(_x, c)| c == '#')
-				.map(move |(x, _c)| Pos(x as i8, y as i8, 0, 0))
-		})
-		.collect()
+pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
+	Ok(
+		input
+			.lines()
+			.enumerate()
+			.flat_map(|(y, line)| {
+				line
+					.chars()
+					.enumerate()
+					.filter(|&(_x, c)| c == '#')
+					.map(move |(x, _c)| Pos(x as i8, y as i8, 0, 0))
+			})
+			.collect(),
+	)
 }
 
 #[cfg(test)]
@@ -30,15 +32,17 @@ mod parse {
 
 		assert_eq!(
 			parse(input),
-			vec![
-				Pos(1, 0, 0, 0),
-				Pos(2, 1, 0, 0),
-				Pos(0, 2, 0, 0),
-				Pos(1, 2, 0, 0),
-				Pos(2, 2, 0, 0),
-			]
-			.into_iter()
-			.collect()
+			Ok(
+				vec![
+					Pos(1, 0, 0, 0),
+					Pos(2, 1, 0, 0),
+					Pos(0, 2, 0, 0),
+					Pos(1, 2, 0, 0),
+					Pos(2, 2, 0, 0),
+				]
+				.into_iter()
+				.collect()
+			)
 		);
 	}
 }
@@ -132,7 +136,7 @@ mod part_one {
 	fn example() {
 		let input = ".#.\n..#\n###";
 
-		assert_eq!(part_one(&parse(input)), Some(112));
+		assert_eq!(part_one(&parse(input).unwrap()), Some(112));
 	}
 }
 
@@ -152,6 +156,6 @@ mod part_two {
 	fn example() {
 		let input = ".#.\n..#\n###";
 
-		assert_eq!(part_two(&parse(input)), Some(848));
+		assert_eq!(part_two(&parse(input).unwrap()), Some(848));
 	}
 }

@@ -46,11 +46,13 @@ impl FromStr for Instruction {
 pub type Intermediate = Vec<Instruction>;
 pub type Solution = f64;
 
-pub fn parse(input: &str) -> Intermediate {
-	input
-		.lines()
-		.map(|line| line.parse().expect("invalid line"))
-		.collect()
+pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
+	Ok(
+		input
+			.lines()
+			.map(|line| line.parse().expect("invalid line"))
+			.collect(),
+	)
 }
 
 pub fn part_one(instructions: &Intermediate) -> Option<Solution> {
@@ -121,7 +123,7 @@ pub fn part_one(instructions: &Intermediate) -> Option<Solution> {
 
 #[test]
 fn part_one_example() {
-	let instructions: Intermediate = parse("F10\nN3\nF7\nR90\nF11");
+	let instructions: Intermediate = parse("F10\nN3\nF7\nR90\nF11").unwrap();
 	assert_eq!(part_one(&instructions), Some(25.0_f64));
 }
 
@@ -229,6 +231,6 @@ pub fn part_two(instructions: &Intermediate) -> Option<Solution> {
 
 #[test]
 fn part_two_example() {
-	let instructions: Intermediate = parse("F10\nN3\nF7\nR90\nF11");
+	let instructions: Intermediate = parse("F10\nN3\nF7\nR90\nF11").unwrap();
 	assert_eq!(part_two(&instructions), Some(286.0_f64));
 }

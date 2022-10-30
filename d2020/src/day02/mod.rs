@@ -51,16 +51,18 @@ pub fn validate_password_two(rule: &Rule, password: &str) -> bool {
 pub type Intermediate = Vec<(Rule, String)>;
 pub type Solution = usize;
 
-pub fn parse(data: &str) -> Intermediate {
-	data
-		.lines()
-		.map(|s| {
-			let rule = (&s).split(": ").nth(0).unwrap().parse::<Rule>().unwrap();
-			let password = (&s).split(": ").nth(1).unwrap().to_string();
+pub fn parse(data: &str) -> Result<Intermediate, core::convert::Infallible> {
+	Ok(
+		data
+			.lines()
+			.map(|s| {
+				let rule = (&s).split(": ").nth(0).unwrap().parse::<Rule>().unwrap();
+				let password = (&s).split(": ").nth(1).unwrap().to_string();
 
-			(rule, password.clone())
-		})
-		.collect()
+				(rule, password.clone())
+			})
+			.collect(),
+	)
 }
 
 pub fn part_one(rules: &Intermediate) -> Option<Solution> {

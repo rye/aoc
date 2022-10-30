@@ -3,8 +3,8 @@ use std::collections::HashMap;
 pub type Intermediate = Program;
 pub type Solution = u64;
 
-pub fn parse(data: &str) -> Intermediate {
-	data.parse().expect("failed to parse program")
+pub fn parse(data: &str) -> Result<Intermediate, ProgramParseError> {
+	data.parse()
 }
 
 pub fn part_one(program: &Program) -> Option<Solution> {

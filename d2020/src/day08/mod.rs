@@ -74,11 +74,13 @@ pub fn execute_program(program: &VecDeque<Instruction>) -> ExecutionResult<isize
 pub type Intermediate = VecDeque<Instruction>;
 pub type Solution = isize;
 
-pub fn parse(data: &str) -> Intermediate {
-	data
-		.lines()
-		.map(|ln| ln.parse().expect("failed to parse instruction"))
-		.collect()
+pub fn parse(data: &str) -> Result<Intermediate, core::convert::Infallible> {
+	Ok(
+		data
+			.lines()
+			.map(|ln| ln.parse().expect("failed to parse instruction"))
+			.collect(),
+	)
 }
 
 pub fn part_one(instructions: &Intermediate) -> Option<Solution> {

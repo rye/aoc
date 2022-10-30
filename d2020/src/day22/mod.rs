@@ -24,7 +24,7 @@ type Solution = usize;
 #[derive(Debug, PartialEq)]
 struct Player(usize);
 
-pub fn parse<'input>(input: &'input str) -> Game {
+pub fn parse<'input>(input: &'input str) -> Result<Intermediate, core::convert::Infallible> {
 	let players: Vec<Deck> = input
 		.split("\n\n")
 		.map(|block| {
@@ -38,7 +38,7 @@ pub fn parse<'input>(input: &'input str) -> Game {
 		})
 		.collect();
 
-	Game { players }
+	Ok(Game { players })
 }
 
 fn round_is_playable(deck_a: &Deck, deck_b: &Deck) -> bool {

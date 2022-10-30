@@ -42,7 +42,7 @@ pub struct Input {
 type Intermediate = Input;
 type Solution = u64;
 
-pub fn parse(input: &str) -> Intermediate {
+pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
 	let mut sections = input.split("\n\n");
 
 	let rules: Vec<Rule> = sections.next().unwrap().lines().map(Rule::from).collect();
@@ -65,11 +65,11 @@ pub fn parse(input: &str) -> Intermediate {
 		.map(|line| line.split(',').map(|x| x.parse().unwrap()).collect())
 		.collect();
 
-	Input {
+	Ok(Input {
 		rules,
 		mine,
 		others,
-	}
+	})
 }
 
 pub fn part_one(input: &Intermediate) -> Option<Solution> {
@@ -104,7 +104,7 @@ nearby tickets:
 55,2,20
 38,6,12";
 
-		let intermediate = parse(input);
+		let intermediate = parse(input).unwrap();
 
 		assert_eq!(
 			intermediate.rules,
@@ -233,7 +233,7 @@ nearby tickets:
 15,1,5
 5,14,9";
 
-		let intermediate = parse(input);
+		let intermediate = parse(input).unwrap();
 
 		assert_eq!(
 			intermediate.rules,

@@ -51,7 +51,7 @@ impl core::str::FromStr for Food {
 pub type Intermediate = (Vec<Food>, HashMap<Allergen, Ingredient>);
 pub type Solution = String;
 
-pub fn parse(input: &str) -> Intermediate {
+pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
 	let foods: Vec<Food> = input
 		.lines()
 		.map(|line| line.parse::<Food>().expect("failed to parse food"))
@@ -86,7 +86,7 @@ pub fn parse(input: &str) -> Intermediate {
 		}
 	}
 
-	(foods, allergens)
+	Ok((foods, allergens))
 }
 
 pub fn part_one((foods, allergens): &Intermediate) -> Option<Solution> {

@@ -1,14 +1,16 @@
 const END: u32 = 30_000_000;
 
-type Intermediate = Vec<u32>;
+pub type Intermediate = Vec<u32>;
 type Solution = u32;
 
-pub fn parse(input: &str) -> Intermediate {
-	input
-		.trim()
-		.split(',')
-		.map(|i| i.parse().expect("invalid input"))
-		.collect()
+pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
+	Ok(
+		input
+			.trim()
+			.split(',')
+			.map(|i| i.parse().expect("invalid input"))
+			.collect(),
+	)
 }
 
 #[allow(clippy::ptr_arg)]

@@ -27,8 +27,8 @@ pub fn seat_id_from_bsp(bsp: &str) -> usize {
 pub type Intermediate = std::collections::BTreeSet<usize>;
 pub type Solution = usize;
 
-pub fn parse(data: &str) -> Intermediate {
-	data.lines().map(|bsp| seat_id_from_bsp(bsp)).collect()
+pub fn parse(data: &str) -> Result<Intermediate, core::convert::Infallible> {
+	Ok(data.lines().map(|bsp| seat_id_from_bsp(bsp)).collect())
 }
 
 pub fn part_one(seat_ids: &Intermediate) -> Option<Solution> {

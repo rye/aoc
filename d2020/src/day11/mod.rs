@@ -3,8 +3,8 @@ use std::collections::HashMap;
 pub type Intermediate = Layout;
 pub type Solution = usize;
 
-pub fn parse(input: &str) -> Intermediate {
-	input.parse().expect("invalid input")
+pub fn parse(input: &str) -> Result<Intermediate, LayoutParseError> {
+	input.parse()
 }
 
 pub fn part_one(intermediate: &Intermediate) -> Option<Solution> {
@@ -105,8 +105,9 @@ const DELTAS: [(i32, i32); 8] = [
 	(1, 1),
 ];
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, thiserror::Error)]
 pub enum LayoutParseError {
+	#[error("unexpected character")]
 	UnexpectedChar(char),
 }
 
