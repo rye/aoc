@@ -12,6 +12,8 @@ num-integer = "0.1.44"
 regex = "1.4.2"
 thiserror = "1.0.24"
 
+daocutil = { path = "../daocutil" }
+
 [dev-dependencies]
 static_assertions = "1.1.0"
 

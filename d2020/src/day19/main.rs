@@ -173,7 +173,7 @@ impl From<&RuleSet> for Regex {
 struct Message<'x>(&'x str);
 
 fn main() {
-	let data: String = string_from(stdin()).unwrap();
+	let data: String = daocutil::string_from(stdin()).unwrap();
 
 	let (rules, messages): (RuleSet, Vec<Message>) = {
 		let split: Vec<&str> = data.split("\n\n").collect();

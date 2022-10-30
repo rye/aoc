@@ -134,7 +134,7 @@ fn find_encryption_key_d17807724_c5764801() {
 }
 
 fn main() {
-	let data: String = string_from(stdin()).unwrap();
+	let data: String = daocutil::string_from(stdin()).unwrap();
 
 	let (card_pubkey, door_pubkey) = {
 		let lines = data

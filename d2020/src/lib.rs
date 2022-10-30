@@ -27,20 +27,13 @@ pub mod day23;
 pub mod day24;
 pub mod day25;
 
-pub fn string_from(mut r: impl std::io::Read) -> std::io::Result<String> {
-	let mut s: String = String::new();
-	r.read_to_string(&mut s)?;
-	Ok(s)
-}
-
 #[macro_export]
 macro_rules! day_solver {
 	( $transform:expr, $part_one:expr, $part_two:expr ) => {
 		fn main() -> Result<(), Box<dyn std::error::Error>> {
 			use ::std::io::stdin;
-			use $crate::string_from;
 
-			let data: String = string_from(stdin())?;
+			let data: String = daocutil::string_from(stdin())?;
 
 			let intermediate = $transform(&data)?;
 
