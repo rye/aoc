@@ -39,7 +39,7 @@ pub struct Input {
 	others: Vec<Vec<u64>>,
 }
 
-type Intermediate = Input;
+pub type Intermediate = Input;
 type Solution = u64;
 
 pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {

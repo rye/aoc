@@ -179,7 +179,7 @@ const fn part_two_prec_props_fn(token: &Token) -> OpTokenProps {
 #[cfg(test)]
 mod tests;
 
-type Intermediate = Vec<Expr>;
+pub type Intermediate = Vec<Expr>;
 type Solution = u64;
 
 pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {

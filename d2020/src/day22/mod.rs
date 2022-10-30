@@ -18,7 +18,7 @@ pub struct Game {
 	players: Vec<Deck>,
 }
 
-type Intermediate = Game;
+pub type Intermediate = Game;
 type Solution = usize;
 
 #[derive(Debug, PartialEq)]
