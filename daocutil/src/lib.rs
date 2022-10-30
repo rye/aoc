@@ -2,6 +2,14 @@ use std::num::ParseIntError;
 
 pub type Solver = fn(&str) -> Result<(), Box<dyn std::error::Error>>;
 
+/// Fully consumes a reader of type `std::io::Read` and produces a `String` containing all read text.
+///
+/// # Errors
+///
+/// An error is only returned if the underlying [`std::io::Read::read_to_string`] operation
+/// returns an error.
+///
+/// See [`std::io::Read::read_to_string`] for all error semantics.
 pub fn string_from(mut read: impl std::io::Read) -> std::io::Result<String> {
 	let mut buf: String = String::new();
 	read.read_to_string(&mut buf)?;
