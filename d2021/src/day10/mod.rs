@@ -1,6 +1,8 @@
 type Intermediate = ();
 
-pub fn parse(_input: &str) -> Intermediate {}
+pub fn parse(_input: &str) -> Result<Intermediate, core::convert::Infallible> {
+	Ok(())
+}
 
 type Solution = usize;
 

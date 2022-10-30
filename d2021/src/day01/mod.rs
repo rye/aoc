@@ -1,11 +1,7 @@
-type Intermediate = Vec<u16>;
+pub type Intermediate = Vec<u16>;
 
-pub fn parse(input: &str) -> Intermediate {
-	input
-		.lines()
-		.map(str::parse)
-		.filter_map(Result::ok)
-		.collect()
+pub fn parse(input: &str) -> Result<Intermediate, std::num::ParseIntError> {
+	input.lines().map(str::parse).collect()
 }
 
 type Solution = usize;

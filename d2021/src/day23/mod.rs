@@ -128,7 +128,7 @@ fn cost_to_move(
 	todo!()
 }
 
-pub fn parse(input: &str) -> Intermediate {
+pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
 	const HALLWAY_INDICES: [u8; 11] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 	const ROOM_INDICES_ROW_1: [u8; 4] = [11, 13, 15, 17];
@@ -163,7 +163,7 @@ pub fn parse(input: &str) -> Intermediate {
 		.filter(|&(c, _)| c != '.')
 		.map(|(c, idx)| (c.try_into().unwrap(), idx));
 
-	hallway.chain(room_line_1).chain(room_line_2).collect()
+	Ok(hallway.chain(room_line_1).chain(room_line_2).collect())
 }
 
 #[test]
@@ -176,18 +176,20 @@ fn parse_example() {
 
 	assert_eq!(
 		parse(example),
-		[
-			(Amphipod::Amber, 12),
-			(Amphipod::Amber, 18),
-			(Amphipod::Bronze, 11),
-			(Amphipod::Bronze, 15),
-			(Amphipod::Copper, 13),
-			(Amphipod::Copper, 16),
-			(Amphipod::Desert, 14),
-			(Amphipod::Desert, 17),
-		]
-		.into_iter()
-		.collect()
+		Ok(
+			[
+				(Amphipod::Amber, 12),
+				(Amphipod::Amber, 18),
+				(Amphipod::Bronze, 11),
+				(Amphipod::Bronze, 15),
+				(Amphipod::Copper, 13),
+				(Amphipod::Copper, 16),
+				(Amphipod::Desert, 14),
+				(Amphipod::Desert, 17),
+			]
+			.into_iter()
+			.collect()
+		)
 	);
 }
 
@@ -201,18 +203,20 @@ fn parse_example_1() {
 
 	assert_eq!(
 		parse(example),
-		[
-			(Amphipod::Amber, 9),
-			(Amphipod::Amber, 12),
-			(Amphipod::Bronze, 13),
-			(Amphipod::Bronze, 14),
-			(Amphipod::Copper, 15),
-			(Amphipod::Copper, 16),
-			(Amphipod::Desert, 17),
-			(Amphipod::Desert, 18),
-		]
-		.into_iter()
-		.collect()
+		Ok(
+			[
+				(Amphipod::Amber, 9),
+				(Amphipod::Amber, 12),
+				(Amphipod::Bronze, 13),
+				(Amphipod::Bronze, 14),
+				(Amphipod::Copper, 15),
+				(Amphipod::Copper, 16),
+				(Amphipod::Desert, 17),
+				(Amphipod::Desert, 18),
+			]
+			.into_iter()
+			.collect()
+		)
 	);
 }
 

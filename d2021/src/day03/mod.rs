@@ -2,14 +2,16 @@ use core::{cmp::Ordering, str::Chars};
 
 type Intermediate = Vec<[char; 12]>;
 
-pub fn parse(input: &str) -> Intermediate {
-	input
-		.lines()
-		.map(str::chars)
-		.map(Chars::collect::<Vec<_>>)
-		.map(<[char; 12]>::try_from)
-		.map(Result::unwrap)
-		.collect()
+pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
+	Ok(
+		input
+			.lines()
+			.map(str::chars)
+			.map(Chars::collect::<Vec<_>>)
+			.map(<[char; 12]>::try_from)
+			.map(Result::unwrap)
+			.collect(),
+	)
 }
 
 // Each string in the input is 12 bits long. This means that they fit in a u16.  However,

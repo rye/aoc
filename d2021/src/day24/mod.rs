@@ -120,7 +120,7 @@ fn generate_valid_model_numbers() -> impl Iterator<Item = Vec<u8>> {
 	(0..14).map(|_| (1..=9)).multi_cartesian_product()
 }
 
-pub fn parse(input: &str) -> Intermediate {
+pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
 	let instructions = input
 		.lines()
 		.map(str::parse)
@@ -136,7 +136,7 @@ pub fn parse(input: &str) -> Intermediate {
 		z: 0,
 	};
 
-	(alu, program)
+	Ok((alu, program))
 }
 
 impl ALU {

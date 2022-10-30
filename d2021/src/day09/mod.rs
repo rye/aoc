@@ -48,7 +48,7 @@ impl HeightMap {
 
 type Intermediate = HeightMap;
 
-pub fn parse(points: &str) -> Intermediate {
+pub fn parse(points: &str) -> Result<Intermediate, core::convert::Infallible> {
 	let points = points
 		.lines()
 		.enumerate()
@@ -67,7 +67,7 @@ pub fn parse(points: &str) -> Intermediate {
 		.flatten()
 		.collect();
 
-	HeightMap { points }
+	Ok(HeightMap { points })
 }
 
 type Solution = u32;

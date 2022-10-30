@@ -41,12 +41,11 @@ impl core::str::FromStr for Command {
 
 type Intermediate = Vec<Command>;
 
-pub fn parse(input: &str) -> Intermediate {
+pub fn parse(input: &str) -> Result<Intermediate, CommandParseError> {
 	input
 		.lines()
 		.map(str::parse)
 		.collect::<Result<Vec<_>, CommandParseError>>()
-		.unwrap()
 }
 
 type Solution = usize;

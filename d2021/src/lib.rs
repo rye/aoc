@@ -63,7 +63,7 @@ macro_rules! day_solver {
 				None => string_from(stdin())?,
 			};
 
-			let intermediate = $transform(&data);
+			let intermediate = $transform(&data)?;
 
 			if let Some(part_one) = $part_one(&intermediate) {
 				println!("Part One: {}", part_one);
@@ -86,8 +86,8 @@ macro_rules! day_solver {
 /// mod dayXX {
 /// 	type Intermediate = usize;
 ///
-/// 	pub(super) fn parse(input: &str) -> Intermediate {
-/// 		input.lines().count()
+/// 	pub(super) fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
+/// 		Ok(input.lines().count())
 /// 	}
 ///
 /// 	type Solution = usize;

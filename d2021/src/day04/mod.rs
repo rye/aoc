@@ -20,7 +20,7 @@ pub use board::*;
 type Intermediate = (Vec<Number>, Vec<Board>);
 
 /// Parses the input down to a list of calls and a set of boards.
-pub fn parse(input: &str) -> Intermediate {
+pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
 	let mut results = input.split("\n\n");
 	let calls = results.next();
 	let boards = results;
@@ -34,7 +34,7 @@ pub fn parse(input: &str) -> Intermediate {
 
 	let boards: Vec<Board> = boards.map(str::parse).filter_map(Result::ok).collect();
 
-	(calls, boards)
+	Ok((calls, boards))
 }
 
 struct Turn<'a> {

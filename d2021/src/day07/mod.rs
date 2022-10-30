@@ -5,14 +5,16 @@ pub struct CrabPosition(i32);
 
 type Intermediate = Vec<CrabPosition>;
 
-pub fn parse(input: &str) -> Intermediate {
-	input
-		.trim()
-		.split(',')
-		.map(str::parse)
-		.map(Result::unwrap)
-		.map(CrabPosition)
-		.collect::<Vec<CrabPosition>>()
+pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
+	Ok(
+		input
+			.trim()
+			.split(',')
+			.map(str::parse)
+			.map(Result::unwrap)
+			.map(CrabPosition)
+			.collect::<Vec<CrabPosition>>(),
+	)
 }
 
 type Solution = i32;

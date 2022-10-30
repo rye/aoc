@@ -4,7 +4,9 @@ use itertools::Itertools;
 
 type Intermediate<'input> = (&'input str, BTreeMap<&'input str, char>);
 
-pub fn parse<'input>(input: &'input str) -> Intermediate<'input> {
+pub fn parse<'input>(
+	input: &'input str,
+) -> Result<Intermediate<'input>, core::convert::Infallible> {
 	let mut split = input.split("\n\n");
 	let first_line: &'input str = split.next().expect("missing template");
 	let insertion_rules: &'input str = split.next().expect("missing rules");
@@ -26,7 +28,7 @@ pub fn parse<'input>(input: &'input str) -> Intermediate<'input> {
 		})
 		.collect();
 
-	(first_line, insertion_rules)
+	Ok((first_line, insertion_rules))
 }
 
 type Solution = usize;

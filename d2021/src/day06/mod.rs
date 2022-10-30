@@ -34,13 +34,12 @@ impl core::str::FromStr for TimerValue {
 
 type Intermediate = School;
 
-pub fn parse(input: &str) -> Intermediate {
+pub fn parse(input: &str) -> Result<Intermediate, Infallible> {
 	let fish_values: Vec<TimerValue> = input
 		.trim()
 		.split(',')
 		.map(str::parse)
-		.collect::<Result<Vec<_>, _>>()
-		.expect("failed to parse input");
+		.collect::<Result<Vec<_>, _>>()?;
 
 	let mut school = School([0; 9]);
 
@@ -48,7 +47,7 @@ pub fn parse(input: &str) -> Intermediate {
 		school[fish_value] += 1;
 	}
 
-	school
+	Ok(school)
 }
 
 type Solution = usize;

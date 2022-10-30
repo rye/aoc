@@ -92,6 +92,7 @@ dependencies = [
 name = "d2021"
 version = "0.1.0"
 dependencies = [
+ "daocutil",
  "itertools 0.10.5",
  "md5",
  "rayon",

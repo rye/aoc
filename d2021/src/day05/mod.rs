@@ -172,12 +172,11 @@ impl FromStr for LineSegment {
 	}
 }
 
-pub fn parse(input: &str) -> Intermediate {
+pub fn parse(input: &str) -> Result<Intermediate, Infallible> {
 	input
 		.lines()
 		.map(str::parse)
 		.collect::<Result<Vec<LineSegment>, Infallible>>()
-		.unwrap()
 }
 
 type Solution = usize;

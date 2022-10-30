@@ -45,7 +45,7 @@ type Intermediate = AdjacencyList;
 //    |
 //    A
 
-pub fn parse(input: &str) -> Intermediate {
+pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
 	let adjacencies = input
 		.lines()
 		.flat_map(|line| {
@@ -66,7 +66,7 @@ pub fn parse(input: &str) -> Intermediate {
 			},
 		);
 
-	AdjacencyList(adjacencies)
+	Ok(AdjacencyList(adjacencies))
 }
 
 type Solution = usize;

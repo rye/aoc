@@ -2,18 +2,20 @@ use std::collections::HashSet;
 
 type Intermediate<'a> = Vec<([&'a str; 10], [&'a str; 4])>;
 
-pub fn parse(input: &str) -> Intermediate {
-	input
-		.lines()
-		.map(|line| line.split(" | "))
-		.map(|mut split| (split.next().unwrap(), split.next().unwrap()))
-		.map(|(signals, outputs)| {
-			(
-				signals.split(' ').collect::<Vec<_>>().try_into().unwrap(),
-				outputs.split(' ').collect::<Vec<_>>().try_into().unwrap(),
-			)
-		})
-		.collect()
+pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
+	Ok(
+		input
+			.lines()
+			.map(|line| line.split(" | "))
+			.map(|mut split| (split.next().unwrap(), split.next().unwrap()))
+			.map(|(signals, outputs)| {
+				(
+					signals.split(' ').collect::<Vec<_>>().try_into().unwrap(),
+					outputs.split(' ').collect::<Vec<_>>().try_into().unwrap(),
+				)
+			})
+			.collect(),
+	)
 }
 
 type Solution = usize;

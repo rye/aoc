@@ -1,7 +1,7 @@
 type Intermediate = State<10>;
 
-pub fn parse(input: &str) -> Intermediate {
-	input.parse().expect("failed to parse input")
+pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
+	input.parse()
 }
 
 mod neighbors;
