@@ -1,15 +1,17 @@
-pub type Intermediate = ();
+pub struct Subsystem();
+
+pub type Intermediate = Subsystem;
 
 pub fn parse(_input: &str) -> Result<Intermediate, core::convert::Infallible> {
-	Ok(())
+	Ok(Subsystem())
 }
 
-type Solution = usize;
+type Solution = u32;
 
-pub fn part_one(_intermediate: &Intermediate) -> Option<Solution> {
+pub fn part_one(_subsystem: &Intermediate) -> Option<Solution> {
 	None
 }
 
-pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
+pub fn part_two(_subsystem: &Intermediate) -> Option<Solution> {
 	None
 }
