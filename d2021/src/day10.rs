@@ -1,9 +1,17 @@
 pub struct Subsystem();
 
+impl core::str::FromStr for Subsystem {
+	type Err = core::convert::Infallible;
+
+	fn from_str(s: &str) -> Result<Self, Self::Err> {
+		todo!()
+	}
+}
+
 pub type Intermediate = Subsystem;
 
-pub fn parse(_input: &str) -> Result<Intermediate, core::convert::Infallible> {
-	Ok(Subsystem())
+pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
+	input.parse()
 }
 
 type Solution = u32;
