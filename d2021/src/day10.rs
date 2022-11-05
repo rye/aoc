@@ -1,10 +1,28 @@
-pub struct Subsystem();
+pub struct Chunk {
+	open: char,
+	contents: Vec<Chunk>,
+}
+
+fn chunkify(line: &str) -> Result<Vec<Chunk>, ChunkError> {
+	todo!()
+}
+
+#[derive(Debug, thiserror::Error)]
+enum ChunkError {
+	#[error("Expected {1}, but found {0} instead.")]
+	UnexpectedClose(char, char),
+}
+
+pub struct Subsystem {
+	lines: Vec<Result<Vec<Chunk>, ChunkError>>,
+}
 
 impl core::str::FromStr for Subsystem {
 	type Err = core::convert::Infallible;
 
 	fn from_str(s: &str) -> Result<Self, Self::Err> {
-		todo!()
+		let lines = s.lines().map(chunkify).collect();
+		Ok(Self { lines })
 	}
 }
 
