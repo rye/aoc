@@ -42,25 +42,25 @@ impl FromIterator<Edge> for Graph {
 		let mut edges = HashMap::new();
 
 		for edge in iter {
-			let (node_left, node_right) = edge.into();
+			let (left, right) = edge.into();
 
-			let node_left = Rc::new(node_left);
-			let node_right = Rc::new(node_right);
+			let left = Rc::new(left);
+			let right = Rc::new(right);
 
-			// Add edge.
+			// Add edges (L -> R and R -> L).
 			edges
-				.entry(node_left.clone())
+				.entry(left.clone())
 				.or_insert(HashSet::default())
-				.insert(node_right.clone());
+				.insert(right.clone());
 
 			edges
-				.entry(node_right.clone())
+				.entry(right.clone())
 				.or_insert(HashSet::default())
-				.insert(node_left.clone());
+				.insert(left.clone());
 
-			// Add nodes to node set.
-			nodes.insert(node_left);
-			nodes.insert(node_right);
+			// Add nodes (L and R) to node set.
+			nodes.insert(left);
+			nodes.insert(right);
 		}
 
 		Graph { nodes, edges }
