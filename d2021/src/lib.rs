@@ -1,3 +1,6 @@
+#![deny(clippy::all)]
+#![warn(clippy::cargo, clippy::pedantic, clippy::cognitive_complexity)]
+
 pub mod day01;
 pub mod day02;
 pub mod day03;
