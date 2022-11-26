@@ -10,38 +10,8 @@ use {
 	},
 };
 
-#[derive(Clone, Debug, Hash, PartialEq, Eq)]
-pub enum Node {
-	Start,
-	SmallCave(String),
-	LargeCave(String),
-	End,
-}
-
-impl Display for Node {
-	fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-		match self {
-			Node::Start => write!(f, "start"),
-			Node::SmallCave(cave) => write!(f, "{}", cave),
-			Node::LargeCave(cave) => write!(f, "{}", cave),
-			Node::End => write!(f, "end"),
-		}
-	}
-}
-
-impl FromStr for Node {
-	type Err = Infallible;
-
-	fn from_str(s: &str) -> Result<Self, Self::Err> {
-		match s {
-			"start" => Ok(Self::Start),
-			"end" => Ok(Self::End),
-			s if s.chars().all(|c| c.is_ascii_uppercase()) => Ok(Self::LargeCave(s.to_string())),
-			s if s.chars().all(|c| c.is_ascii_lowercase()) => Ok(Self::SmallCave(s.to_string())),
-			_ => todo!(),
-		}
-	}
-}
+mod node;
+use node::Node;
 
 #[derive(Clone, Debug)]
 pub struct Graph {
