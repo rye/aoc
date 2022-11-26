@@ -1,84 +1,99 @@
-use core::panic;
-use std::collections::{HashMap, HashSet};
+use {
+	core::{convert::Infallible, str::FromStr},
+	std::{
+		collections::{HashMap, HashSet},
+		rc::Rc,
+	},
+};
 
-#[derive(Debug, Eq, PartialEq, Hash, Clone)]
-enum Node {
+#[derive(Clone, Debug, Hash, PartialEq, Eq)]
+pub enum Node {
 	Start,
-	End,
-	BigCave(String),
 	SmallCave(String),
+	LargeCave(String),
+	End,
 }
 
-impl From<&str> for Node {
-	fn from(str: &str) -> Self {
-		// TODO: Intern? Please?
-		// Most of the strings are 2-byte strings actually.
-		match str {
-			"start" => Self::Start,
-			"end" => Self::End,
-			str if str.as_bytes().iter().all(u8::is_ascii_uppercase) => Self::BigCave(str.to_string()),
-			str if str.as_bytes().iter().all(u8::is_ascii_lowercase) => Self::SmallCave(str.to_string()),
-			_ => panic!("unrecognized string {str}"),
+impl FromStr for Node {
+	type Err = Infallible;
+
+	fn from_str(s: &str) -> Result<Self, Self::Err> {
+		match s {
+			"start" => Ok(Self::Start),
+			"end" => Ok(Self::End),
+			s if s.chars().all(|c| c.is_ascii_uppercase()) => Ok(Self::LargeCave(s.to_string())),
+			s if s.chars().all(|c| c.is_ascii_lowercase()) => Ok(Self::SmallCave(s.to_string())),
+			_ => todo!(),
 		}
 	}
 }
 
 #[derive(Clone, Debug)]
-pub struct AdjacencyList(HashMap<Node, HashSet<Node>>);
+pub struct Graph {
+	nodes: HashSet<Rc<Node>>,
+	edges: HashMap<Rc<Node>, HashSet<Rc<Node>>>,
+}
 
-pub type Intermediate = AdjacencyList;
+#[derive(Clone)]
+pub struct Edge(Node, Node);
 
-// line like start-end
-// becomes
-// [ (Node::Start, Node::End), (Node::End, Node::Start) ]
-//
-// (Node::Start, Node::End)
-// (Node::End, Node::Start)
-// (Node::Start, Node::BigCave("A"))
-// (Node::BigCave("A"), Node::Start)
-// (Node::Start, Node::SmallCave("a"))
-// (Node::SmallCave("a"), Node::Start)
+impl FromStr for Edge {
+	type Err = Infallible;
 
-//    a
-//    |
-//  start -- end
-//    |
-//    A
+	fn from_str(s: &str) -> Result<Self, Self::Err> {
+		let split: Vec<&str> = s.split('-').collect();
+
+		match split[..] {
+			[left, right] => Ok(Self(left.parse()?, right.parse()?)),
+			_ => unreachable!(),
+		}
+	}
+}
+
+impl FromIterator<Edge> for Graph {
+	fn from_iter<T: IntoIterator<Item = Edge>>(iter: T) -> Self {
+		let mut nodes = HashSet::new();
+
+		let mut edges = HashMap::new();
+
+		for edge in iter {
+			let (node_left, node_right) = (edge.0, edge.1);
+
+			let node_left = Rc::new(node_left);
+			let node_right = Rc::new(node_right);
+
+			// Add edge.
+			edges
+				.entry(node_left.clone())
+				.or_insert(HashSet::default())
+				.insert(node_right.clone());
+
+			edges
+				.entry(node_right.clone())
+				.or_insert(HashSet::default())
+				.insert(node_left.clone());
+
+			// Add nodes to node set.
+			nodes.insert(node_left);
+			nodes.insert(node_right);
+		}
+
+		Graph { nodes, edges }
+	}
+}
+
+pub type Intermediate = Graph;
 
 pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
-	let adjacencies = input
-		.lines()
-		.flat_map(|line| {
-			let pieces: Vec<&str> = line.split('-').collect();
-
-			let (node_a, node_b) = match (pieces.get(0), pieces.get(1)) {
-				(Some(&a), Some(&b)) => (Node::from(a), Node::from(b)),
-				_ => panic!("failed to find two pieces when splitting on -"),
-			};
-
-			vec![(node_a.clone(), node_b.clone()), (node_b, node_a)].into_iter()
-		})
-		.fold(
-			HashMap::new(),
-			|mut adjacencies: HashMap<Node, HashSet<Node>>, (node_a, node_b)| {
-				adjacencies.entry(node_a).or_default().insert(node_b);
-				adjacencies
-			},
-		);
-
-	Ok(AdjacencyList(adjacencies))
+	input.lines().map(FromStr::from_str).collect()
 }
 
 type Solution = usize;
 
-pub fn part_one(adjacency_list: &Intermediate) -> Option<Solution> {
-	let mut adjacency_list = adjacency_list.clone();
-
-	println!("{:?}", adjacency_list);
-
+pub fn part_one(_graph: &Intermediate) -> Option<Solution> {
 	None
 }
 
-pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
+pub fn part_two(_graph: &Intermediate) -> Option<Solution> {
 	None
 }
