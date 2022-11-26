@@ -1,6 +1,9 @@
-use std::{
-	collections::{HashMap, HashSet},
-	rc::Rc,
+use {
+	core::iter::empty,
+	std::{
+		collections::{HashMap, HashSet},
+		rc::Rc,
+	},
 };
 
 use super::{edge::Edge, node::Node};
@@ -22,6 +25,13 @@ impl Graph {
 		}
 
 		string
+	}
+
+	pub fn nodes_from(&self, node: &Node) -> Box<dyn Iterator<Item = &Node> + '_> {
+		match self.edges.get(node) {
+			Some(set) => Box::new(set.iter().map(Rc::as_ref)),
+			None => Box::new(empty()),
+		}
 	}
 }
 

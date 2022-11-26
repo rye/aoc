@@ -4,7 +4,6 @@ mod node;
 use node::Node;
 
 mod edge;
-use edge::Edge;
 
 mod graph;
 use graph::Graph;
