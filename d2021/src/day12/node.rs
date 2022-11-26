@@ -4,7 +4,7 @@ use core::{
 	str::FromStr,
 };
 
-#[derive(Clone, Debug, Hash, PartialEq, Eq)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd)]
 pub enum Node {
 	Start,
 	SmallCave(String),
