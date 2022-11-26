@@ -1,5 +1,9 @@
 use {
-	core::{convert::Infallible, str::FromStr},
+	core::{
+		convert::Infallible,
+		fmt::{self, Display, Formatter},
+		str::FromStr,
+	},
 	std::{
 		collections::{HashMap, HashSet},
 		rc::Rc,
@@ -12,6 +16,17 @@ pub enum Node {
 	SmallCave(String),
 	LargeCave(String),
 	End,
+}
+
+impl Display for Node {
+	fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+		match self {
+			Node::Start => write!(f, "start"),
+			Node::SmallCave(cave) => write!(f, "{}", cave),
+			Node::LargeCave(cave) => write!(f, "{}", cave),
+			Node::End => write!(f, "end"),
+		}
+	}
 }
 
 impl FromStr for Node {
@@ -32,6 +47,20 @@ impl FromStr for Node {
 pub struct Graph {
 	nodes: HashSet<Rc<Node>>,
 	edges: HashMap<Rc<Node>, HashSet<Rc<Node>>>,
+}
+
+impl Graph {
+	fn to_graphviz(&self) -> String {
+		let mut string: String = String::new();
+
+		for (left, right_set) in &self.edges {
+			for right in right_set {
+				string.push_str(&format!("{} -- {}\n", left, right));
+			}
+		}
+
+		string
+	}
 }
 
 #[derive(Clone)]
@@ -90,7 +119,9 @@ pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
 
 type Solution = usize;
 
-pub fn part_one(_graph: &Intermediate) -> Option<Solution> {
+pub fn part_one(graph: &Intermediate) -> Option<Solution> {
+	println!("{}", graph.to_graphviz());
+
 	None
 }
 
