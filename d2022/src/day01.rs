@@ -3,6 +3,7 @@ use {
 	std::collections::BTreeSet,
 };
 
+#[cfg_attr(test, derive(PartialEq, Debug))]
 pub struct Elf {
 	snacks: Vec<u32>,
 }
@@ -23,6 +24,39 @@ impl FromStr for Elf {
 			.collect::<Result<Vec<u32>, _>>()?;
 
 		Ok(Self { snacks })
+	}
+}
+
+#[cfg(test)]
+mod elf {
+	use super::Elf;
+
+	#[cfg(test)]
+	mod from_str {
+		use super::Elf;
+
+		#[test]
+		fn single_line() {
+			let line = "1257";
+			assert_eq!(line.parse(), Ok(Elf { snacks: vec![1257] }));
+		}
+
+		#[test]
+		fn multi_line() {
+			let line = "1257\n8817\n90361655";
+			assert_eq!(
+				line.parse(),
+				Ok(Elf {
+					snacks: vec![1257, 8817, 90361655]
+				})
+			);
+		}
+
+		#[test]
+		fn malformed_line_err() {
+			let line = "1257\n8817\nnot a number";
+			assert!(line.parse::<Elf>().is_err());
+		}
 	}
 }
 
