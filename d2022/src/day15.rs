@@ -1,7 +1,7 @@
 pub type Intermediate = ();
 pub type Output = u32;
 
-pub fn parse(_data: &str) -> Result<Intermediate, Box<dyn std::error::Error>> {
+pub fn parse(_data: &str) -> anyhow::Result<Intermediate> {
 	Ok(())
 }
 
