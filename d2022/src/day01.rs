@@ -35,10 +35,10 @@ pub fn parse(str: &str) -> Result<Intermediate, impl std::error::Error> {
 
 pub fn part_one(elves: &Intermediate) -> Option<Output> {
 	let elf_carrying_totals: BTreeSet<u32> = elves.iter().map(|elf| elf.calorie_total()).collect();
-
 	elf_carrying_totals.last().copied()
 }
 
-pub fn part_two(_intermediate: &Intermediate) -> Option<Output> {
-	None
+pub fn part_two(elves: &Intermediate) -> Option<Output> {
+	let elf_carrying_totals: BTreeSet<u32> = elves.iter().map(|elf| elf.calorie_total()).collect();
+	Some(elf_carrying_totals.iter().rev().take(3).sum())
 }
