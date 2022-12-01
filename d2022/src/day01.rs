@@ -29,8 +29,13 @@ impl FromStr for Elf {
 pub type Intermediate = Vec<Elf>;
 pub type Output = u32;
 
-pub fn parse(str: &str) -> Result<Intermediate, impl std::error::Error> {
-	str.split("\n\n").map(str::parse).collect()
+pub fn parse(str: &str) -> anyhow::Result<Intermediate> {
+	Ok(
+		str
+			.split("\n\n")
+			.map(str::parse)
+			.collect::<Result<Vec<Elf>, ParseIntError>>()?,
+	)
 }
 
 pub fn part_one(elves: &Intermediate) -> Option<Output> {
