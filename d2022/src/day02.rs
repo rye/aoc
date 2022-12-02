@@ -32,7 +32,7 @@ impl FromStr for Move {
 	}
 }
 
-pub struct StrategyPart(Move, Move);
+pub struct StrategyPart<'p>(&'p str, &'p str);
 
 enum Outcome {
 	Win,
@@ -50,12 +50,12 @@ impl Outcome {
 	}
 }
 
-impl StrategyPart {
-	fn self_score(&self) -> u32 {
-		let self_move = &self.1;
-		let opponent_move = &self.0;
+impl<'p> StrategyPart<'p> {
+	fn score_as_move_move(&self) -> u32 {
+		let self_move: Move = self.1.parse().expect("failed to parse as move");
+		let opponent_move: Move = self.0.parse().expect("failed to parse as move");
 
-		let outcome = match (self_move, opponent_move) {
+		let outcome = match (&self_move, &opponent_move) {
 			(Move::Rock, Move::Rock) => Outcome::Draw,
 			(Move::Rock, Move::Paper) => Outcome::Loss,
 			(Move::Rock, Move::Scissors) => Outcome::Win,
@@ -69,25 +69,50 @@ impl StrategyPart {
 
 		self_move.shape_score() + outcome.outcome_score()
 	}
-}
 
-impl FromStr for StrategyPart {
-	type Err = Infallible;
+	fn score_as_move_outcome(&self) -> u32 {
+		let opponent_move: Move = self.0.parse().expect("failed to parse opponent move");
 
-	fn from_str(s: &str) -> Result<Self, Self::Err> {
-		let mut s = s.split(' ');
+		let desired_outcome: Outcome = match self.1 {
+			"X" => Outcome::Loss,
+			"Y" => Outcome::Draw,
+			"Z" => Outcome::Win,
+			_ => unreachable!(),
+		};
 
-		let opponent_play = s.next().expect("no opponent play?");
-		let my_play = s.next().expect("no self play?");
+		let my_choice: Move = match (opponent_move, &desired_outcome) {
+			(Move::Rock, Outcome::Win) => Move::Paper,
+			(Move::Rock, Outcome::Draw) => Move::Rock,
+			(Move::Rock, Outcome::Loss) => Move::Scissors,
+			(Move::Paper, Outcome::Win) => Move::Scissors,
+			(Move::Paper, Outcome::Draw) => Move::Paper,
+			(Move::Paper, Outcome::Loss) => Move::Rock,
+			(Move::Scissors, Outcome::Win) => Move::Rock,
+			(Move::Scissors, Outcome::Draw) => Move::Scissors,
+			(Move::Scissors, Outcome::Loss) => Move::Paper,
+		};
 
-		let opponent_play: Move = opponent_play.parse().expect("unrecognized?");
-		let my_play: Move = my_play.parse().expect("unrecognized?");
-
-		Ok(Self(opponent_play, my_play))
+		my_choice.shape_score() + desired_outcome.outcome_score()
 	}
 }
 
-pub type Intermediate = Vec<StrategyPart>;
+impl<'p> TryFrom<&'p str> for StrategyPart<'p> {
+	type Error = Infallible;
+
+	fn try_from(str: &'p str) -> Result<Self, Self::Error> {
+		let (left, right) = {
+			let mut split = str.split(' ');
+			(
+				split.next().expect("missing first piece on line"),
+				split.next().expect("missing second piece on line"),
+			)
+		};
+
+		Ok(Self(left, right))
+	}
+}
+
+pub type Intermediate<'i> = Vec<StrategyPart<'i>>;
 pub type Output = u32;
 
 /// # Errors
@@ -95,17 +120,27 @@ pub fn parse(str: &str) -> anyhow::Result<Intermediate> {
 	Ok(
 		str
 			.lines()
-			.map(str::parse)
+			.map(TryFrom::try_from)
 			.collect::<Result<Intermediate, _>>()?,
 	)
 }
 
 #[must_use]
 pub fn part_one(guide: &Intermediate) -> Option<Output> {
-	Some(guide.iter().map(|guide_move| guide_move.self_score()).sum())
+	Some(
+		guide
+			.iter()
+			.map(|guide_move| guide_move.score_as_move_move())
+			.sum(),
+	)
 }
 
 #[must_use]
-pub fn part_two(_intermediate: &Intermediate) -> Option<Output> {
-	None
+pub fn part_two(guide: &Intermediate) -> Option<Output> {
+	Some(
+		guide
+			.iter()
+			.map(|guide_move| guide_move.score_as_move_outcome())
+			.sum(),
+	)
 }
