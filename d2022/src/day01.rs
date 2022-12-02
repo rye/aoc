@@ -32,6 +32,23 @@ mod elf {
 	use super::Elf;
 
 	#[cfg(test)]
+	mod calorie_total {
+		use super::Elf;
+
+		#[test]
+		fn single_snack() {
+			let snacks = vec![1257];
+			assert_eq!(Elf { snacks }.calorie_total(), 1257);
+		}
+
+		#[test]
+		fn multiple_snacks() {
+			let snacks = vec![1257, 89713];
+			assert_eq!(Elf { snacks }.calorie_total(), 90970);
+		}
+	}
+
+	#[cfg(test)]
 	mod from_str {
 		use super::Elf;
 
