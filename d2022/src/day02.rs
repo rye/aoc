@@ -6,6 +6,16 @@ pub enum Move {
 	Scissors,
 }
 
+impl Move {
+	fn shape_score(&self) -> u32 {
+		match self {
+			Move::Rock => 1,
+			Move::Paper => 2,
+			Move::Scissors => 3,
+		}
+	}
+}
+
 impl FromStr for Move {
 	type Err = Infallible;
 
@@ -23,6 +33,43 @@ impl FromStr for Move {
 }
 
 pub struct StrategyPart(Move, Move);
+
+enum Outcome {
+	Win,
+	Draw,
+	Loss,
+}
+
+impl Outcome {
+	fn outcome_score(&self) -> u32 {
+		match self {
+			Outcome::Win => 6,
+			Outcome::Draw => 3,
+			Outcome::Loss => 0,
+		}
+	}
+}
+
+impl StrategyPart {
+	fn self_score(&self) -> u32 {
+		let self_move = &self.1;
+		let opponent_move = &self.0;
+
+		let outcome = match (self_move, opponent_move) {
+			(Move::Rock, Move::Rock) => Outcome::Draw,
+			(Move::Rock, Move::Paper) => Outcome::Loss,
+			(Move::Rock, Move::Scissors) => Outcome::Win,
+			(Move::Paper, Move::Rock) => Outcome::Win,
+			(Move::Paper, Move::Paper) => Outcome::Draw,
+			(Move::Paper, Move::Scissors) => Outcome::Loss,
+			(Move::Scissors, Move::Rock) => Outcome::Loss,
+			(Move::Scissors, Move::Paper) => Outcome::Win,
+			(Move::Scissors, Move::Scissors) => Outcome::Draw,
+		};
+
+		self_move.shape_score() + outcome.outcome_score()
+	}
+}
 
 impl FromStr for StrategyPart {
 	type Err = Infallible;
@@ -54,8 +101,8 @@ pub fn parse(str: &str) -> anyhow::Result<Intermediate> {
 }
 
 #[must_use]
-pub fn part_one(_intermediate: &Intermediate) -> Option<Output> {
-	None
+pub fn part_one(guide: &Intermediate) -> Option<Output> {
+	Some(guide.iter().map(|guide_move| guide_move.self_score()).sum())
 }
 
 #[must_use]
