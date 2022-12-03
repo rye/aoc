@@ -16,6 +16,21 @@ impl<'a> Deref for Rucksack<'a> {
 	}
 }
 
+impl<'a> Rucksack<'a> {
+	fn compartment_priorities(&self) -> (HashSet<u32>, HashSet<u32>) {
+		let compartments = self.split_at(self.len() / 2);
+
+		(
+			compartments.0.chars().filter_map(item_priority).collect(),
+			compartments.1.chars().filter_map(item_priority).collect(),
+		)
+	}
+
+	fn priorities(&self) -> HashSet<u32> {
+		self.chars().filter_map(item_priority).collect()
+	}
+}
+
 pub type Intermediate<'a> = Vec<Rucksack<'a>>;
 pub type Output = u32;
 
@@ -61,13 +76,8 @@ mod item_priority {
 pub fn part_one(rucksacks: &Intermediate) -> Option<Output> {
 	let mut sum = 0_u32;
 
-	for (compartment_a, compartment_b) in rucksacks
-		.iter()
-		.map(|rucksack| rucksack.split_at(rucksack.len() / 2))
-	{
-		let priorities_a: HashSet<u32> = compartment_a.chars().filter_map(item_priority).collect();
-		let priorities_b: HashSet<u32> = compartment_b.chars().filter_map(item_priority).collect();
-
+	for rucksack in rucksacks {
+		let (priorities_a, priorities_b) = rucksack.compartment_priorities();
 		sum += priorities_a.intersection(&priorities_b).sum::<u32>();
 	}
 
@@ -84,17 +94,9 @@ pub fn part_two(rucksacks: &Intermediate) -> Option<Output> {
 				.iter()
 				.fold(HashSet::new(), |shared_priorities, sack| {
 					if shared_priorities.is_empty() {
-						&shared_priorities
-							| &sack
-								.chars()
-								.filter_map(item_priority)
-								.collect::<HashSet<u32>>()
+						&shared_priorities | &sack.priorities()
 					} else {
-						&shared_priorities
-							& &sack
-								.chars()
-								.filter_map(item_priority)
-								.collect::<HashSet<u32>>()
+						&shared_priorities & &sack.priorities()
 					}
 				});
 
