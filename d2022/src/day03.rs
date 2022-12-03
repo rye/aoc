@@ -18,7 +18,14 @@ impl<'a> Deref for Rucksack<'a> {
 
 impl<'a> Rucksack<'a> {
 	fn char_priority(char: char) -> Option<u32> {
-		item_priority(char)
+		u8::try_from(char)
+			.ok()
+			.map(|byte| match byte {
+				b'a'..=b'z' => Some(u32::from((byte - b'a') + 1)),
+				b'A'..=b'Z' => Some(u32::from((byte - b'A') + 26 + 1)),
+				_ => None,
+			})
+			.flatten()
 	}
 
 	fn str_priorities(str: &str) -> HashSet<u32> {
@@ -39,6 +46,31 @@ impl<'a> Rucksack<'a> {
 	}
 }
 
+#[cfg(test)]
+mod rucksack {
+	use super::Rucksack;
+
+	#[test]
+	fn char_priority_a_lc() {
+		assert_eq!(Rucksack::char_priority('a'), Some(1));
+	}
+
+	#[test]
+	fn char_priority_z_lc() {
+		assert_eq!(Rucksack::char_priority('z'), Some(26));
+	}
+
+	#[test]
+	fn char_priority_a_uc() {
+		assert_eq!(Rucksack::char_priority('A'), Some(27));
+	}
+
+	#[test]
+	fn char_priority_z_uc() {
+		assert_eq!(Rucksack::char_priority('Z'), Some(52));
+	}
+}
+
 pub type Intermediate<'a> = Vec<Rucksack<'a>>;
 pub type Output = u32;
 
@@ -47,38 +79,7 @@ pub fn parse(str: &str) -> anyhow::Result<Intermediate> {
 	Ok(str.lines().map(Rucksack::from).collect())
 }
 
-fn item_priority(item: char) -> Option<u32> {
-	u8::try_from(item).ok().map(|byte| match byte {
-		b'a'..=b'z' => u32::from((byte - b'a') + 1),
-		b'A'..=b'Z' => u32::from((byte - b'A') + 26 + 1),
-		_ => unreachable!(),
-	})
-}
-
-#[cfg(test)]
-mod item_priority {
-	use super::item_priority;
-
-	#[test]
-	fn item_priority_a_lc() {
-		assert_eq!(item_priority('a'), Some(1));
-	}
-
-	#[test]
-	fn item_priority_z_lc() {
-		assert_eq!(item_priority('z'), Some(26));
-	}
-
-	#[test]
-	fn item_priority_a_uc() {
-		assert_eq!(item_priority('A'), Some(27));
-	}
-
-	#[test]
-	fn item_priority_z_uc() {
-		assert_eq!(item_priority('Z'), Some(52));
-	}
-}
+// fn item_priority(item: char) -> Option<u32> {}
 
 #[must_use]
 pub fn part_one(rucksacks: &Intermediate) -> Option<Output> {
