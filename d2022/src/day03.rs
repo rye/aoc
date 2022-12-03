@@ -10,8 +10,8 @@ pub fn parse(str: &str) -> anyhow::Result<Intermediate> {
 
 fn item_priority(item: char) -> Option<u32> {
 	u8::try_from(item).ok().map(|byte| match byte {
-		b'a'..=b'z' => ((byte - b'a') + 1) as u32,
-		b'A'..=b'Z' => ((byte - b'A') + 26 + 1) as u32,
+		b'a'..=b'z' => u32::from((byte - b'a') + 1),
+		b'A'..=b'Z' => u32::from((byte - b'A') + 26 + 1),
 		_ => unreachable!(),
 	})
 }
