@@ -1,16 +1,11 @@
 use std::collections::HashSet;
 
-pub type Intermediate<'a> = Vec<(&'a str, &'a str)>;
+pub type Intermediate<'a> = Vec<&'a str>;
 pub type Output = u32;
 
 /// # Errors
 pub fn parse(str: &str) -> anyhow::Result<Intermediate> {
-	Ok(
-		str
-			.lines()
-			.map(|line| line.split_at(line.len() / 2))
-			.collect(),
-	)
+	Ok(str.lines().collect())
 }
 
 fn item_priority(item: char) -> Option<u32> {
@@ -47,10 +42,13 @@ mod item_priority {
 }
 
 #[must_use]
-pub fn part_one(compartment_pairs: &Intermediate) -> Option<Output> {
+pub fn part_one(rucksacks: &Intermediate) -> Option<Output> {
 	let mut sum = 0_u32;
 
-	for (compartment_a, compartment_b) in compartment_pairs {
+	for (compartment_a, compartment_b) in rucksacks
+		.iter()
+		.map(|rucksack| rucksack.split_at(rucksack.len() / 2))
+	{
 		let priorities_a: HashSet<u32> = compartment_a.chars().filter_map(item_priority).collect();
 		let priorities_b: HashSet<u32> = compartment_b.chars().filter_map(item_priority).collect();
 
