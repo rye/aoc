@@ -59,6 +59,39 @@ pub fn part_one(rucksacks: &Intermediate) -> Option<Output> {
 }
 
 #[must_use]
-pub fn part_two(_intermediate: &Intermediate) -> Option<Output> {
-	None
+pub fn part_two(compartment_pairs: &Intermediate) -> Option<Output> {
+	let mut sum = 0_u32;
+
+	for group_rucksacks in compartment_pairs.chunks_exact(3) {
+		let mut sacks = group_rucksacks.iter();
+
+		let mut all_priorities: HashSet<u32> = sacks
+			.next()
+			.expect("need first sack in 3-group")
+			.chars()
+			.filter_map(item_priority)
+			.collect();
+
+		all_priorities = &all_priorities
+			& &sacks
+				.next()
+				.expect("need next sack in 3-group")
+				.chars()
+				.filter_map(item_priority)
+				.collect::<HashSet<u32>>();
+
+		all_priorities = &all_priorities
+			& &sacks
+				.next()
+				.expect("need last sack in 3-group")
+				.chars()
+				.filter_map(item_priority)
+				.collect::<HashSet<u32>>();
+
+		assert_eq!(all_priorities.len(), 1);
+
+		sum += all_priorities.iter().sum::<u32>();
+	}
+
+	Some(sum)
 }
