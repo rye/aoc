@@ -17,17 +17,25 @@ impl<'a> Deref for Rucksack<'a> {
 }
 
 impl<'a> Rucksack<'a> {
+	fn char_priority(char: char) -> Option<u32> {
+		item_priority(char)
+	}
+
+	fn str_priorities(str: &str) -> HashSet<u32> {
+		str.chars().filter_map(Self::char_priority).collect()
+	}
+
 	fn compartment_priorities(&self) -> (HashSet<u32>, HashSet<u32>) {
 		let compartments = self.split_at(self.len() / 2);
 
 		(
-			compartments.0.chars().filter_map(item_priority).collect(),
-			compartments.1.chars().filter_map(item_priority).collect(),
+			Self::str_priorities(compartments.0),
+			Self::str_priorities(compartments.1),
 		)
 	}
 
 	fn priorities(&self) -> HashSet<u32> {
-		self.chars().filter_map(item_priority).collect()
+		Self::str_priorities(self.0)
 	}
 }
 
