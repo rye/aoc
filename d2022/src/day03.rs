@@ -1,11 +1,27 @@
-use std::collections::HashSet;
+use {core::ops::Deref, std::collections::HashSet};
 
-pub type Intermediate<'a> = Vec<&'a str>;
+pub struct Rucksack<'a>(&'a str);
+
+impl<'a> From<&'a str> for Rucksack<'a> {
+	fn from(value: &'a str) -> Self {
+		Self(value)
+	}
+}
+
+impl<'a> Deref for Rucksack<'a> {
+	type Target = &'a str;
+
+	fn deref(&self) -> &Self::Target {
+		&self.0
+	}
+}
+
+pub type Intermediate<'a> = Vec<Rucksack<'a>>;
 pub type Output = u32;
 
 /// # Errors
 pub fn parse(str: &str) -> anyhow::Result<Intermediate> {
-	Ok(str.lines().collect())
+	Ok(str.lines().map(Rucksack::from).collect())
 }
 
 fn item_priority(item: char) -> Option<u32> {
