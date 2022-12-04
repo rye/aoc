@@ -1,6 +1,9 @@
-use std::num::ParseIntError;
+use {
+	core::num::ParseIntError,
+	std::{error::Error, io},
+};
 
-pub type Solver = fn(&str) -> Result<(), Box<dyn std::error::Error>>;
+pub type Solver = fn(&str) -> Result<(), Box<dyn Error>>;
 
 /// Fully consumes a reader of type `std::io::Read` and produces a `String` containing all read text.
 ///
@@ -10,7 +13,7 @@ pub type Solver = fn(&str) -> Result<(), Box<dyn std::error::Error>>;
 /// returns an error.
 ///
 /// See [`std::io::Read::read_to_string`] for all error semantics.
-pub fn string_from(mut read: impl std::io::Read) -> std::io::Result<String> {
+pub fn string_from(mut read: impl io::Read) -> io::Result<String> {
 	let mut buf: String = String::new();
 	read.read_to_string(&mut buf)?;
 	Ok(buf)
@@ -138,9 +141,13 @@ macro_rules! generate_main {
 			if let Some(ident) = args.next() {
 				if let Some(ident) = daocutil::parse_day_identifier(&ident) {
 					if let Some(handler) = solvers.get(&ident) {
-						let data: String = match args.next() {
-							Some(filename) => daocutil::string_from(std::fs::File::open(filename)?)?,
-							None => daocutil::string_from(std::io::stdin())?,
+						let data: String = match (
+							std::fs::File::open(format!("inputs/day{:02}", ident)),
+							args.next(),
+						) {
+							(Ok(file), _) => daocutil::string_from(file)?,
+							(_, Some(filename)) => daocutil::string_from(std::fs::File::open(filename)?)?,
+							(_, None) => daocutil::string_from(std::io::stdin())?,
 						};
 
 						handler(&data)?;
