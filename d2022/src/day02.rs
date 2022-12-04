@@ -135,6 +135,17 @@ pub fn part_one(guide: &Intermediate) -> Option<Output> {
 	)
 }
 
+#[cfg(test)]
+mod part_one {
+	use super::{parse, part_one};
+
+	#[test]
+	fn example() {
+		let input = "A Y\nB X\nC Z";
+		assert_eq!(part_one(&parse(input).unwrap()), Some(15));
+	}
+}
+
 #[must_use]
 pub fn part_two(guide: &Intermediate) -> Option<Output> {
 	Some(
@@ -143,4 +154,15 @@ pub fn part_two(guide: &Intermediate) -> Option<Output> {
 			.map(|guide_move| guide_move.score_as_move_outcome())
 			.sum(),
 	)
+}
+
+#[cfg(test)]
+mod part_two {
+	use super::{parse, part_two};
+
+	#[test]
+	fn example() {
+		let input = "A Y\nB X\nC Z";
+		assert_eq!(part_two(&parse(input).unwrap()), Some(12));
+	}
 }
