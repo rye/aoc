@@ -1,20 +1,16 @@
 use {
-	core::{
-		num::ParseIntError,
-		ops::{Deref, RangeInclusive},
-		str::FromStr,
-	},
-	std::collections::HashSet,
+	core::{num::ParseIntError, ops::Deref, str::FromStr},
+	std::collections::BTreeSet,
 };
 
 pub type Intermediate = Vec<(Assignment, Assignment)>;
 pub type Output = u32;
 
 #[derive(Debug)]
-pub struct Assignment(HashSet<u32>);
+pub struct Assignment(BTreeSet<u32>);
 
 impl Deref for Assignment {
-	type Target = HashSet<u32>;
+	type Target = BTreeSet<u32>;
 
 	fn deref(&self) -> &Self::Target {
 		&self.0
@@ -26,7 +22,7 @@ impl FromStr for Assignment {
 
 	fn from_str(str: &str) -> Result<Self, Self::Err> {
 		let split: Vec<&str> = str.split('-').collect();
-		let contents: HashSet<u32> = ((split[0].parse()?)..=(split[1].parse()?)).collect();
+		let contents: BTreeSet<u32> = ((split[0].parse()?)..=(split[1].parse()?)).collect();
 		Ok(Self(contents))
 	}
 }
@@ -37,7 +33,6 @@ pub fn parse(str: &str) -> anyhow::Result<Intermediate> {
 		.lines()
 		.map(|line| {
 			let parts: Vec<&str> = line.split(',').collect();
-
 			(parts[0].parse().unwrap(), parts[1].parse().unwrap())
 		})
 		.collect();
