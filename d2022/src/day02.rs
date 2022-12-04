@@ -21,12 +21,9 @@ impl FromStr for Move {
 
 	fn from_str(s: &str) -> Result<Self, Self::Err> {
 		match s {
-			"X" => Ok(Self::Rock),
-			"Y" => Ok(Self::Paper),
-			"Z" => Ok(Self::Scissors),
-			"A" => Ok(Self::Rock),
-			"B" => Ok(Self::Paper),
-			"C" => Ok(Self::Scissors),
+			"X" | "A" => Ok(Self::Rock),
+			"Y" | "B" => Ok(Self::Paper),
+			"Z" | "C" => Ok(Self::Scissors),
 			_ => unreachable!(),
 		}
 	}
@@ -52,44 +49,42 @@ impl Outcome {
 
 impl<'p> StrategyPart<'p> {
 	fn score_as_move_move(&self) -> u32 {
+		use {
+			Move::{Paper, Rock, Scissors},
+			Outcome::{Draw, Loss, Win},
+		};
+
 		let self_move: Move = self.1.parse().expect("failed to parse as move");
 		let opponent_move: Move = self.0.parse().expect("failed to parse as move");
 
 		let outcome = match (&self_move, &opponent_move) {
-			(Move::Rock, Move::Rock) => Outcome::Draw,
-			(Move::Rock, Move::Paper) => Outcome::Loss,
-			(Move::Rock, Move::Scissors) => Outcome::Win,
-			(Move::Paper, Move::Rock) => Outcome::Win,
-			(Move::Paper, Move::Paper) => Outcome::Draw,
-			(Move::Paper, Move::Scissors) => Outcome::Loss,
-			(Move::Scissors, Move::Rock) => Outcome::Loss,
-			(Move::Scissors, Move::Paper) => Outcome::Win,
-			(Move::Scissors, Move::Scissors) => Outcome::Draw,
+			(Rock, Rock) | (Paper, Paper) | (Scissors, Scissors) => Draw,
+			(Rock, Paper) | (Paper, Scissors) | (Scissors, Rock) => Loss,
+			(Rock, Scissors) | (Paper, Rock) | (Scissors, Paper) => Win,
 		};
 
 		self_move.shape_score() + outcome.outcome_score()
 	}
 
 	fn score_as_move_outcome(&self) -> u32 {
+		use {
+			Move::{Paper, Rock, Scissors},
+			Outcome::{Draw, Loss, Win},
+		};
+
 		let opponent_move: Move = self.0.parse().expect("failed to parse opponent move");
 
 		let desired_outcome: Outcome = match self.1 {
-			"X" => Outcome::Loss,
-			"Y" => Outcome::Draw,
-			"Z" => Outcome::Win,
+			"X" => Loss,
+			"Y" => Draw,
+			"Z" => Win,
 			_ => unreachable!(),
 		};
 
 		let my_choice: Move = match (opponent_move, &desired_outcome) {
-			(Move::Rock, Outcome::Win) => Move::Paper,
-			(Move::Rock, Outcome::Draw) => Move::Rock,
-			(Move::Rock, Outcome::Loss) => Move::Scissors,
-			(Move::Paper, Outcome::Win) => Move::Scissors,
-			(Move::Paper, Outcome::Draw) => Move::Paper,
-			(Move::Paper, Outcome::Loss) => Move::Rock,
-			(Move::Scissors, Outcome::Win) => Move::Rock,
-			(Move::Scissors, Outcome::Draw) => Move::Scissors,
-			(Move::Scissors, Outcome::Loss) => Move::Paper,
+			(Rock, Win) | (Paper, Draw) | (Scissors, Loss) => Paper,
+			(Rock, Draw) | (Paper, Loss) | (Scissors, Win) => Rock,
+			(Rock, Loss) | (Paper, Win) | (Scissors, Draw) => Scissors,
 		};
 
 		my_choice.shape_score() + desired_outcome.outcome_score()
