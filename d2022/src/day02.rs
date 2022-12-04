@@ -127,12 +127,7 @@ pub fn parse(str: &str) -> anyhow::Result<Intermediate> {
 
 #[must_use]
 pub fn part_one(guide: &Intermediate) -> Option<Output> {
-	Some(
-		guide
-			.iter()
-			.map(|guide_move| guide_move.score_as_move_move())
-			.sum(),
-	)
+	Some(guide.iter().map(StrategyPart::score_as_move_move).sum())
 }
 
 #[cfg(test)]
@@ -148,12 +143,7 @@ mod part_one {
 
 #[must_use]
 pub fn part_two(guide: &Intermediate) -> Option<Output> {
-	Some(
-		guide
-			.iter()
-			.map(|guide_move| guide_move.score_as_move_outcome())
-			.sum(),
-	)
+	Some(guide.iter().map(StrategyPart::score_as_move_outcome).sum())
 }
 
 #[cfg(test)]
