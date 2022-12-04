@@ -106,8 +106,6 @@ pub fn part_two(rucksacks: &Intermediate) -> Option<Output> {
 					}
 				});
 
-		assert_eq!(common_priorities.len(), 1);
-
 		sum += common_priorities.iter().sum::<u32>();
 	}
 
