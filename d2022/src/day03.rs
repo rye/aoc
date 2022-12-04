@@ -18,14 +18,11 @@ impl<'a> Deref for Rucksack<'a> {
 
 impl<'a> Rucksack<'a> {
 	fn char_priority(char: char) -> Option<u32> {
-		u8::try_from(char)
-			.ok()
-			.map(|byte| match byte {
-				b'a'..=b'z' => Some(u32::from((byte - b'a') + 1)),
-				b'A'..=b'Z' => Some(u32::from((byte - b'A') + 26 + 1)),
-				_ => None,
-			})
-			.flatten()
+		u8::try_from(char).ok().and_then(|byte| match byte {
+			b'a'..=b'z' => Some(u32::from((byte - b'a') + 1)),
+			b'A'..=b'Z' => Some(u32::from((byte - b'A') + 26 + 1)),
+			_ => None,
+		})
 	}
 
 	fn str_priorities(str: &str) -> HashSet<u32> {
