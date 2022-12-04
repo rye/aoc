@@ -61,6 +61,15 @@ pub fn part_one(assignments: &Intermediate) -> Option<Output> {
 }
 
 #[must_use]
-pub fn part_two(_intermediate: &Intermediate) -> Option<Output> {
-	None
+pub fn part_two(assignments: &Intermediate) -> Option<Output> {
+	assignments
+		.iter()
+		.filter(|(left, right)| {
+			let left_contents: HashSet<u32> = (left.0).clone().collect();
+			let right_contents: HashSet<u32> = (right.0).clone().collect();
+			left_contents.intersection(&right_contents).count() > 0
+		})
+		.count()
+		.try_into()
+		.ok()
 }
