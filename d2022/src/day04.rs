@@ -1,6 +1,5 @@
 use {
 	core::{
-		convert::Infallible,
 		num::ParseIntError,
 		ops::{Deref, RangeInclusive},
 		str::FromStr,
@@ -12,10 +11,10 @@ pub type Intermediate = Vec<(Assignment, Assignment)>;
 pub type Output = u32;
 
 #[derive(Debug)]
-pub struct Assignment(RangeInclusive<u32>);
+pub struct Assignment(HashSet<u32>);
 
 impl Deref for Assignment {
-	type Target = RangeInclusive<u32>;
+	type Target = HashSet<u32>;
 
 	fn deref(&self) -> &Self::Target {
 		&self.0
@@ -27,8 +26,8 @@ impl FromStr for Assignment {
 
 	fn from_str(str: &str) -> Result<Self, Self::Err> {
 		let split: Vec<&str> = str.split('-').collect();
-
-		Ok(Self(split[0].parse()?..=split[1].parse()?))
+		let contents: HashSet<u32> = ((split[0].parse()?)..=(split[1].parse()?)).collect();
+		Ok(Self(contents))
 	}
 }
 
@@ -50,11 +49,7 @@ pub fn parse(str: &str) -> anyhow::Result<Intermediate> {
 pub fn part_one(assignments: &Intermediate) -> Option<Output> {
 	assignments
 		.iter()
-		.filter(|(left, right)| {
-			let left_contents: HashSet<u32> = (left.0).clone().collect();
-			let right_contents: HashSet<u32> = (right.0).clone().collect();
-			left_contents.is_superset(&right_contents) || right_contents.is_superset(&left_contents)
-		})
+		.filter(|(left, right)| left.is_superset(&right) || right.is_superset(&left))
 		.count()
 		.try_into()
 		.ok()
@@ -64,11 +59,7 @@ pub fn part_one(assignments: &Intermediate) -> Option<Output> {
 pub fn part_two(assignments: &Intermediate) -> Option<Output> {
 	assignments
 		.iter()
-		.filter(|(left, right)| {
-			let left_contents: HashSet<u32> = (left.0).clone().collect();
-			let right_contents: HashSet<u32> = (right.0).clone().collect();
-			left_contents.intersection(&right_contents).count() > 0
-		})
+		.filter(|(left, right)| left.intersection(&right).count() > 0)
 		.count()
 		.try_into()
 		.ok()
