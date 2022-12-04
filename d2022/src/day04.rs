@@ -45,7 +45,7 @@ pub fn part_one(assignments: &Intermediate) -> Option<Output> {
 	Some(
 		assignments
 			.iter()
-			.filter(|(left, right)| left.is_superset(&right) || right.is_superset(&left))
+			.filter(|(left, right)| left.is_superset(right) || right.is_superset(left))
 			.count(),
 	)
 }
@@ -55,7 +55,7 @@ pub fn part_two(assignments: &Intermediate) -> Option<Output> {
 	Some(
 		assignments
 			.iter()
-			.filter(|(left, right)| left.intersection(&right).count() > 0)
+			.filter(|(left, right)| left.intersection(right).count() > 0)
 			.count(),
 	)
 }
