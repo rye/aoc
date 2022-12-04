@@ -4,7 +4,7 @@ use {
 };
 
 pub type Intermediate = Vec<(Assignment, Assignment)>;
-pub type Output = u32;
+pub type Output = usize;
 
 #[derive(Debug)]
 pub struct Assignment(BTreeSet<u32>);
@@ -42,20 +42,20 @@ pub fn parse(str: &str) -> anyhow::Result<Intermediate> {
 
 #[must_use]
 pub fn part_one(assignments: &Intermediate) -> Option<Output> {
-	assignments
-		.iter()
-		.filter(|(left, right)| left.is_superset(&right) || right.is_superset(&left))
-		.count()
-		.try_into()
-		.ok()
+	Some(
+		assignments
+			.iter()
+			.filter(|(left, right)| left.is_superset(&right) || right.is_superset(&left))
+			.count(),
+	)
 }
 
 #[must_use]
 pub fn part_two(assignments: &Intermediate) -> Option<Output> {
-	assignments
-		.iter()
-		.filter(|(left, right)| left.intersection(&right).count() > 0)
-		.count()
-		.try_into()
-		.ok()
+	Some(
+		assignments
+			.iter()
+			.filter(|(left, right)| left.intersection(&right).count() > 0)
+			.count(),
+	)
 }
