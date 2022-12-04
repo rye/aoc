@@ -27,17 +27,34 @@ impl FromStr for Assignment {
 	}
 }
 
+#[derive(thiserror::Error, Debug)]
+enum AssignmentParseError {
+	#[error("failed to parse line: {0}")]
+	LineParse(&'static str),
+}
+
 /// # Errors
 pub fn parse(str: &str) -> anyhow::Result<Intermediate> {
-	let intermediate = str
+	str
 		.lines()
 		.map(|line| {
-			let parts: Vec<&str> = line.split(',').collect();
-			(parts[0].parse().unwrap(), parts[1].parse().unwrap())
-		})
-		.collect();
+			let mut assignments = line.split(',');
 
-	Ok(intermediate)
+			match (
+				assignments.next().map(str::parse),
+				assignments.next().map(str::parse),
+				assignments.next(),
+			) {
+				(Some(Ok(p0)), Some(Ok(p1)), None) => Ok((p0, p1)),
+				(Some(_), Some(_), Some(_)) | (Some(_), None, _) | (None, _, _) => {
+					Err(AssignmentParseError::LineParse("incorrect number of parts"))?
+				}
+				(Some(_), Some(_), None) => Err(AssignmentParseError::LineParse(
+					"failed to parse one of the assignments",
+				))?,
+			}
+		})
+		.collect::<Result<Vec<(Assignment, Assignment)>, _>>()
 }
 
 #[must_use]
