@@ -1,6 +1,8 @@
+use std::convert::Infallible;
+
 use {
-	core::ops::Range,
-	std::collections::{hash_map::Entry, HashMap, VecDeque},
+	core::{ops::Range, str::FromStr},
+	std::collections::{HashMap, VecDeque},
 };
 
 #[derive(Debug)]
@@ -18,6 +20,35 @@ pub struct Move {
 	amount: u8,
 	from: Stack,
 	to: Stack,
+}
+
+impl FromStr for Move {
+	type Err = Infallible;
+
+	fn from_str(str: &str) -> Result<Self, Self::Err> {
+		let parts: Vec<&str> = str.split(' ').collect();
+
+		match (
+			parts.get(0),
+			parts.get(1),
+			parts.get(2),
+			parts.get(3),
+			parts.get(4),
+			parts.get(5),
+			parts.get(6),
+		) {
+			(Some(&"move"), Some(amount), Some(&"from"), Some(from), Some(&"to"), Some(to), None) => {
+				// Good parse.
+
+				let amount: u8 = amount.parse().expect("failed to parse amount");
+				let from: Stack = from.parse().map(Stack).expect("failed to parse from-stack");
+				let to: Stack = to.parse().map(Stack).expect("failed to parse to-stack");
+
+				Ok(Move { amount, from, to })
+			}
+			_ => panic!("bad parse"),
+		}
+	}
 }
 
 pub type Intermediate = (State, Vec<Move>);
@@ -85,12 +116,16 @@ pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 			}
 		}
 
-		dbg!(&stacks);
-
 		State { held, stacks }
 	};
 
-	let moves: Vec<Move> = { todo!() };
+	let moves: Vec<Move> = {
+		moves_region
+			.lines()
+			.map(str::parse)
+			.filter_map(Result::ok)
+			.collect()
+	};
 
 	Ok((state, moves))
 }
