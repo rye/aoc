@@ -12,18 +12,14 @@ fn find_end_of_first_non_identical_seq<T: Copy + Hash + Eq>(
 	length: usize,
 	slice: &[T],
 ) -> Option<usize> {
-	let mut end_of_marker = None;
-
-	for (idx, window) in slice.windows(length).enumerate() {
-		let set: HashSet<T> = window.iter().copied().collect();
-
-		if set.len() == length {
-			end_of_marker = Some(idx + length);
-			break;
-		}
-	}
-
-	end_of_marker
+	slice
+		.windows(length)
+		.enumerate()
+		.find(|(_idx, window)| {
+			let set: HashSet<T> = window.iter().copied().collect();
+			set.len() == length
+		})
+		.map(|(idx, _window)| idx + length)
 }
 
 #[must_use]
