@@ -163,3 +163,35 @@ macro_rules! generate_main {
 		}
 	};
 }
+
+#[macro_export]
+macro_rules! test_example {
+	($input:expr, $solver:ident, $parser:ident, $expected:expr) => {
+		assert_eq!($solver(&$parser($input).expect("parse failed")), $expected);
+	};
+
+	($test_fn:ident, $parser:ident, $solver:ident, $input:expr, $expected:expr) => {
+		#[test]
+		fn $test_fn() {
+			daocutil::test_example!($input, $solver, $parser, $expected);
+		}
+	};
+}
+
+#[macro_export]
+macro_rules! generate_example_tests {
+	($parser:ident, $solver:ident, $($test_fn:ident | $input:expr => $expected:expr),* $(,)?) => {
+		$(
+			daocutil::test_example!($test_fn, $parser, $solver, $input, $expected);
+		)*
+	};
+}
+
+#[macro_export]
+macro_rules! test_examples {
+	($parser:ident, $solver:ident, $($input:expr => $expected:expr),* $(,)?) => {
+		$(
+			daocutil::test_example!($input, $solver, $parser, $expected);
+		)*
+	};
+}

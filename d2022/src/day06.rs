@@ -74,33 +74,21 @@ pub fn part_two(chars: &Intermediate) -> Option<Output> {
 
 #[test]
 fn part_two_examples() {
-	let example = "mjqjpqmgbljsphdztnvjfqwrcgsmlb";
-	assert_eq!(
-		part_two(&parse(example).expect("example didn't parse")),
-		Some(19)
-	);
-
-	let example = "bvwbjplbgvbhsrlpgdmjqwftvncz";
-	assert_eq!(
-		part_two(&parse(example).expect("example didn't parse")),
-		Some(23)
-	);
-
-	let example = "nppdvjthqldpwncqszvftbrmjlhg";
-	assert_eq!(
-		part_two(&parse(example).expect("example didn't parse")),
-		Some(23)
-	);
-
-	let example = "nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg";
-	assert_eq!(
-		part_two(&parse(example).expect("example didn't parse")),
-		Some(29)
-	);
-
-	let example = "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw";
-	assert_eq!(
-		part_two(&parse(example).expect("example didn't parse")),
-		Some(26)
+	daocutil::test_examples!(
+		parse,
+		part_two,
+		"mjqjpqmgbljsphdztnvjfqwrcgsmlb" => Some(19),
+		"bvwbjplbgvbhsrlpgdmjqwftvncz" => Some(23),
+		"nppdvjthqldpwncqszvftbrmjlhg" => Some(23),
+		"nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg" => Some(29),
+		"zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw" => Some(26),
 	);
 }
+
+daocutil::generate_example_tests!(parse, part_two,
+	part_two_example_0 | "mjqjpqmgbljsphdztnvjfqwrcgsmlb" => Some(19),
+	part_two_example_1 | "bvwbjplbgvbhsrlpgdmjqwftvncz" => Some(23),
+	part_two_example_2 | "nppdvjthqldpwncqszvftbrmjlhg" => Some(23),
+	part_two_example_3 | "nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg" => Some(29),
+	part_two_example_4 | "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw" => Some(26),
+);
