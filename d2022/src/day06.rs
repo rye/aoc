@@ -68,6 +68,50 @@ fn part_one_other_examples() {
 }
 
 #[must_use]
-pub fn part_two(_intermediate: &Intermediate) -> Option<Output> {
-	None
+pub fn part_two(chars: &Intermediate) -> Option<Output> {
+	let mut start_of_message: Option<usize> = None;
+
+	for (idx, window) in chars.windows(14).enumerate() {
+		let set: HashSet<char> = window.iter().copied().collect();
+
+		if set.len() == 14 {
+			start_of_message = Some(idx + 14);
+			break;
+		}
+	}
+
+	start_of_message
+}
+
+#[test]
+fn part_two_examples() {
+	let example = "mjqjpqmgbljsphdztnvjfqwrcgsmlb";
+	assert_eq!(
+		part_two(&parse(example).expect("example didn't parse")),
+		Some(19)
+	);
+
+	let example = "bvwbjplbgvbhsrlpgdmjqwftvncz";
+	assert_eq!(
+		part_two(&parse(example).expect("example didn't parse")),
+		Some(23)
+	);
+
+	let example = "nppdvjthqldpwncqszvftbrmjlhg";
+	assert_eq!(
+		part_two(&parse(example).expect("example didn't parse")),
+		Some(23)
+	);
+
+	let example = "nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg";
+	assert_eq!(
+		part_two(&parse(example).expect("example didn't parse")),
+		Some(29)
+	);
+
+	let example = "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw";
+	assert_eq!(
+		part_two(&parse(example).expect("example didn't parse")),
+		Some(26)
+	);
 }
