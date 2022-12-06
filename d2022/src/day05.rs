@@ -18,7 +18,7 @@ pub struct State {
 }
 
 impl State {
-	fn apply_move(&self, the_move: &Move) -> State {
+	fn apply_move(&self, the_move: &Move, part_two: bool) -> State {
 		let mut new_state = self.clone();
 
 		let count: usize = the_move.amount as usize;
@@ -41,12 +41,17 @@ impl State {
 				.stacks
 				.get_mut(&to)
 				.expect("expected to have destination stack")
-				.push(
+				.push(if !part_two {
 					new_state
 						.held
 						.pop_front()
-						.expect("expected to have held crate"),
-				)
+						.expect("expected to have held crate")
+				} else {
+					new_state
+						.held
+						.pop_back()
+						.expect("expected to have held crate")
+				})
 		}
 
 		new_state
@@ -182,13 +187,19 @@ pub fn part_one((state, moves): &Intermediate) -> Option<Output> {
 	let mut state: State = state.clone();
 
 	for the_move in moves {
-		state = state.apply_move(the_move);
+		state = state.apply_move(the_move, false);
 	}
 
 	Some(state.tops_concat())
 }
 
 #[must_use]
-pub fn part_two(_intermediate: &Intermediate) -> Option<Output> {
-	None
+pub fn part_two((state, moves): &Intermediate) -> Option<Output> {
+	let mut state: State = state.clone();
+
+	for the_move in moves {
+		state = state.apply_move(the_move, true);
+	}
+
+	Some(state.tops_concat())
 }
