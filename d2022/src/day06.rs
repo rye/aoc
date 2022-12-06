@@ -1,6 +1,4 @@
-use itertools::Itertools;
-
-use std::collections::HashSet;
+use {core::hash::Hash, std::collections::HashSet};
 
 pub type Intermediate = Vec<char>;
 pub type Output = usize;
@@ -10,25 +8,27 @@ pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 	Ok(input.lines().flat_map(str::chars).collect())
 }
 
-#[must_use]
-pub fn part_one(chars: &Intermediate) -> Option<Output> {
-	let mut start_of_packet: Option<usize> = None;
+fn find_end_of_first_non_identical_seq<T: Copy + Hash + Eq>(
+	length: usize,
+	slice: &[T],
+) -> Option<usize> {
+	let mut end_of_marker = None;
 
-	for ((_idx_0, char_0), (_idx_1, char_1), (_idx_2, char_2), (idx_3, char_3)) in
-		chars.iter().enumerate().tuple_windows()
-	{
-		let set: HashSet<char> = vec![char_0, char_1, char_2, char_3]
-			.into_iter()
-			.copied()
-			.collect();
+	for (idx, window) in slice.windows(length).enumerate() {
+		let set: HashSet<T> = window.iter().copied().collect();
 
-		if set.len() == 4 {
-			start_of_packet = Some(idx_3 + 1);
+		if set.len() == length {
+			end_of_marker = Some(idx + length);
 			break;
 		}
 	}
 
-	start_of_packet
+	end_of_marker
+}
+
+#[must_use]
+pub fn part_one(chars: &Intermediate) -> Option<Output> {
+	find_end_of_first_non_identical_seq(4, chars)
 }
 
 #[test]
@@ -69,18 +69,7 @@ fn part_one_other_examples() {
 
 #[must_use]
 pub fn part_two(chars: &Intermediate) -> Option<Output> {
-	let mut start_of_message: Option<usize> = None;
-
-	for (idx, window) in chars.windows(14).enumerate() {
-		let set: HashSet<char> = window.iter().copied().collect();
-
-		if set.len() == 14 {
-			start_of_message = Some(idx + 14);
-			break;
-		}
-	}
-
-	start_of_message
+	find_end_of_first_non_identical_seq(14, chars)
 }
 
 #[test]
