@@ -2,18 +2,65 @@ use std::convert::Infallible;
 
 use {
 	core::{ops::Range, str::FromStr},
-	std::collections::{HashMap, VecDeque},
+	std::collections::{BTreeMap, VecDeque},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Crate(char);
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, Hash, PartialEq, Eq, Clone, Copy, PartialOrd, Ord)]
 struct Stack(u8);
 
+#[derive(Clone)]
 pub struct State {
 	held: VecDeque<Crate>,
-	stacks: HashMap<Stack, Vec<Crate>>,
+	stacks: BTreeMap<Stack, Vec<Crate>>,
+}
+
+impl State {
+	fn apply_move(&self, the_move: &Move) -> State {
+		let mut new_state = self.clone();
+
+		let count: usize = the_move.amount as usize;
+		let from: Stack = the_move.from;
+		let to: Stack = the_move.to;
+
+		for n in 0..count {
+			let value = new_state
+				.stacks
+				.get_mut(&from)
+				.expect("expected to have stack to pop from")
+				.pop()
+				.expect("expected to have crate to pop in stack");
+
+			new_state.held.push_back(value)
+		}
+
+		for n in 0..count {
+			new_state
+				.stacks
+				.get_mut(&to)
+				.expect("expected to have destination stack")
+				.push(
+					new_state
+						.held
+						.pop_front()
+						.expect("expected to have held crate"),
+				)
+		}
+
+		new_state
+	}
+
+	fn tops_concat(&self) -> String {
+		let mut tops: String = String::new();
+
+		for (stack, crates) in &self.stacks {
+			tops.push(crates.last().unwrap().0)
+		}
+
+		tops
+	}
 }
 
 pub struct Move {
@@ -87,7 +134,7 @@ pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 
 		let held: VecDeque<Crate> = VecDeque::new();
 
-		let mut stacks = HashMap::new();
+		let mut stacks = BTreeMap::new();
 
 		for (stack, range) in labels {
 			for idx in (0..(lines.len() - 1)).rev() {
@@ -131,8 +178,14 @@ pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 }
 
 #[must_use]
-pub fn part_one(_intermediate: &Intermediate) -> Option<Output> {
-	None
+pub fn part_one((state, moves): &Intermediate) -> Option<Output> {
+	let mut state: State = state.clone();
+
+	for the_move in moves {
+		state = state.apply_move(the_move);
+	}
+
+	Some(state.tops_concat())
 }
 
 #[must_use]
