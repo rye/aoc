@@ -35,7 +35,7 @@ impl<'a> TryFrom<&'a str> for Line<'a> {
 pub struct DirectoryTree(BTreeMap<Vec<String>, Option<usize>>);
 
 pub type Intermediate = DirectoryTree;
-pub type Output = u32;
+pub type Output = usize;
 
 fn canonicalize(slice: &[String]) -> Vec<String> {
 	let mut working: Vec<Option<String>> = slice.iter().cloned().map(|string| Some(string)).collect();
@@ -117,13 +117,9 @@ pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 
 #[test]
 fn parse_ok() {
-	use std::collections::HashSet;
-
 	let example = "$ cd /\n$ ls\ndir a\n14848514 b.txt\n8504156 c.dat\ndir d\n$ cd a\n$ ls\ndir e\n29116 f\n2557 g\n62596 h.lst\n$ cd e\n$ ls\n584 i\n$ cd ..\n$ cd ..\n$ cd d\n$ ls\n4060174 j\n8033020 d.log\n5626152 d.ext\n7214296 k";
 
 	let result = parse(example).expect("failed to parse");
-
-	let entries: HashSet<(Vec<String>, Option<usize>)> = result.0.into_iter().collect();
 
 	//- / (dir)
 	//  - a (dir)
@@ -187,14 +183,57 @@ fn parse_ok() {
 			),
 		]
 		.into_iter()
-		.collect::<HashSet<(Vec<String>, Option<usize>)>>(),
-		entries
+		.collect::<BTreeMap<Vec<String>, Option<usize>>>(),
+		result.0
 	);
 }
 
 #[must_use]
-pub fn part_one(_intermediate: &Intermediate) -> Option<Output> {
-	None
+pub fn part_one(DirectoryTree(tree): &Intermediate) -> Option<Output> {
+	let working_tree = tree.clone();
+
+	let mut directory_sizes: BTreeMap<Vec<String>, Option<usize>> = BTreeMap::new();
+
+	for (name, size) in &working_tree {
+		if size.is_none() {
+			directory_sizes.insert(name.clone(), None);
+		}
+	}
+
+	for (directory_to_populate, dir_size) in &mut directory_sizes {
+		*dir_size = Some(0_usize);
+
+		for (entry, size) in &working_tree {
+			if let Some(size) = size {
+				if entry.len() < directory_to_populate.len() {
+					continue;
+				}
+				if &entry[0..directory_to_populate.len()] != directory_to_populate.as_slice() {
+					continue;
+				} else {
+					match dir_size.as_mut() {
+						Some(x) => {
+							*x += size;
+						}
+						None => panic!("asdf"),
+					}
+				}
+			} else {
+				continue;
+			}
+		}
+	}
+
+	Some(
+		directory_sizes
+			.iter()
+			.filter_map(|(_dir, sz)| match sz {
+				Some(size) if *size <= 100_000 => Some(size),
+				Some(_size) => None,
+				None => None,
+			})
+			.sum(),
+	)
 }
 
 #[must_use]
