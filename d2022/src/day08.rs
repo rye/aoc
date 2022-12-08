@@ -35,19 +35,22 @@ enum Direction {
 }
 
 fn generate_check_positions_from_pos<'a>(
-	(pos_x, pos_y): &'a (usize, usize),
-	range_x: &'a Range<usize>,
-	range_y: &'a Range<usize>,
-) -> impl Iterator<Item = (usize, usize)> + 'a {
+	(pos_x, pos_y): (usize, usize),
+	range_x: Range<usize>,
+	range_y: Range<usize>,
+) -> impl Iterator<Item = (usize, usize)> {
 	use Direction::*;
 
-	[North, East, South, West].iter().flat_map(|dir| {
-		(1..).scan((), |_, idx| {
+	[North, East, South, West].iter().flat_map(move |dir| {
+		let range_x = range_x.clone();
+		let range_y = range_y.clone();
+
+		(1..).scan((), move |_, idx| {
 			let res: (Option<usize>, Option<usize>) = match *dir {
-				North => (Some(*pos_x), pos_y.checked_sub(idx)),
-				East => (pos_x.checked_add(idx), Some(*pos_y)),
-				South => (Some(*pos_x), pos_x.checked_add(idx)),
-				West => (pos_x.checked_sub(idx), Some(*pos_y)),
+				North => (Some(pos_x), pos_y.checked_sub(idx)),
+				East => (pos_x.checked_add(idx), Some(pos_y)),
+				South => (Some(pos_x), pos_x.checked_add(idx)),
+				West => (pos_x.checked_sub(idx), Some(pos_y)),
 			};
 
 			match res {
@@ -63,8 +66,7 @@ fn generate_check_positions_from_pos_ok() {
 	let (pos_x, pos_y) = (1, 1);
 	let range_x = 0..3;
 	let range_y = 0..3;
-	let pos = &(pos_x, pos_y);
-	let mut iter = generate_check_positions_from_pos(pos, &range_x, &range_y);
+	let mut iter = generate_check_positions_from_pos((pos_x, pos_y), range_x, range_y);
 
 	assert_eq!(iter.next(), Some((1, 0)));
 	assert_eq!(iter.next(), Some((2, 1)));
