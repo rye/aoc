@@ -121,20 +121,20 @@ fn parse_ok() {
 
 	let result = parse(example).expect("failed to parse");
 
-	//- / (dir)
-	//  - a (dir)
-	//    - e (dir)
-	//      - i (file, size=584)
-	//    - f (file, size=29116)
-	//    - g (file, size=2557)
-	//    - h.lst (file, size=62596)
-	//  - b.txt (file, size=14848514)
-	//  - c.dat (file, size=8504156)
-	//  - d (dir)
-	//    - j (file, size=4060174)
-	//    - d.log (file, size=8033020)
-	//    - d.ext (file, size=5626152)
-	//    - k (file, size=7214296)
+	// - / (dir)
+	//   - a (dir)
+	//     - e (dir)
+	//       - i (file, size=584)
+	//     - f (file, size=29116)
+	//     - g (file, size=2557)
+	//     - h.lst (file, size=62596)
+	//   - b.txt (file, size=14848514)
+	//   - c.dat (file, size=8504156)
+	//   - d (dir)
+	//     - j (file, size=4060174)
+	//     - d.log (file, size=8033020)
+	//     - d.ext (file, size=5626152)
+	//     - k (file, size=7214296)
 
 	assert_eq!(
 		vec![
@@ -237,6 +237,61 @@ pub fn part_one(DirectoryTree(tree): &Intermediate) -> Option<Output> {
 }
 
 #[must_use]
-pub fn part_two(_intermediate: &Intermediate) -> Option<Output> {
-	None
+pub fn part_two(DirectoryTree(tree): &Intermediate) -> Option<Output> {
+	let working_tree = tree.clone();
+
+	const FS_SIZE: usize = 70_000_000;
+	const MIN_UNUSED_SIZE: usize = 30_000_000;
+
+	let mut directory_sizes: BTreeMap<Vec<String>, usize> = BTreeMap::new();
+
+	for (name, size) in &working_tree {
+		if size.is_none() {
+			directory_sizes.insert(name.clone(), 0_usize);
+		}
+	}
+
+	for (directory_to_populate, dir_size) in &mut directory_sizes {
+		for (entry, size) in &working_tree {
+			if let Some(size) = size {
+				if entry.len() < directory_to_populate.len() {
+					continue;
+				}
+				if &entry[0..directory_to_populate.len()] != directory_to_populate.as_slice() {
+					continue;
+				} else {
+					*dir_size += size;
+				}
+			} else {
+				continue;
+			}
+		}
+	}
+
+	let outer_directory_size: usize = *directory_sizes
+		.get(&vec!["".to_string()])
+		.expect("no size for root directory?!");
+
+	let mut sizes_to_directories: BTreeMap<usize, Vec<Vec<String>>> = BTreeMap::new();
+
+	for (directory, size) in directory_sizes {
+		sizes_to_directories
+			.entry(size)
+			.or_default()
+			.push(directory);
+	}
+
+	let current_avail = FS_SIZE - outer_directory_size;
+
+	let min_avail = MIN_UNUSED_SIZE;
+
+	if current_avail < min_avail {
+		let size_to_free_up = min_avail - current_avail;
+
+		let sizes: Vec<usize> = sizes_to_directories.keys().copied().collect();
+
+		sizes.iter().find(|size| **size > size_to_free_up).copied()
+	} else {
+		None
+	}
 }
