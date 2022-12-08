@@ -27,6 +27,52 @@ const NORTH: (i8, i8) = (0, -1);
 const EAST: (i8, i8) = (1, 0);
 const WEST: (i8, i8) = (-1, 0);
 
+enum Direction {
+	North,
+	East,
+	South,
+	West,
+}
+
+fn generate_check_positions_from_pos<'a>(
+	(pos_x, pos_y): &'a (usize, usize),
+	range_x: &'a Range<usize>,
+	range_y: &'a Range<usize>,
+) -> impl Iterator<Item = (usize, usize)> + 'a {
+	use Direction::*;
+
+	[North, East, South, West].iter().flat_map(|dir| {
+		(1..).scan((), |_, idx| {
+			let res: (Option<usize>, Option<usize>) = match *dir {
+				North => (Some(*pos_x), pos_y.checked_sub(idx)),
+				East => (pos_x.checked_add(idx), Some(*pos_y)),
+				South => (Some(*pos_x), pos_x.checked_add(idx)),
+				West => (pos_x.checked_sub(idx), Some(*pos_y)),
+			};
+
+			match res {
+				(Some(x), Some(y)) if range_x.contains(&x) && range_y.contains(&y) => Some((x, y)),
+				_ => None,
+			}
+		})
+	})
+}
+
+#[test]
+fn generate_check_positions_from_pos_ok() {
+	let (pos_x, pos_y) = (1, 1);
+	let range_x = 0..3;
+	let range_y = 0..3;
+	let pos = &(pos_x, pos_y);
+	let mut iter = generate_check_positions_from_pos(pos, &range_x, &range_y);
+
+	assert_eq!(iter.next(), Some((1, 0)));
+	assert_eq!(iter.next(), Some((2, 1)));
+	assert_eq!(iter.next(), Some((1, 2)));
+	assert_eq!(iter.next(), Some((0, 1)));
+	assert_eq!(iter.next(), None);
+}
+
 fn paint_with_visibility(lines: &Vec<Vec<u8>>, visibility: &BTreeMap<(usize, usize), bool>) {
 	let height = lines.len();
 	let width = lines[0].len();
@@ -123,4 +169,14 @@ fn part_one_example() {
 #[must_use]
 pub fn part_two(_intermediate: &Intermediate) -> Option<Output> {
 	None
+}
+
+#[test]
+fn part_two_example() {
+	daocutil::test_example!(
+		"30373\n25512\n65332\n33549\n35390",
+		part_two,
+		parse,
+		Some(8)
+	);
 }
