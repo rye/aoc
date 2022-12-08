@@ -2,9 +2,9 @@ use {core::convert::Infallible, std::collections::BTreeMap};
 
 #[derive(Debug)]
 enum Line<'a> {
-	CommandLine(&'a str),
-	DirLine(&'a str),
-	FileLine(usize, &'a str),
+	Command(&'a str),
+	Dir(&'a str),
+	File(usize, &'a str),
 }
 
 impl<'a> TryFrom<&'a str> for Line<'a> {
@@ -18,14 +18,14 @@ impl<'a> TryFrom<&'a str> for Line<'a> {
 		// - <size> filename
 
 		if &value[0..2] == "$ " {
-			Ok(Self::CommandLine(&value[2..]))
+			Ok(Self::Command(&value[2..]))
 		} else if &value[0..4] == "dir " {
-			Ok(Self::DirLine(&value[4..]))
+			Ok(Self::Dir(&value[4..]))
 		} else {
 			let mut split = value.split(' ');
 
 			match (split.next().map(str::parse), split.next()) {
-				(Some(Ok(sz)), Some(name)) => Ok(Self::FileLine(sz, name)),
+				(Some(Ok(sz)), Some(name)) => Ok(Self::File(sz, name)),
 				_ => unreachable!(),
 			}
 		}
@@ -38,25 +38,21 @@ pub type Intermediate = DirectoryTree;
 pub type Output = usize;
 
 fn canonicalize(slice: &[String]) -> Vec<String> {
-	let mut working: Vec<Option<String>> = slice.iter().cloned().map(|string| Some(string)).collect();
+	// Convert the slice into a "scratchpad", allowing to "blank out" parts of the string.
+	let mut working: Vec<Option<String>> = slice.iter().cloned().map(Some).collect();
 
-	loop {
-		if let Some(idx) = working.iter().position(|c| match c {
-			Some(reldir) if reldir == ".." => true,
-			Some(_reldir) => false,
-			None => false,
-		}) {
-			// Take the working slice from [ ..., "aa", "a", "..", "file", ... ] to
-			//                             [ ..., "aa",            "file", ... ]
-
-			working[idx - 1] = None;
-			working[idx] = None;
-		} else {
-			break;
-		}
+	// As long as we have a ".." in the path, "blank out" the ".." and its preceding piece.
+	while let Some(idx) = working.iter().position(|c| match c {
+		Some(reldir) if reldir == ".." => true,
+		Some(_reldir) => false,
+		None => false,
+	}) {
+		working[idx - 1] = None;
+		working[idx] = None;
 	}
 
-	working.into_iter().filter_map(|c| c).collect()
+	// Take all the non-blanked parts and return an array containing just the string.
+	working.into_iter().flatten().collect()
 }
 
 /// # Errors
@@ -72,15 +68,15 @@ pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 
 	for line in lines {
 		match line {
-			Line::CommandLine(command) => {
+			Line::Command(command) => {
 				let parts: Vec<&str> = command.split(' ').collect();
 
 				match parts[0] {
 					"cd" => match (&mut cwd, parts[1]) {
 						(None, "/") => {
-							cwd.replace(vec!["".to_string()]);
+							cwd.replace(vec![String::new()]);
 
-							tree.insert(vec!["".to_string()], None);
+							tree.insert(vec![String::new()], None);
 						}
 						(Some(cwd), reldir) => {
 							let mut tmp = cwd.clone();
@@ -93,7 +89,7 @@ pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 					_ => unreachable!(),
 				}
 			}
-			Line::DirLine(dirname) => match &cwd {
+			Line::Dir(dirname) => match &cwd {
 				Some(cwd) => {
 					let mut key = cwd.clone();
 					key.push(dirname.to_string());
@@ -101,7 +97,7 @@ pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 				}
 				None => todo!(),
 			},
-			Line::FileLine(size, filename) => match &cwd {
+			Line::File(size, filename) => match &cwd {
 				Some(cwd) => {
 					let mut key = cwd.clone();
 					key.push(filename.to_string());
@@ -115,8 +111,38 @@ pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 	Ok(DirectoryTree(tree))
 }
 
+fn convert_tree_to_directory_sizes(
+	DirectoryTree(tree): &DirectoryTree,
+) -> BTreeMap<Vec<String>, usize> {
+	let mut directory_sizes: BTreeMap<Vec<String>, usize> = BTreeMap::new();
+
+	for (name, size) in tree {
+		if size.is_none() {
+			directory_sizes.insert(name.clone(), 0_usize);
+		}
+	}
+
+	for (directory, directory_size) in &mut directory_sizes {
+		for (entry, size) in tree {
+			if let Some(size) = size {
+				if directory.len() <= entry.len() && &entry[0..directory.len()] == directory.as_slice() {
+					*directory_size += size;
+				}
+			}
+		}
+	}
+
+	directory_sizes
+}
+
 #[test]
 fn parse_ok() {
+	macro_rules! p {
+		($($component:literal)|*) => {
+			vec![$($component.to_string()),*]
+		};
+	}
+
 	let example = "$ cd /\n$ ls\ndir a\n14848514 b.txt\n8504156 c.dat\ndir d\n$ cd a\n$ ls\ndir e\n29116 f\n2557 g\n62596 h.lst\n$ cd e\n$ ls\n584 i\n$ cd ..\n$ cd ..\n$ cd d\n$ ls\n4060174 j\n8033020 d.log\n5626152 d.ext\n7214296 k";
 
 	let result = parse(example).expect("failed to parse");
@@ -138,49 +164,20 @@ fn parse_ok() {
 
 	assert_eq!(
 		vec![
-			(vec!["".to_string()], None),
-			(vec!["".to_string(), "a".to_string()], None),
-			(vec!["".to_string(), "a".to_string(), "e".to_string()], None),
-			(
-				vec![
-					"".to_string(),
-					"a".to_string(),
-					"e".to_string(),
-					"i".to_string()
-				],
-				Some(584)
-			),
-			(
-				vec!["".to_string(), "a".to_string(), "f".to_string()],
-				Some(29116)
-			),
-			(
-				vec!["".to_string(), "a".to_string(), "g".to_string()],
-				Some(2557)
-			),
-			(
-				vec!["".to_string(), "a".to_string(), "h.lst".to_string()],
-				Some(62596)
-			),
-			(vec!["".to_string(), "b.txt".to_string()], Some(14848514)),
-			(vec!["".to_string(), "c.dat".to_string()], Some(8504156)),
-			(vec!["".to_string(), "d".to_string()], None),
-			(
-				vec!["".to_string(), "d".to_string(), "j".to_string()],
-				Some(4060174)
-			),
-			(
-				vec!["".to_string(), "d".to_string(), "d.log".to_string()],
-				Some(8033020)
-			),
-			(
-				vec!["".to_string(), "d".to_string(), "d.ext".to_string()],
-				Some(5626152)
-			),
-			(
-				vec!["".to_string(), "d".to_string(), "k".to_string()],
-				Some(7214296)
-			),
+			(p![""], None),
+			(p!["" | "a"], None),
+			(p!["" | "a" | "e"], None),
+			(p!["" | "a" | "e" | "i"], Some(584)),
+			(p!["" | "a" | "f"], Some(29116)),
+			(p!["" | "a" | "g"], Some(2557)),
+			(p!["" | "a" | "h.lst"], Some(62596)),
+			(p!["" | "b.txt"], Some(14848514)),
+			(p!["" | "c.dat"], Some(8504156)),
+			(p!["" | "d"], None),
+			(p!["" | "d" | "j"], Some(4060174)),
+			(p!["" | "d" | "d.log"], Some(8033020)),
+			(p!["" | "d" | "d.ext"], Some(5626152)),
+			(p!["" | "d" | "k"], Some(7214296)),
 		]
 		.into_iter()
 		.collect::<BTreeMap<Vec<String>, Option<usize>>>(),
@@ -189,87 +186,26 @@ fn parse_ok() {
 }
 
 #[must_use]
-pub fn part_one(DirectoryTree(tree): &Intermediate) -> Option<Output> {
-	let working_tree = tree.clone();
-
-	let mut directory_sizes: BTreeMap<Vec<String>, Option<usize>> = BTreeMap::new();
-
-	for (name, size) in &working_tree {
-		if size.is_none() {
-			directory_sizes.insert(name.clone(), None);
-		}
-	}
-
-	for (directory_to_populate, dir_size) in &mut directory_sizes {
-		*dir_size = Some(0_usize);
-
-		for (entry, size) in &working_tree {
-			if let Some(size) = size {
-				if entry.len() < directory_to_populate.len() {
-					continue;
-				}
-				if &entry[0..directory_to_populate.len()] != directory_to_populate.as_slice() {
-					continue;
-				} else {
-					match dir_size.as_mut() {
-						Some(x) => {
-							*x += size;
-						}
-						None => panic!("asdf"),
-					}
-				}
-			} else {
-				continue;
-			}
-		}
-	}
+pub fn part_one(tree: &Intermediate) -> Option<Output> {
+	let directory_sizes: BTreeMap<Vec<String>, usize> = convert_tree_to_directory_sizes(tree);
 
 	Some(
 		directory_sizes
 			.iter()
-			.filter_map(|(_dir, sz)| match sz {
-				Some(size) if *size <= 100_000 => Some(size),
-				Some(_size) => None,
-				None => None,
-			})
+			.filter_map(|(_dir, sz)| if *sz <= 100_000 { Some(sz) } else { None })
 			.sum(),
 	)
 }
 
 #[must_use]
-pub fn part_two(DirectoryTree(tree): &Intermediate) -> Option<Output> {
-	let working_tree = tree.clone();
-
-	const FS_SIZE: usize = 70_000_000;
+pub fn part_two(tree: &Intermediate) -> Option<Output> {
+	const FILE_SYSTEM_SIZE: usize = 70_000_000;
 	const MIN_UNUSED_SIZE: usize = 30_000_000;
 
-	let mut directory_sizes: BTreeMap<Vec<String>, usize> = BTreeMap::new();
-
-	for (name, size) in &working_tree {
-		if size.is_none() {
-			directory_sizes.insert(name.clone(), 0_usize);
-		}
-	}
-
-	for (directory_to_populate, dir_size) in &mut directory_sizes {
-		for (entry, size) in &working_tree {
-			if let Some(size) = size {
-				if entry.len() < directory_to_populate.len() {
-					continue;
-				}
-				if &entry[0..directory_to_populate.len()] != directory_to_populate.as_slice() {
-					continue;
-				} else {
-					*dir_size += size;
-				}
-			} else {
-				continue;
-			}
-		}
-	}
+	let directory_sizes: BTreeMap<Vec<String>, usize> = convert_tree_to_directory_sizes(tree);
 
 	let outer_directory_size: usize = *directory_sizes
-		.get(&vec!["".to_string()])
+		.get(&vec![String::new()])
 		.expect("no size for root directory?!");
 
 	let mut sizes_to_directories: BTreeMap<usize, Vec<Vec<String>>> = BTreeMap::new();
@@ -281,12 +217,10 @@ pub fn part_two(DirectoryTree(tree): &Intermediate) -> Option<Output> {
 			.push(directory);
 	}
 
-	let current_avail = FS_SIZE - outer_directory_size;
+	let current_unused = FILE_SYSTEM_SIZE - outer_directory_size;
 
-	let min_avail = MIN_UNUSED_SIZE;
-
-	if current_avail < min_avail {
-		let size_to_free_up = min_avail - current_avail;
+	if current_unused < MIN_UNUSED_SIZE {
+		let size_to_free_up = MIN_UNUSED_SIZE - current_unused;
 
 		let sizes: Vec<usize> = sizes_to_directories.keys().copied().collect();
 
