@@ -169,8 +169,43 @@ fn part_one_example() {
 }
 
 #[must_use]
-pub fn part_two(_intermediate: &Intermediate) -> Option<Output> {
-	None
+pub fn part_two((lines, height, width): &Intermediate) -> Option<Output> {
+	let positions = (0..*height).flat_map(|y| (0..*width).map(move |x| (x, y)));
+
+	let mut scores: BTreeMap<(usize, usize), usize> = BTreeMap::default();
+
+	for (pos_x, pos_y) in positions {
+		let height_at_position = lines[pos_y][pos_x];
+
+		let mut score = 1_usize;
+
+		for (dir_x, dir_y) in [SOUTH, NORTH, EAST, WEST] {
+			let mut c = 1_usize;
+
+			loop {
+				let check_x = (pos_x as isize + (dir_x as isize * c as isize)) as usize;
+				let check_y = (pos_y as isize + (dir_y as isize * c as isize)) as usize;
+
+				// If this step takes us out of bounds, nothing to check.
+				if !(0..*width).contains(&check_x) || !(0..*height).contains(&check_y) {
+					score *= c - 1;
+					break;
+				}
+
+				// Check this new position...
+				if lines[check_y][check_x] >= height_at_position {
+					score *= c;
+					break;
+				}
+
+				c += 1;
+			}
+		}
+
+		scores.insert((pos_x, pos_y), score);
+	}
+
+	scores.values().max().copied()
 }
 
 #[test]
