@@ -1,4 +1,4 @@
-use {core::ops::Range, std::collections::BTreeMap};
+use std::collections::BTreeMap;
 
 pub type Intermediate = (Vec<Vec<u8>>, usize, usize);
 pub type Output = usize;
@@ -27,78 +27,78 @@ const NORTH: (i8, i8) = (0, -1);
 const EAST: (i8, i8) = (1, 0);
 const WEST: (i8, i8) = (-1, 0);
 
-enum Direction {
-	North,
-	East,
-	South,
-	West,
-}
+// enum Direction {
+// 	North,
+// 	East,
+// 	South,
+// 	West,
+// }
 
-fn generate_check_positions_from_pos<'a>(
-	(pos_x, pos_y): (usize, usize),
-	range_x: Range<usize>,
-	range_y: Range<usize>,
-) -> impl Iterator<Item = (usize, usize)> {
-	use Direction::*;
+// fn generate_check_positions_from_pos<'a>(
+// 	(pos_x, pos_y): (usize, usize),
+// 	range_x: Range<usize>,
+// 	range_y: Range<usize>,
+// ) -> impl Iterator<Item = (usize, usize)> {
+// 	use Direction::*;
 
-	[North, East, South, West].iter().flat_map(move |dir| {
-		let range_x = range_x.clone();
-		let range_y = range_y.clone();
+// 	[North, East, South, West].iter().flat_map(move |dir| {
+// 		let range_x = range_x.clone();
+// 		let range_y = range_y.clone();
 
-		(1..).scan((), move |_, idx| {
-			let res: (Option<usize>, Option<usize>) = match *dir {
-				North => (Some(pos_x), pos_y.checked_sub(idx)),
-				East => (pos_x.checked_add(idx), Some(pos_y)),
-				South => (Some(pos_x), pos_x.checked_add(idx)),
-				West => (pos_x.checked_sub(idx), Some(pos_y)),
-			};
+// 		(1..).scan((), move |_, idx| {
+// 			let res: (Option<usize>, Option<usize>) = match *dir {
+// 				North => (Some(pos_x), pos_y.checked_sub(idx)),
+// 				East => (pos_x.checked_add(idx), Some(pos_y)),
+// 				South => (Some(pos_x), pos_x.checked_add(idx)),
+// 				West => (pos_x.checked_sub(idx), Some(pos_y)),
+// 			};
 
-			match res {
-				(Some(x), Some(y)) if range_x.contains(&x) && range_y.contains(&y) => Some((x, y)),
-				_ => None,
-			}
-		})
-	})
-}
+// 			match res {
+// 				(Some(x), Some(y)) if range_x.contains(&x) && range_y.contains(&y) => Some((x, y)),
+// 				_ => None,
+// 			}
+// 		})
+// 	})
+// }
 
-#[test]
-fn generate_check_positions_from_pos_ok() {
-	let (pos_x, pos_y) = (1, 1);
-	let range_x = 0..3;
-	let range_y = 0..3;
-	let mut iter = generate_check_positions_from_pos((pos_x, pos_y), range_x, range_y);
+// #[test]
+// fn generate_check_positions_from_pos_ok() {
+// 	let (pos_x, pos_y) = (1, 1);
+// 	let range_x = 0..3;
+// 	let range_y = 0..3;
+// 	let mut iter = generate_check_positions_from_pos((pos_x, pos_y), range_x, range_y);
 
-	assert_eq!(iter.next(), Some((1, 0)));
-	assert_eq!(iter.next(), Some((2, 1)));
-	assert_eq!(iter.next(), Some((1, 2)));
-	assert_eq!(iter.next(), Some((0, 1)));
-	assert_eq!(iter.next(), None);
-}
+// 	assert_eq!(iter.next(), Some((1, 0)));
+// 	assert_eq!(iter.next(), Some((2, 1)));
+// 	assert_eq!(iter.next(), Some((1, 2)));
+// 	assert_eq!(iter.next(), Some((0, 1)));
+// 	assert_eq!(iter.next(), None);
+// }
 
-fn paint_with_visibility(lines: &Vec<Vec<u8>>, visibility: &BTreeMap<(usize, usize), bool>) {
-	let height = lines.len();
-	let width = lines[0].len();
+// fn paint_with_visibility(lines: &Vec<Vec<u8>>, visibility: &BTreeMap<(usize, usize), bool>) {
+// 	let height = lines.len();
+// 	let width = lines[0].len();
 
-	let bold_style = nu_ansi_term::Style::new().bold();
+// 	let bold_style = nu_ansi_term::Style::new().bold();
 
-	for y in 0..height {
-		for x in 0..width {
-			let height = lines[y][x];
+// 	for y in 0..height {
+// 		for x in 0..width {
+// 			let height = lines[y][x];
 
-			let visible = match visibility.get(&(x, y)) {
-				Some(visibility) => *visibility,
-				_ => false,
-			};
+// 			let visible = match visibility.get(&(x, y)) {
+// 				Some(visibility) => *visibility,
+// 				_ => false,
+// 			};
 
-			if visible {
-				print!("{}", bold_style.paint(format!("{}", height)));
-			} else {
-				print!("{}", height);
-			}
-		}
-		println!();
-	}
-}
+// 			if visible {
+// 				print!("{}", bold_style.paint(format!("{}", height)));
+// 			} else {
+// 				print!("{}", height);
+// 			}
+// 		}
+// 		println!();
+// 	}
+// }
 
 fn count_visible(visibility: &BTreeMap<(usize, usize), bool>) -> usize {
 	visibility.values().filter(|bool| **bool).count()
