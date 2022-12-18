@@ -1,6 +1,6 @@
 use core::{convert::Infallible, str::FromStr};
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct State {
 	start: (i32, i32),
 	head_pos: (i32, i32),
@@ -151,6 +151,33 @@ mod calculate_tail_nudge {
 	}
 }
 
+impl State {
+	fn apply_move(&mut self, mv: &Move) {
+		for _i in 0..mv.size {
+			// Move the head.
+			match mv.direction {
+				Direction::Up => self.head_pos.1 += 1,
+				Direction::Down => self.head_pos.1 -= 1,
+				Direction::Left => self.head_pos.0 -= 1,
+				Direction::Right => self.head_pos.0 += 1,
+			}
+
+			// Figure out where the tail should move.
+			let nudge = calculate_tail_nudge(&self.head_pos, &self.tail_pos);
+
+			if let Some(nudge) = nudge {
+				self.tail_pos.0 += nudge.0;
+				self.tail_pos.1 += nudge.1;
+			} else {
+				panic!(
+					"No known nudge for head at {:?}, tail at {:?}",
+					self.head_pos, self.tail_pos
+				);
+			}
+		}
+	}
+}
+
 enum Direction {
 	Up,
 	Down,
@@ -197,7 +224,13 @@ pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 }
 
 #[must_use]
-pub fn part_one(_intermediate: &Intermediate) -> Option<Output> {
+pub fn part_one((state, moves): &Intermediate) -> Option<Output> {
+	let mut state: State = state.clone();
+
+	for moove in moves {
+		state.apply_move(moove)
+	}
+
 	None
 }
 
