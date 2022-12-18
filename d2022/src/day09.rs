@@ -1,10 +1,14 @@
-use core::{convert::Infallible, str::FromStr};
+use {
+	core::{convert::Infallible, str::FromStr},
+	std::collections::HashSet,
+};
 
 #[derive(Default, Clone)]
 pub struct State {
 	start: (i32, i32),
 	head_pos: (i32, i32),
 	tail_pos: (i32, i32),
+	tail_history: HashSet<(i32, i32)>,
 }
 
 fn calculate_tail_nudge(head_pos: &(i32, i32), tail_pos: &(i32, i32)) -> Option<(i32, i32)> {
@@ -174,6 +178,9 @@ impl State {
 					self.head_pos, self.tail_pos
 				);
 			}
+
+			// Log the new tail pos.
+			self.tail_history.insert(self.tail_pos.clone());
 		}
 	}
 }
@@ -213,7 +220,8 @@ pub type Output = usize;
 
 /// # Errors
 pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
-	let state = State::default();
+	let mut state = State::default();
+	state.tail_history.insert(state.tail_pos);
 
 	let moves: Vec<Move> = input
 		.lines()
@@ -231,7 +239,7 @@ pub fn part_one((state, moves): &Intermediate) -> Option<Output> {
 		state.apply_move(moove)
 	}
 
-	None
+	Some(state.tail_history.len())
 }
 
 #[test]
