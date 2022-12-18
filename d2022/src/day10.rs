@@ -33,10 +33,10 @@ pub type Intermediate = Vec<Instruction>;
 impl Display for Output {
 	fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
 		match self {
-			Self::PartOne(arg0) => write!(f, "{}", arg0),
-			Self::PartTwo(arg0) => {
+			Self::PartOne(u32) => write!(f, "{}", u32),
+			Self::PartTwo(string) => {
 				writeln!(f)?;
-				writeln!(f, "{}", arg0)?;
+				write!(f, "{string}")?;
 				Ok(())
 			}
 		}
@@ -46,8 +46,8 @@ impl Display for Output {
 impl Debug for Output {
 	fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
 		match self {
-			Self::PartOne(arg0) => write!(f, "{:?}", arg0),
-			Self::PartTwo(arg0) => write!(f, "{:?}", arg0),
+			Self::PartOne(u32) => write!(f, "{u32:?}"),
+			Self::PartTwo(string) => write!(f, "{string:?}"),
 		}
 	}
 }
@@ -147,7 +147,7 @@ fn render_crt_buffer(buffer: [[bool; 40]; 6]) -> String {
 	for row in buffer {
 		for cell in row {
 			write!(
-				&mut string,
+				string,
 				"{}",
 				match cell {
 					true => "#",
