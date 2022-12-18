@@ -1,4 +1,9 @@
-use core::{num::ParseIntError, str::FromStr};
+use core::{
+	array::TryFromSliceError,
+	fmt::{self, Debug, Display, Formatter},
+	num::ParseIntError,
+	str::FromStr,
+};
 
 pub enum Instruction {
 	Noop,
@@ -17,8 +22,47 @@ impl FromStr for Instruction {
 	}
 }
 
+#[derive(PartialEq)]
+pub enum Output {
+	PartOne(u32),
+	PartTwo([[bool; 40]; 6]),
+}
+
 pub type Intermediate = Vec<Instruction>;
-pub type Output = u32;
+
+impl Display for Output {
+	fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+		match self {
+			Self::PartOne(arg0) => write!(f, "{}", arg0),
+			Self::PartTwo(arg0) => {
+				writeln!(f)?;
+				for row in arg0 {
+					for cell in row {
+						write!(
+							f,
+							"{}",
+							match cell {
+								true => "#",
+								false => ".",
+							}
+						)?;
+					}
+					writeln!(f)?;
+				}
+				Ok(())
+			}
+		}
+	}
+}
+
+impl Debug for Output {
+	fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+		match self {
+			Self::PartOne(arg0) => write!(f, "{:?}", arg0),
+			Self::PartTwo(arg0) => write!(f, "{:?}", arg0),
+		}
+	}
+}
 
 /// # Errors
 pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
@@ -91,12 +135,12 @@ fn values_during_and_after_short_example() {
 pub fn part_one(instructions: &Intermediate) -> Option<Output> {
 	let (values_during, _values_after) = values_during_and_after(instructions);
 
-	Some(
+	Some(Output::PartOne(
 		[20, 60, 100, 140, 180, 220]
 			.map(|cycle| values_during[cycle] * (cycle as i32))
 			.iter()
 			.sum::<i32>() as u32,
-	)
+	))
 }
 
 daocutil::test_example!(
@@ -104,10 +148,46 @@ daocutil::test_example!(
 	parse,
 	part_one,
 	include_str!("examples/day10-longer"),
-	Some(13140)
+	Some(Output::PartOne(13140))
 );
 
 #[must_use]
-pub fn part_two(_intermediate: &Intermediate) -> Option<Output> {
-	None
+pub fn part_two(instructions: &Intermediate) -> Option<Output> {
+	let (values_during, values_after) = values_during_and_after(instructions);
+
+	assert_eq!(values_during.len(), 241);
+	assert_eq!(values_after.len(), 241);
+
+	let mut scan_output: Vec<bool> = vec![];
+
+	for cycle in 1..=240 {
+		let value_during = values_during[cycle];
+
+		let position: i32 = (cycle - 1) as i32 % 40;
+
+		if (value_during - 1..=value_during + 1).contains(&position) {
+			scan_output.push(true);
+		} else {
+			scan_output.push(false);
+		}
+	}
+
+	scan_output
+		.chunks_exact(40)
+		.map(|chunk| -> Result<[bool; 40], _> { chunk.try_into() })
+		.collect::<Result<Vec<[bool; 40]>, TryFromSliceError>>()
+		.expect("could not split into 40-slices")
+		.try_into()
+		.ok()
+		.map(Output::PartTwo)
+}
+
+#[test]
+fn part_two_example() {
+	let input = include_str!("examples/day10-longer");
+
+	assert_eq!(
+		part_two(&parse(input).expect("failed to parse")).map(|output| output.to_string()),
+		Some(include_str!("examples/day10-longer-image").to_string())
+	);
 }
