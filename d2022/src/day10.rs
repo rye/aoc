@@ -25,7 +25,7 @@ impl FromStr for Instruction {
 #[derive(PartialEq)]
 pub enum Output {
 	PartOne(u32),
-	PartTwo([[bool; 40]; 6]),
+	PartTwo(String),
 }
 
 pub type Intermediate = Vec<Instruction>;
@@ -36,19 +36,7 @@ impl Display for Output {
 			Self::PartOne(arg0) => write!(f, "{}", arg0),
 			Self::PartTwo(arg0) => {
 				writeln!(f)?;
-				for row in arg0 {
-					for cell in row {
-						write!(
-							f,
-							"{}",
-							match cell {
-								true => "#",
-								false => ".",
-							}
-						)?;
-					}
-					writeln!(f)?;
-				}
+				writeln!(f, "{}", arg0)?;
 				Ok(())
 			}
 		}
@@ -151,6 +139,29 @@ daocutil::test_example!(
 	Some(Output::PartOne(13140))
 );
 
+fn render_crt_buffer(buffer: [[bool; 40]; 6]) -> String {
+	use core::fmt::Write;
+
+	let mut string: String = String::default();
+
+	for row in buffer {
+		for cell in row {
+			write!(
+				&mut string,
+				"{}",
+				match cell {
+					true => "#",
+					false => ".",
+				},
+			)
+			.expect("could not write cell");
+		}
+		writeln!(string).expect("could not write line terminator");
+	}
+
+	string
+}
+
 #[must_use]
 pub fn part_two(instructions: &Intermediate) -> Option<Output> {
 	let (values_during, values_after) = values_during_and_after(instructions);
@@ -179,6 +190,7 @@ pub fn part_two(instructions: &Intermediate) -> Option<Output> {
 		.expect("could not split into 40-slices")
 		.try_into()
 		.ok()
+		.map(render_crt_buffer)
 		.map(Output::PartTwo)
 }
 
@@ -187,7 +199,9 @@ fn part_two_example() {
 	let input = include_str!("examples/day10-longer");
 
 	assert_eq!(
-		part_two(&parse(input).expect("failed to parse")).map(|output| output.to_string()),
-		Some(include_str!("examples/day10-longer-image").to_string())
+		part_two(&parse(input).expect("failed to parse")),
+		Some(Output::PartTwo(
+			include_str!("examples/day10-longer-image").to_string()
+		))
 	);
 }
