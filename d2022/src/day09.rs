@@ -5,7 +5,6 @@ use {
 
 #[derive(Default, Clone)]
 pub struct State {
-	start: (i32, i32),
 	head_pos: (i32, i32),
 	tail_pos: (i32, i32),
 	tail_history: HashSet<(i32, i32)>,
