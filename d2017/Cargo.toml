@@ -1,0 +1,12 @@
+[package]
+name = "d2017"
+publish = false
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+daocutil = { path = "../daocutil" }
+anyhow = "1.0.66"
+thiserror = "1.0.37"
+itertools = "0.10.5"
+nu-ansi-term = "0.46.0"
