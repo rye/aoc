@@ -83,6 +83,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "d2017"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "daocutil",
+ "itertools",
+ "nu-ansi-term",
+ "thiserror",
+]
+
+[[package]]
 name = "d2020"
 version = "0.1.0"
 dependencies = [
