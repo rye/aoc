@@ -10,7 +10,7 @@ pub fn parse(spreadsheet: &str) -> anyhow::Result<Intermediate> {
 			.map(|line| {
 				line
 					.split_whitespace()
-					.map(|number| u32::from_str_radix(number, 10))
+					.map(str::parse)
 					.collect::<Result<Vec<u32>, _>>()
 			})
 			.collect::<Result<Vec<Vec<u32>>, _>>()?,
@@ -47,7 +47,7 @@ pub fn part_two(spreadsheet: &Intermediate) -> Option<Solution> {
 	Some(
 		spreadsheet
 			.iter()
-			.flat_map(|line| {
+			.filter_map(|line| {
 				line
 					.iter()
 					.permutations(2)
