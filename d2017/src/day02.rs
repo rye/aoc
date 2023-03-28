@@ -1,3 +1,5 @@
+use itertools::Itertools;
+
 pub type Intermediate = Vec<Vec<u32>>;
 pub type Solution = u32;
 
@@ -33,6 +35,25 @@ pub fn part_one(spreadsheet: &Intermediate) -> Option<Solution> {
 	)
 }
 
-pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
-	None
+daocutil::test_example!(
+	part_two_example,
+	parse,
+	part_two,
+	include_str!("examples/day02-2"),
+	Some(9)
+);
+
+pub fn part_two(spreadsheet: &Intermediate) -> Option<Solution> {
+	Some(
+		spreadsheet
+			.iter()
+			.flat_map(|line| {
+				line
+					.iter()
+					.permutations(2)
+					.find(|pair| pair[0] % pair[1] == 0)
+					.map(|pair| pair[0] / pair[1])
+			})
+			.sum(),
+	)
 }
