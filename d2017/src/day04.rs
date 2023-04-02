@@ -1,4 +1,4 @@
-use std::{alloc::System, collections::BTreeSet};
+use std::collections::BTreeSet;
 
 pub type Intermediate<'input> = Vec<&'input str>;
 pub type Solution = usize;
