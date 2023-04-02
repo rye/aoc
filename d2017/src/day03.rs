@@ -1,4 +1,4 @@
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 pub type Intermediate = usize;
 pub type Solution = usize;
@@ -74,6 +74,48 @@ pub fn part_one(input: &Intermediate) -> Option<Solution> {
 	}
 }
 
-pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
-	None
+fn neighbors(pos: &(i32, i32)) -> impl Iterator<Item = (i32, i32)> + '_ {
+	(-1..=1)
+		.flat_map(move |offset_y| (-1..=1).map(move |offset_x| (pos.0 + offset_x, pos.1 + offset_y)))
+		.filter(move |pos_t| pos_t != pos)
+}
+
+#[test]
+fn neighbors_iter() {
+	let mut neighbors = neighbors(&(0, 0));
+	assert_eq!(neighbors.next(), Some((-1, -1)));
+	assert_eq!(neighbors.next(), Some((0, -1)));
+	assert_eq!(neighbors.next(), Some((1, -1)));
+	assert_eq!(neighbors.next(), Some((-1, 0)));
+	assert_eq!(neighbors.next(), Some((1, 0)));
+	assert_eq!(neighbors.next(), Some((-1, 1)));
+	assert_eq!(neighbors.next(), Some((0, 1)));
+	assert_eq!(neighbors.next(), Some((1, 1)));
+	assert_eq!(neighbors.next(), None);
+}
+
+fn grid_values() -> impl Iterator<Item = usize> {
+	let initial_state: BTreeMap<(i32, i32), usize> = [((0, 0), 1)].into_iter().collect();
+
+	GridIter::default().scan(initial_state, |scratch, new_loc| -> Option<usize> {
+		let value_to_insert: usize = neighbors(&new_loc)
+			.map(|neighbor_pos| scratch.get(&neighbor_pos).unwrap_or(&0))
+			.sum();
+
+		Some(*scratch.entry(new_loc).or_insert(value_to_insert))
+	})
+}
+
+#[test]
+fn grid_values_iter() {
+	let mut grid_values = grid_values();
+	assert_eq!(grid_values.next(), Some(1));
+	assert_eq!(grid_values.next(), Some(1));
+	assert_eq!(grid_values.next(), Some(2));
+	assert_eq!(grid_values.next(), Some(4));
+	assert_eq!(grid_values.next(), Some(5));
+}
+
+pub fn part_two(input: &Intermediate) -> Option<Solution> {
+	grid_values().find(|n| n > input)
 }
