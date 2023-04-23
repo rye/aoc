@@ -10,7 +10,7 @@ itertools = "0.10.5"
 num = "0.4.0"
 num-integer = "0.1.45"
 regex = "1.8.1"
-thiserror = "1.0.24"
+thiserror = "1.0.40"
 
 daocutil = { path = "../daocutil" }
 
