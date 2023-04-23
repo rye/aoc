@@ -7,6 +7,6 @@ edition = "2021"
 [dependencies]
 daocutil = { path = "../daocutil" }
 anyhow = "1.0.70"
-thiserror = "1.0.37"
+thiserror = "1.0.40"
 itertools = "0.10.5"
 nu-ansi-term = "0.47.0"
