@@ -73,8 +73,8 @@ impl<const N: usize> State<N> {
 
 		assert!(N <= u8::MAX.into());
 
-		let mut flashed: [[bool; N]; N] = [[false; N]; N];
-		let mut flashes: usize = 0_usize; // This *could* be reconstructed from flashed later.
+		let mut flashed_cells: [[bool; N]; N] = [[false; N]; N];
+		let mut flashes_seen: usize = 0_usize; // This *could* be reconstructed from flashed later.
 
 		let mut increases: VecDeque<(u8, u8)> = VecDeque::new();
 
@@ -94,7 +94,7 @@ impl<const N: usize> State<N> {
 			let x_idx: usize = x as usize;
 
 			// If we already flashed in this spot, we're done with this increase.
-			if flashed[y_idx][x_idx] {
+			if flashed_cells[y_idx][x_idx] {
 				continue;
 			}
 
@@ -105,8 +105,8 @@ impl<const N: usize> State<N> {
 				// If that caused the octopus to have an energy level greater than 9, it flashes.
 				if self.octopi[y_idx][x_idx].0 .0 > 9 {
 					// Mark this cell as flashed and reset its value to 0.
-					flashes += 1;
-					flashed[y_idx][x_idx] = true;
+					flashes_seen += 1;
+					flashed_cells[y_idx][x_idx] = true;
 					self.octopi[y_idx][x_idx].0 .0 = 0;
 
 					// And also causes its (unflashed) neighbors to increase in level.
@@ -117,7 +117,7 @@ impl<const N: usize> State<N> {
 			}
 		}
 
-		flashes
+		flashes_seen
 	}
 }
 

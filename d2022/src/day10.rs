@@ -157,21 +157,20 @@ fn render_crt_buffer(buffer: [[bool; 40]; 6]) -> String {
 #[must_use]
 pub fn part_two(instructions: &Intermediate) -> Option<Output> {
 	#[allow(clippy::similar_names)]
-	let (values_during, values_after) = values_during_and_after(instructions);
+	let (during, after) = values_during_and_after(instructions);
 
-	assert_eq!(values_during.len(), 241);
-	assert_eq!(values_after.len(), 241);
+	assert_eq!(during.len(), 241);
+	assert_eq!(after.len(), 241);
 
 	let mut scan_output: Vec<bool> = vec![];
 
 	#[allow(clippy::needless_range_loop)]
 	for cycle in 1..=240 {
-		#[allow(clippy::similar_names)]
-		let value_during = values_during[cycle];
+		let value = during[cycle];
 
 		let position: i32 = (cycle - 1) as i32 % 40;
 
-		if (value_during - 1..=value_during + 1).contains(&position) {
+		if (value - 1..=value + 1).contains(&position) {
 			scan_output.push(true);
 		} else {
 			scan_output.push(false);
