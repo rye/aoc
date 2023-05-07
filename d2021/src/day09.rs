@@ -141,7 +141,7 @@ fn basin_size(height_map: &HeightMap, (x, y): (u32, u32)) -> u32 {
 		}
 	}
 
-	set.len() as u32
+	u32::try_from(set.len()).expect("set size should not exceed u32::MAX")
 }
 
 #[test]

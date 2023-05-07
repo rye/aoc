@@ -1,7 +1,7 @@
 pub fn neighbors<const N: usize>(y_0: u8, x_0: u8) -> impl Iterator<Item = (u8, u8)> {
 	assert!(u8::try_from(N).is_ok());
 
-	let upper_bound = N as u8;
+	let upper_bound = u8::try_from(N).unwrap();
 
 	let y_min = y_0.saturating_sub(1);
 	let y_max = y_0.saturating_add(1).clamp(0, upper_bound - 1);

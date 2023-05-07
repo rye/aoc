@@ -24,7 +24,7 @@ impl FromStr for Instruction {
 
 #[derive(PartialEq)]
 pub enum Output {
-	PartOne(u32),
+	PartOne(u64),
 	PartTwo(String),
 }
 
@@ -125,9 +125,11 @@ pub fn part_one(instructions: &Intermediate) -> Option<Output> {
 
 	Some(Output::PartOne(
 		[20, 60, 100, 140, 180, 220]
-			.map(|cycle| values_during[cycle] * (cycle as i32))
+			.map(|cycle: i32| values_during[cycle.unsigned_abs() as usize] * cycle)
 			.iter()
-			.sum::<i32>() as u32,
+			.sum::<i32>()
+			.try_into()
+			.expect("failed to convert sum to u64"),
 	))
 }
 
@@ -164,11 +166,11 @@ pub fn part_two(instructions: &Intermediate) -> Option<Output> {
 
 	let mut scan_output: Vec<bool> = vec![];
 
-	#[allow(clippy::needless_range_loop)]
 	for cycle in 1..=240 {
-		let value = during[cycle];
+		let cycle: i32 = cycle;
+		let value = during[cycle.unsigned_abs() as usize];
 
-		let position: i32 = (cycle - 1) as i32 % 40;
+		let position: i32 = (cycle - 1) % 40;
 
 		if (value - 1..=value + 1).contains(&position) {
 			scan_output.push(true);

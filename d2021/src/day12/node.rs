@@ -18,8 +18,7 @@ impl Display for Node {
 
 		match self {
 			Start => write!(f, "start"),
-			SmallCave(cave) => write!(f, "{}", cave),
-			LargeCave(cave) => write!(f, "{}", cave),
+			SmallCave(cave) | LargeCave(cave) => write!(f, "{}", cave),
 			End => write!(f, "end"),
 		}
 	}

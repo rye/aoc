@@ -220,7 +220,8 @@ fn model_number_to_i64(digits: &[u8]) -> i64 {
 	let length = digits.len();
 
 	digits.iter().enumerate().fold(0_i64, |sum, (idx, digit)| {
-		let power: u32 = length as u32 - 1 - idx as u32;
+		let power: u32 = u32::try_from(length).expect("length should be able to be fit in u32")
+			- 1 - u32::try_from(idx).expect("idx should be able to be fit in u32");
 		sum + i64::from(*digit) * 10_i64.pow(power)
 	})
 }
@@ -235,11 +236,11 @@ fn model_number_convert_12345678954321() {
 
 #[must_use]
 pub fn part_one((alu, program): &Intermediate) -> Option<Solution> {
+	const COUNTER_MAX_EST: u64 = 9_u64.pow(14);
+
 	let mut alu: ALU = alu.clone();
 
-	let mut counter: usize = 0;
-
-	const COUNTER_MAX_EST: usize = 9_usize.pow(14);
+	let mut counter: u64 = 0;
 
 	let earliest_valid = generate_valid_model_numbers()
 		.inspect(|_n| {
@@ -249,7 +250,9 @@ pub fn part_one((alu, program): &Intermediate) -> Option<Solution> {
 					"Processed {} of {} ({}%)",
 					counter,
 					COUNTER_MAX_EST,
-					(counter as f64 / COUNTER_MAX_EST as f64) * 100.0
+					(f64::from(u32::try_from(counter / 1_000_000).expect("counter was too big"))
+						/ f64::from(u32::try_from(COUNTER_MAX_EST / 1_000_000).expect("counter was too big")))
+						* 100.0
 				);
 			}
 		})

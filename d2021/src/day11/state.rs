@@ -82,7 +82,7 @@ impl<const N: usize> State<N> {
 		for (y, x) in (0..N).flat_map(|y| {
 			(0..N).map(move |x| {
 				// This "as" is safe due to assert at start.
-				(y as u8, x as u8)
+				(u8::try_from(y).unwrap(), u8::try_from(x).unwrap())
 			})
 		}) {
 			increases.push_back((y, x));
