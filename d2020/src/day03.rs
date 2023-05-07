@@ -32,7 +32,7 @@ pub fn parse(data: &str) -> Result<Intermediate, core::convert::Infallible> {
 }
 
 pub fn part_one(map: &Intermediate) -> Option<Solution> {
-	Some(slope(&map, (3, 1)))
+	Some(slope(map, (3, 1)))
 }
 
 pub fn part_two(map: &Intermediate) -> Option<Solution> {
@@ -40,8 +40,8 @@ pub fn part_two(map: &Intermediate) -> Option<Solution> {
 	Some(
 		trajectories
 			.iter()
-			.map(|trajectory| slope(&map, *trajectory))
-			.fold(1, |acc, x| acc * x),
+			.map(|trajectory| slope(map, *trajectory))
+			.product(),
 	)
 }
 

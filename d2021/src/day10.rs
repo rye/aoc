@@ -1,4 +1,3 @@
-
 #[derive(PartialEq, Debug)]
 pub enum Line {
 	Valid(Vec<char>),
@@ -7,23 +6,11 @@ pub enum Line {
 
 #[inline]
 const fn is_open(char: char) -> bool {
-	match char {
-		'(' => true,
-		'[' => true,
-		'{' => true,
-		'<' => true,
-		_ => false,
-	}
+	matches!(char, '(' | '[' | '{' | '<')
 }
 
 const fn is_close(char: char) -> bool {
-	match char {
-		')' => true,
-		']' => true,
-		'}' => true,
-		'>' => true,
-		_ => false,
-	}
+	matches!(char, ')' | ']' | '}' | '>')
 }
 
 const fn corresponding_close(open: char) -> char {
@@ -132,11 +119,11 @@ pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
 
 type Solution = u64;
 
-pub fn part_one(subsystem: &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_one(subsystem: &Intermediate) -> Option<Solution> {
 	Some(subsystem.iter().fold(0_u64, |acc, line| {
 		acc
 			+ match line {
-				Line::Corrupted(char) => score_found_missing_closing(*char) as u64,
+				Line::Corrupted(char) => score_found_missing_closing(*char),
 				Line::Valid(_v) => 0_u64,
 			}
 	}))
@@ -168,7 +155,7 @@ fn stack_completion() {
 	);
 }
 
-pub fn part_two(subsystem: &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_two(subsystem: &Intermediate) -> Option<Solution> {
 	use std::collections::BTreeSet;
 
 	let valid_line_scores: BTreeSet<u64> = subsystem

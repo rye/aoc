@@ -18,7 +18,7 @@ pub fn part_one(intermediate: &Intermediate) -> Option<Solution> {
 	let mut history = vec![0u32; END as usize];
 	let mut last = intermediate[0];
 	for turn in 0..intermediate.len() as u32 {
-		history[last as usize] = turn as u32;
+		history[last as usize] = turn;
 		last = intermediate[turn as usize];
 	}
 
@@ -36,7 +36,7 @@ pub fn part_two(intermediate: &Intermediate) -> Option<Solution> {
 	let mut history = vec![0u32; END as usize];
 	let mut last = intermediate[0];
 	for turn in 0..intermediate.len() as u32 {
-		history[last as usize] = turn as u32;
+		history[last as usize] = turn;
 		last = intermediate[turn as usize];
 	}
 

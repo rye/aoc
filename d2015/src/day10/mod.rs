@@ -6,8 +6,7 @@ pub struct LookAndSay(String);
 
 pub fn parse(input: &str) -> Intermediate {
 	input
-		.lines()
-		.nth(0)
+		.lines().next()
 		.map(str::to_string)
 		.map(LookAndSay)
 		.unwrap()
@@ -20,7 +19,7 @@ impl LookAndSay {
 		let mut idx = 0_usize;
 
 		loop {
-			let cur_digit = source[idx..idx + 1].chars().nth(0).unwrap();
+			let cur_digit = source[idx..idx + 1].chars().next().unwrap();
 			let offset = source[idx..].find(|c| c != cur_digit);
 
 			let slice = if let Some(offset) = offset {
@@ -33,7 +32,7 @@ impl LookAndSay {
 			output.push(cur_digit);
 
 			if let Some(offset) = offset {
-				idx = idx + offset;
+				idx += offset;
 			} else {
 				break;
 			}

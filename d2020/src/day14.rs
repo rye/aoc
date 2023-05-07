@@ -31,9 +31,7 @@ pub fn part_one(program: &Program) -> Option<Solution> {
 	Some(
 		program
 			.execute_part_one()
-			.memory
-			.into_iter()
-			.map(|(_address, value)| value)
+			.memory.into_values()
 			.sum(),
 	)
 }
@@ -65,9 +63,7 @@ pub fn part_two(program: &Program) -> Option<Solution> {
 	Some(
 		program
 			.execute_part_two()
-			.memory
-			.into_iter()
-			.map(|(_address, value)| value)
+			.memory.into_values()
 			.sum(),
 	)
 }
@@ -139,7 +135,7 @@ impl Mask {
 			.into_iter()
 			.map(|possibility: Vec<char>| {
 				let possibility = possibility.into_iter().rev().collect::<String>();
-				u64::from_str_radix(&possibility.trim_start_matches('0'), 2).unwrap()
+				u64::from_str_radix(possibility.trim_start_matches('0'), 2).unwrap()
 			})
 			.collect()
 	}
@@ -199,11 +195,11 @@ impl core::str::FromStr for Program {
 				let (lhs, rhs) = (parts[0], parts[1]);
 
 				if lhs == "mask" {
-					let ones_mask = rhs.replace("X", "0");
+					let ones_mask = rhs.replace('X', "0");
 					let ones = u64::from_str_radix(&ones_mask, 2)
 						.map_err(|_| InstructionParseError::BitmaskError(ones_mask))?;
 
-					let zeros_mask = rhs.replace("X", "1");
+					let zeros_mask = rhs.replace('X', "1");
 					let zeros = u64::from_str_radix(&zeros_mask, 2)
 						.map_err(|_| InstructionParseError::BitmaskError(zeros_mask))?;
 

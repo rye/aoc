@@ -33,7 +33,7 @@ pub type Intermediate = Vec<Instruction>;
 impl Display for Output {
 	fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
 		match self {
-			Self::PartOne(u32) => write!(f, "{}", u32),
+			Self::PartOne(u32) => write!(f, "{u32}"),
 			Self::PartTwo(string) => {
 				writeln!(f)?;
 				write!(f, "{string}")?;
@@ -95,7 +95,7 @@ fn values_during_and_after(instructions: &[Instruction]) -> (Vec<i32>, Vec<i32>)
 
 #[test]
 fn values_during_and_after_short_example() {
-	use Instruction::*;
+	use Instruction::{Addx, Noop};
 	let instructions = vec![Noop, Addx(3), Addx(-5)];
 
 	let (values_during, values_after) = values_during_and_after(&instructions);
@@ -171,6 +171,7 @@ pub fn part_two(instructions: &Intermediate) -> Option<Output> {
 
 	let mut scan_output: Vec<bool> = vec![];
 
+	#[allow(clippy::needless_range_loop)]
 	for cycle in 1..=240 {
 		let value_during = values_during[cycle];
 

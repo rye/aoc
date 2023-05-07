@@ -24,7 +24,7 @@ type Solution = usize;
 #[derive(Debug, PartialEq)]
 struct Player(usize);
 
-pub fn parse<'input>(input: &'input str) -> Result<Intermediate, core::convert::Infallible> {
+pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
 	let players: Vec<Deck> = input
 		.split("\n\n")
 		.map(|block| {

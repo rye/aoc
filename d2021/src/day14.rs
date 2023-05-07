@@ -103,11 +103,11 @@ fn statistics(string: &str) -> BTreeMap<char, usize> {
 	statistics
 }
 
-pub fn part_one((template, rules): &Intermediate) -> Option<Solution> {
-	let mut template = template.to_string();
+#[must_use] pub fn part_one((template, rules): &Intermediate) -> Option<Solution> {
+	let mut template = (*template).to_string();
 
 	for step in 0..10 {
-		template = one_step(&template, &rules);
+		template = one_step(&template, rules);
 		println!("Step {}: length = {}", step + 1, template.len());
 	}
 
@@ -119,11 +119,11 @@ pub fn part_one((template, rules): &Intermediate) -> Option<Solution> {
 	Some(qty_max - qty_min)
 }
 
-pub fn part_two((template, rules): &Intermediate) -> Option<Solution> {
-	let mut template = template.to_string();
+#[must_use] pub fn part_two((template, rules): &Intermediate) -> Option<Solution> {
+	let mut template = (*template).to_string();
 
 	for step in 0..40 {
-		template = one_step(&template, &rules);
+		template = one_step(&template, rules);
 		println!("Step {}: length = {}", step + 1, template.len());
 	}
 

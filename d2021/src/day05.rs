@@ -181,7 +181,7 @@ pub fn parse(input: &str) -> Result<Intermediate, Infallible> {
 
 type Solution = usize;
 
-pub fn part_one(segments: &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_one(segments: &Intermediate) -> Option<Solution> {
 	let segments: Vec<LineSegment> = segments
 		.iter()
 		.filter(|segment| segment.is_horizontal() || segment.is_vertical())
@@ -204,7 +204,7 @@ pub fn part_one(segments: &Intermediate) -> Option<Solution> {
 	Some(overlaps)
 }
 
-pub fn part_two(segments: &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_two(segments: &Intermediate) -> Option<Solution> {
 	let mut points: BTreeMap<Point, usize> = BTreeMap::new();
 
 	for segment in segments {

@@ -7,11 +7,11 @@ pub fn parse(data: &str) -> Result<Intermediate, core::convert::Infallible> {
 		.map(|s: &str| s.parse::<usize>().unwrap())
 		.collect::<Vec<_>>();
 
-	Ok((lines[1].clone(), lines[0].clone()))
+	Ok((lines[1], lines[0]))
 }
 
 pub fn part_one((card_pubkey, door_pubkey): &Intermediate) -> Option<Solution> {
-	Some(find_encryption_key(&card_pubkey, &door_pubkey))
+	Some(find_encryption_key(card_pubkey, door_pubkey))
 }
 
 pub fn part_two(_: &Intermediate) -> Option<Solution> {
@@ -19,7 +19,7 @@ pub fn part_two(_: &Intermediate) -> Option<Solution> {
 }
 
 fn transform_sub(subject: &usize, loop_size: usize) -> usize {
-	let mut value: usize = 1_usize.into();
+	let mut value: usize = 1_usize;
 
 	for _ in 0..loop_size {
 		value *= subject;
@@ -83,7 +83,7 @@ fn find_subject(target: &usize, loop_size: usize) -> usize {
 
 #[test]
 fn find_subject_t5764801_l8() {
-	let target = 5764801_usize.into();
+	let target = 5764801_usize;
 	let loop_size: usize = 8_usize;
 
 	assert_eq!(find_subject(&target, loop_size), 7_usize);
@@ -91,7 +91,7 @@ fn find_subject_t5764801_l8() {
 
 #[test]
 fn find_subject_t17807724_l8() {
-	let target = 17807724_usize.into();
+	let target = 17807724_usize;
 	let loop_size: usize = 11_usize;
 
 	assert_eq!(find_subject(&target, loop_size), 7_usize);
@@ -99,16 +99,16 @@ fn find_subject_t17807724_l8() {
 
 #[test]
 fn find_loop_size_s7_u5764801() {
-	let target = 5764801_usize.into();
-	let subject = 7_usize.into();
+	let target = 5764801_usize;
+	let subject = 7_usize;
 
 	assert_eq!(find_loop_size(&target, &subject), 8_usize);
 }
 
 #[test]
 fn find_loop_size_s7_u17807724() {
-	let target = 17807724_usize.into();
-	let subject = 7_usize.into();
+	let target = 17807724_usize;
+	let subject = 7_usize;
 
 	assert_eq!(find_loop_size(&target, &subject), 11_usize);
 }
@@ -135,11 +135,11 @@ fn find_encryption_key(pkey_card: &usize, pkey_door: &usize) -> usize {
 
 #[test]
 fn find_encryption_key_d17807724_c5764801() {
-	let card_pubkey = 5764801_usize.into();
-	let door_pubkey = 17807724_usize.into();
+	let card_pubkey = 5764801_usize;
+	let door_pubkey = 17807724_usize;
 
 	assert_eq!(
 		find_encryption_key(&card_pubkey, &door_pubkey),
-		14897079_usize.into()
+		14897079_usize
 	);
 }

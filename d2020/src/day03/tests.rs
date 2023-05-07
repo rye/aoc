@@ -8,8 +8,8 @@ mod slope {
 	fn test_slope() -> Vec<Vec<char>> {
 		let data = include_str!("test-data");
 		let data: Vec<Vec<char>> = data
-			.split("\n")
-			.filter(|s| s.len() > 0)
+			.split('\n')
+			.filter(|s| !s.is_empty())
 			.map(|line| line.chars().collect())
 			.collect();
 

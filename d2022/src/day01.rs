@@ -64,7 +64,7 @@ mod elf {
 			assert_eq!(
 				line.parse(),
 				Ok(Elf {
-					snacks: vec![1257, 8817, 90361655]
+					snacks: vec![1257, 8817, 90_361_655]
 				})
 			);
 		}

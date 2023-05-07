@@ -26,7 +26,7 @@ impl FromStr for Instruction {
 	type Err = ();
 
 	fn from_str(str: &str) -> Result<Self, ()> {
-		let action = match str.chars().nth(0) {
+		let action = match str.chars().next() {
 			Some('N') => Action::North,
 			Some('S') => Action::South,
 			Some('E') => Action::East,

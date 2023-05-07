@@ -10,7 +10,7 @@ pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 	}
 }
 
-pub fn part_one(chars: &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_one(chars: &Intermediate) -> Option<Solution> {
 	Some(
 		chars
 			.iter()
@@ -27,7 +27,7 @@ daocutil::test_example!(part_one_1111, parse, part_one, "1111", Some(4));
 daocutil::test_example!(part_one_1234, parse, part_one, "1234", Some(0));
 daocutil::test_example!(part_one_91212129, parse, part_one, "91212129", Some(9));
 
-pub fn part_two(chars: &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_two(chars: &Intermediate) -> Option<Solution> {
 	let mut sum: u32 = 0;
 	let halfway: usize = chars.len() / 2;
 	for i in 0..halfway {

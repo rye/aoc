@@ -23,7 +23,7 @@ impl FromStr for Rule {
 					.split(" | ")
 					.map(|group| {
 						group
-							.split(" ")
+							.split(' ')
 							.map(|n| n.parse::<usize>().unwrap())
 							.collect()
 					})
@@ -73,7 +73,7 @@ impl FromStr for RuleSet {
 
 		let rules: Vec<Option<Rule>> = rules;
 
-		let rules: Vec<Rule> = rules.into_iter().filter_map(|x| x).collect();
+		let rules: Vec<Rule> = rules.into_iter().flatten().collect();
 
 		assert_eq!(rules.len(), size + 1);
 
@@ -162,7 +162,7 @@ mod tests {
 
 impl From<&RuleSet> for Regex {
 	fn from(rule_set: &RuleSet) -> Regex {
-		let rule_string = convert_rule(&rule_set, 0_usize);
+		let rule_string = convert_rule(rule_set, 0_usize);
 		Regex::new(&format!("^{}$", rule_string)).unwrap()
 	}
 }
@@ -176,7 +176,7 @@ type Solution = usize;
 pub fn parse(data: &str) -> Result<Intermediate, core::convert::Infallible> {
 	let split: Vec<&str> = data.split("\n\n").collect();
 
-	let messages: Vec<Message> = split[1].lines().map(|line| Message(line)).collect();
+	let messages: Vec<Message> = split[1].lines().map(Message).collect();
 
 	Ok((split[0].parse().unwrap(), messages))
 }

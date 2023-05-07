@@ -71,10 +71,10 @@ pub fn valid_height(s: &str) -> bool {
 pub fn valid_hair_color(s: &str) -> bool {
 	if let Some(rest) = s.strip_prefix('#') {
 		let is_digit_and_lowercase = rest.chars().all(|ch| {
-			if ch.is_digit(16) && !ch.is_digit(10) {
+			if ch.is_ascii_hexdigit() && !ch.is_ascii_digit() {
 				ch.is_lowercase()
 			} else {
-				ch.is_digit(10)
+				ch.is_ascii_digit()
 			}
 		});
 
@@ -159,7 +159,7 @@ pub fn part_two(passports: &Intermediate) -> Option<Solution> {
 						let hgt_ok: bool = valid_height(hgt);
 						let hcl_ok: bool = valid_hair_color(hcl);
 						let ecl_ok: bool = valid_eye_colors.contains(ecl);
-						let pid_ok: bool = { pid.len() == 9 && pid.chars().all(|c| c.is_digit(10)) };
+						let pid_ok: bool = { pid.len() == 9 && pid.chars().all(|c| c.is_ascii_digit()) };
 
 						byr_ok && iyr_ok && eyr_ok && hgt_ok && hcl_ok && ecl_ok && pid_ok
 					}

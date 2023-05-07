@@ -20,7 +20,7 @@ pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
 
 type Solution = usize;
 
-pub fn part_one(parts: &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_one(parts: &Intermediate) -> Option<Solution> {
 	Some(
 		parts
 			.iter()
@@ -237,7 +237,7 @@ fn apply_segments(solved_digits: &[HashSet<char>; 10], outputs: &[&str; 4]) -> u
 	digits[0] * 1000 + digits[1] * 100 + digits[2] * 10 + digits[3]
 }
 
-pub fn part_two(parts: &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_two(parts: &Intermediate) -> Option<Solution> {
 	Some(
 		parts
 			.iter()

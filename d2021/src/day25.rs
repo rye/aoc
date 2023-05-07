@@ -114,20 +114,20 @@ impl<const WIDTH: usize, const HEIGHT: usize> Space<WIDTH, HEIGHT> {
 
 		let leading_east_edge: Vec<(usize, usize)> = (0..HEIGHT)
 			.flat_map(|y| (0..WIDTH).map(move |x| (WIDTH - 1 - x, y)))
-			.filter(|(x, y)| &contents[*y][*x] == &Some(Direction::East))
-			.filter(|&(x, y)| contents[y][Self::next_east(x)] == None)
+			.filter(|(x, y)| contents[*y][*x] == Some(Direction::East))
+			.filter(|&(x, y)| contents[y][Self::next_east(x)].is_none())
 			.collect();
 
 		for (x, y) in leading_east_edge {
-			contents[y][Self::next_east(x)] = contents[y][x].clone();
+			contents[y][Self::next_east(x)] = contents[y][x];
 			contents[y][x] = None;
 			moves += 1;
 		}
 
 		let leading_south_edge: Vec<(usize, usize)> = (0..WIDTH)
 			.flat_map(|x| (0..HEIGHT).map(move |y| (x, HEIGHT - 1 - y)))
-			.filter(|(x, y)| &contents[*y][*x] == &Some(Direction::South))
-			.filter(|&(x, y)| contents[Self::next_south(y)][x] == None)
+			.filter(|(x, y)| contents[*y][*x] == Some(Direction::South))
+			.filter(|&(x, y)| contents[Self::next_south(y)][x].is_none())
 			.collect();
 
 		for (x, y) in leading_south_edge {
@@ -148,8 +148,8 @@ pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
 
 type Solution = usize;
 
-pub fn part_one(floor: &Intermediate) -> Option<Solution> {
-	let mut space: Intermediate = (*floor).clone();
+#[must_use] pub fn part_one(floor: &Intermediate) -> Option<Solution> {
+	let mut space: Intermediate = (*floor);
 
 	let mut counter = 0;
 
@@ -168,6 +168,6 @@ pub fn part_one(floor: &Intermediate) -> Option<Solution> {
 	Some(counter)
 }
 
-pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
 	None
 }

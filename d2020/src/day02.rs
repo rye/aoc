@@ -8,15 +8,15 @@ pub struct Rule {
 impl FromStr for Rule {
 	type Err = ();
 	fn from_str(s: &str) -> Result<Self, ()> {
-		let numbers = s.split(" ").nth(0).unwrap();
-		let start = numbers.split("-").nth(0).unwrap();
-		let end = numbers.split("-").nth(1).unwrap();
+		let numbers = s.split(' ').next().unwrap();
+		let start = numbers.split('-').next().unwrap();
+		let end = numbers.split('-').nth(1).unwrap();
 
 		let a = start.parse::<usize>().unwrap();
 		let b = end.parse::<usize>().unwrap();
 
-		let character = s.split(" ").nth(1).unwrap();
-		let character = character.chars().nth(0).unwrap();
+		let character = s.split(' ').nth(1).unwrap();
+		let character = character.chars().next().unwrap();
 
 		Ok(Self {
 			count_range: (a, b),
@@ -26,7 +26,7 @@ impl FromStr for Rule {
 }
 
 pub fn validate_password(rule: &Rule, password: &str) -> bool {
-	let count_range = rule.count_range.clone();
+	let count_range = rule.count_range;
 	let character = rule.character;
 
 	let chars: Vec<char> = password.chars().collect();
@@ -40,7 +40,7 @@ pub fn validate_password(rule: &Rule, password: &str) -> bool {
 }
 
 pub fn validate_password_two(rule: &Rule, password: &str) -> bool {
-	let count_range = rule.count_range.clone();
+	let count_range = rule.count_range;
 	let character = rule.character;
 
 	let chars: Vec<char> = password.chars().collect();
@@ -56,10 +56,10 @@ pub fn parse(data: &str) -> Result<Intermediate, core::convert::Infallible> {
 		data
 			.lines()
 			.map(|s| {
-				let rule = (&s).split(": ").nth(0).unwrap().parse::<Rule>().unwrap();
-				let password = (&s).split(": ").nth(1).unwrap().to_string();
+				let rule = s.split(": ").next().unwrap().parse::<Rule>().unwrap();
+				let password = s.split(": ").nth(1).unwrap().to_string();
 
-				(rule, password.clone())
+				(rule, password)
 			})
 			.collect(),
 	)

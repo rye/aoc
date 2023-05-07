@@ -16,12 +16,12 @@ pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
 
 type Solution = usize;
 
-pub fn part_one(graph: &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_one(graph: &Intermediate) -> Option<Solution> {
 	println!("{}", graph.to_graphviz());
 
 	None
 }
 
-pub fn part_two(_graph: &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_two(_graph: &Intermediate) -> Option<Solution> {
 	None
 }

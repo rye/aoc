@@ -191,7 +191,7 @@ pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
 		let mut tokens: Vec<Token> = vec![];
 
 		for c in line.chars() {
-			if c.is_digit(10) {
+			if c.is_ascii_digit() {
 				// TODO Not strictly necessary since we only have single digits
 				if let Some(n) = number {
 					number = Some(n * 10 + c.to_digit(10).expect("invalid digit"))

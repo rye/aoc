@@ -41,7 +41,7 @@ impl HeightMap {
 				}
 			}
 
-			return true;
+			true
 		})
 	}
 
@@ -63,7 +63,7 @@ pub fn parse(points: &str) -> Result<Intermediate, core::convert::Infallible> {
 	let points = points
 		.lines()
 		.enumerate()
-		.map(|(y, line)| {
+		.flat_map(|(y, line)| {
 			line
 				.chars()
 				.enumerate()
@@ -75,7 +75,6 @@ pub fn parse(points: &str) -> Result<Intermediate, core::convert::Infallible> {
 					)
 				})
 		})
-		.flatten()
 		.collect();
 
 	Ok(HeightMap { points })
@@ -83,7 +82,7 @@ pub fn parse(points: &str) -> Result<Intermediate, core::convert::Infallible> {
 
 type Solution = u32;
 
-pub fn part_one(height_map: &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_one(height_map: &Intermediate) -> Option<Solution> {
 	let low_points = height_map.low_points().map(|(_, height)| height);
 
 	let risk_levels = low_points.map(|height| height + 1).sum();
@@ -91,7 +90,7 @@ pub fn part_one(height_map: &Intermediate) -> Option<Solution> {
 	Some(risk_levels)
 }
 
-pub fn part_two(height_map: &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_two(height_map: &Intermediate) -> Option<Solution> {
 	use std::collections::{
 		hash_map::Entry,
 		{BTreeMap, BTreeSet}, {HashMap, HashSet, VecDeque},

@@ -9,7 +9,7 @@ fn validate_password_correct_0() {
 
 	let password = "abcde";
 
-	assert_eq!(validate_password(&rule, password), true);
+	assert!(validate_password(&rule, password));
 }
 
 #[test]
@@ -21,7 +21,7 @@ fn validate_password_correct_1() {
 
 	let password = "cdefg";
 
-	assert_eq!(validate_password(&rule, password), false);
+	assert!(!validate_password(&rule, password));
 }
 
 #[test]
@@ -33,5 +33,5 @@ fn validate_password_correct_2() {
 
 	let password = "ccccccccc";
 
-	assert_eq!(validate_password(&rule, password), true);
+	assert!(validate_password(&rule, password));
 }

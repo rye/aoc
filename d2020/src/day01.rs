@@ -33,11 +33,11 @@ pub fn parse(data: &str) -> Result<Intermediate, core::convert::Infallible> {
 }
 
 pub fn part_one(list: &Intermediate) -> Option<Solution> {
-	find_pair(&list, &2020_i64).map(|(a, b): (i64, i64)| a * b)
+	find_pair(list, &2020_i64).map(|(a, b): (i64, i64)| a * b)
 }
 
 pub fn part_two(list: &Intermediate) -> Option<Solution> {
-	find_triple(&list, &2020_i64).map(|(a, b, c): (i64, i64, i64)| a * b * c)
+	find_triple(list, &2020_i64).map(|(a, b, c): (i64, i64, i64)| a * b * c)
 }
 
 #[cfg(test)]

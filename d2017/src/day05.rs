@@ -10,7 +10,7 @@ pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 	Ok(
 		input
 			.lines()
-			.map(|n| n.parse())
+			.map(str::parse)
 			.collect::<Result<Vec<_>, _>>()?,
 	)
 }
@@ -23,7 +23,7 @@ daocutil::test_example!(
 	Some(5)
 );
 
-fn step(program: &mut Vec<i32>, offset: &mut usize, mode: Mode) {
+fn step(program: &mut [i32], offset: &mut usize, mode: Mode) {
 	let jump_size = program[*offset];
 	match (mode, jump_size) {
 		(Mode::PartOne, _) => program[*offset] += 1,
@@ -35,7 +35,7 @@ fn step(program: &mut Vec<i32>, offset: &mut usize, mode: Mode) {
 	*offset = ((*offset as i32) + jump_size) as usize;
 }
 
-pub fn part_one(program: &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_one(program: &Intermediate) -> Option<Solution> {
 	let mut program: Vec<i32> = program.clone();
 	let mut offset = 0;
 
@@ -61,7 +61,7 @@ daocutil::test_example!(
 	Some(10)
 );
 
-pub fn part_two(program: &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_two(program: &Intermediate) -> Option<Solution> {
 	let mut program: Vec<i32> = program.clone();
 	let mut offset = 0;
 

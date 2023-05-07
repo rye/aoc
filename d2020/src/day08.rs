@@ -57,7 +57,7 @@ pub fn execute_program(program: &VecDeque<Instruction>) -> ExecutionResult<isize
 
 			match instruction {
 				Instruction::Acc(x) => {
-					accumulator = accumulator + x;
+					accumulator += x;
 					head += 1
 				}
 				Instruction::Jmp(ofs) => {
@@ -84,7 +84,7 @@ pub fn parse(data: &str) -> Result<Intermediate, core::convert::Infallible> {
 }
 
 pub fn part_one(instructions: &Intermediate) -> Option<Solution> {
-	Some(execute_program(&instructions).unwrap())
+	Some(execute_program(instructions).unwrap())
 }
 
 pub fn part_two(instructions: &Intermediate) -> Option<Solution> {

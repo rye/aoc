@@ -1,7 +1,7 @@
 use regex::Regex;
 
 pub fn process_color(color: &str) -> String {
-	color.replace(" ", "_")
+	color.replace(' ', "_")
 }
 
 pub fn process_content_spec(content_spec: &str) -> (usize, String) {
@@ -20,7 +20,7 @@ pub fn process_contents(contents: &str) -> Vec<(usize, String)> {
 		"no other bags" => Vec::new(),
 		_ => contents
 			.split(", ")
-			.map(|content| process_content_spec(content))
+			.map(process_content_spec)
 			.collect(),
 	}
 }
@@ -34,8 +34,7 @@ pub fn duplicate_color(contents: &(usize, String)) -> Vec<String> {
 pub fn ruleify(container: String, contents: Vec<(usize, String)>) -> String {
 	let colors: Vec<String> = contents
 		.iter()
-		.map(|tup| duplicate_color(tup))
-		.flatten()
+		.flat_map(duplicate_color)
 		.collect();
 
 	format!("in({}, [{}]).", container, colors.join(", "))

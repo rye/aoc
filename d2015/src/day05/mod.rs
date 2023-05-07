@@ -1,6 +1,6 @@
 type Intermediate<'input> = Vec<&'input str>;
 
-pub fn parse<'input>(input: &'input str) -> Intermediate {
+pub fn parse(input: &str) -> Intermediate {
 	input.lines().collect()
 }
 
@@ -20,7 +20,7 @@ fn contains_at_least_three_vowels(string: &str) -> bool {
 fn has_at_least_one_duplicated_letter(string: &str) -> bool {
 	let chars: Vec<char> = string.chars().collect();
 	for window in chars.windows(2) {
-		if window.get(0) == window.get(1) {
+		if window.first() == window.get(1) {
 			return true;
 		}
 	}
@@ -65,24 +65,24 @@ fn contains_nonoverlapping_pair(string: &str) -> bool {
 
 #[test]
 fn aaa_cnp() {
-	assert_eq!(contains_nonoverlapping_pair("aaa"), false);
+	assert!(!contains_nonoverlapping_pair("aaa"));
 }
 
 #[test]
 fn aaaa_cnp() {
-	assert_eq!(contains_nonoverlapping_pair("aaaa"), true);
+	assert!(contains_nonoverlapping_pair("aaaa"));
 }
 
 #[test]
 fn xy0xy_cnp() {
-	assert_eq!(contains_nonoverlapping_pair("xy0xy"), true);
+	assert!(contains_nonoverlapping_pair("xy0xy"));
 }
 
 fn contains_one_wrapped_letter(string: &str) -> bool {
 	let chars: Vec<char> = string.chars().collect();
 
 	for window in chars.windows(3) {
-		if window.get(0) == window.get(2) {
+		if window.first() == window.get(2) {
 			return true;
 		}
 	}
@@ -106,21 +106,21 @@ mod is_nice_new {
 
 	#[test]
 	fn qjhvhtzxzqqjkmpb_is_nice() {
-		assert_eq!(is_nice_new(&"qjhvhtzxzqqjkmpb"), true);
+		assert!(is_nice_new(&"qjhvhtzxzqqjkmpb"));
 	}
 
 	#[test]
 	fn xxyxx_is_nice() {
-		assert_eq!(is_nice_new(&"xxyxx"), true);
+		assert!(is_nice_new(&"xxyxx"));
 	}
 
 	#[test]
 	fn uurcxstgmygtbstg_is_naughty() {
-		assert_eq!(is_nice_new(&"uurcxstgmygtbstg"), false);
+		assert!(!is_nice_new(&"uurcxstgmygtbstg"));
 	}
 
 	#[test]
 	fn ieodomkazucvgmuy_is_nice() {
-		assert_eq!(is_nice_new(&"ieodomkazucvgmuy"), false);
+		assert!(!is_nice_new(&"ieodomkazucvgmuy"));
 	}
 }

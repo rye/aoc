@@ -179,7 +179,7 @@ impl State {
 			}
 
 			// Log the new tail pos.
-			self.tail_history.insert(self.tail_pos.clone());
+			self.tail_history.insert(self.tail_pos);
 		}
 	}
 }
@@ -203,7 +203,7 @@ impl FromStr for Move {
 			_ => unreachable!(),
 		};
 
-		let size: u16 = *&s[2..].parse().expect("failure");
+		let size: u16 = s[2..].parse().expect("failure");
 
 		Ok(Move { direction, size })
 	}

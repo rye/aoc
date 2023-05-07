@@ -10,7 +10,7 @@ use state::State;
 
 type Solution = usize;
 
-pub fn part_one(state: &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_one(state: &Intermediate) -> Option<Solution> {
 	let mut state: State<10> = state.clone();
 
 	let mut total_flashes: usize = 0;
@@ -22,7 +22,7 @@ pub fn part_one(state: &Intermediate) -> Option<Solution> {
 	Some(total_flashes)
 }
 
-pub fn part_two(state: &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_two(state: &Intermediate) -> Option<Solution> {
 	let mut state: State<10> = state.clone();
 	let mut step_counter: usize = 0;
 

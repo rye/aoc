@@ -14,7 +14,7 @@ pub enum Node {
 
 impl Display for Node {
 	fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-		use Node::*;
+		use Node::{End, LargeCave, SmallCave, Start};
 
 		match self {
 			Start => write!(f, "start"),

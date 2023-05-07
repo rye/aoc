@@ -25,7 +25,7 @@ daocutil::test_example!(
 	Some(18)
 );
 
-pub fn part_one(spreadsheet: &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_one(spreadsheet: &Intermediate) -> Option<Solution> {
 	Some(
 		spreadsheet
 			.iter()
@@ -43,7 +43,7 @@ daocutil::test_example!(
 	Some(9)
 );
 
-pub fn part_two(spreadsheet: &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_two(spreadsheet: &Intermediate) -> Option<Solution> {
 	Some(
 		spreadsheet
 			.iter()

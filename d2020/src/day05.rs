@@ -28,7 +28,7 @@ pub type Intermediate = std::collections::BTreeSet<usize>;
 pub type Solution = usize;
 
 pub fn parse(data: &str) -> Result<Intermediate, core::convert::Infallible> {
-	Ok(data.lines().map(|bsp| seat_id_from_bsp(bsp)).collect())
+	Ok(data.lines().map(seat_id_from_bsp).collect())
 }
 
 pub fn part_one(seat_ids: &Intermediate) -> Option<Solution> {
@@ -39,7 +39,7 @@ pub fn part_two(seat_ids: &Intermediate) -> Option<Solution> {
 	let min: usize = *seat_ids.iter().next().unwrap();
 	let max: usize = *seat_ids.iter().next_back().unwrap();
 
-	(min..=max).find(|seat_id| !seat_ids.contains(&seat_id))
+	(min..=max).find(|seat_id| !seat_ids.contains(seat_id))
 }
 
 #[cfg(test)]

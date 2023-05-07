@@ -67,7 +67,7 @@ fn record_all_rounds<'a>(
 				}
 			}
 
-			for &board in winners.iter() {
+			for &board in &winners {
 				remaining_boards.remove(board);
 			}
 
@@ -84,7 +84,7 @@ fn record_all_rounds<'a>(
 
 type Solution = usize;
 
-pub fn part_one((calls, boards): &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_one((calls, boards): &Intermediate) -> Option<Solution> {
 	// Since we are only looking for the _first_ winning board in this step, we use `Iterator::find`
 	// to stop at the first case.
 	let Turn {
@@ -104,7 +104,7 @@ pub fn part_one((calls, boards): &Intermediate) -> Option<Solution> {
 	Some(score as usize)
 }
 
-pub fn part_two((calls, boards): &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_two((calls, boards): &Intermediate) -> Option<Solution> {
 	// Sadly, Bingo games are temporal. If you want to find the last board, you do _actually_ have
 	// to play all the boards out, since you get very different results depending on the order in
 	// which you call numbers. (In hindsight, this is obvious.)

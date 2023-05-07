@@ -83,7 +83,7 @@ impl core::str::FromStr for Amphipod {
 
 	fn from_str(str: &str) -> Result<Self, Self::Err> {
 		if str.len() == 1 {
-			let char = str.chars().nth(0).unwrap();
+			let char = str.chars().next().unwrap();
 			char.try_into()
 		} else {
 			Err(AmphipodParseError::InvalidString(str.to_string()))
@@ -222,10 +222,10 @@ fn parse_example_1() {
 
 type Solution = i32;
 
-pub fn part_one(_intermediate: &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_one(_intermediate: &Intermediate) -> Option<Solution> {
 	None
 }
 
-pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
 	None
 }

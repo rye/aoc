@@ -65,11 +65,11 @@ fn gen_grid_iter() {
 	assert_eq!(gen_grid.next(), Some((0, -1)));
 }
 
-pub fn part_one(input: &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_one(input: &Intermediate) -> Option<Solution> {
 	let nth = GridIter::default().nth(*input - 1);
 
 	match nth {
-		Some((x, y)) => Some(x.abs() as usize + y.abs() as usize),
+		Some((x, y)) => Some(x.unsigned_abs() as usize + y.unsigned_abs() as usize),
 		_ => None,
 	}
 }
@@ -116,6 +116,6 @@ fn grid_values_iter() {
 	assert_eq!(grid_values.next(), Some(5));
 }
 
-pub fn part_two(input: &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_two(input: &Intermediate) -> Option<Solution> {
 	grid_values().find(|n| n > input)
 }

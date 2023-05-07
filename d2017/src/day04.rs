@@ -29,7 +29,7 @@ fn validate_password(password: &str, policy: SystemPolicy) -> Result<(), String>
 
 			for word in words {
 				let mut chars = word.chars().collect::<Vec<_>>();
-				chars.sort();
+				chars.sort_unstable();
 				if seen_set.contains(&chars) {
 					return Err(format!(
 						"password contains anagrams of {} more than once",
@@ -56,7 +56,7 @@ fn part_one_policy_correct() {
 		validate_password("aa bb cc dd ee", SystemPolicy::PartOne)
 	);
 	assert_eq!(
-		Err(format!("password contains word aa more than once")),
+		Err("password contains word aa more than once".to_string()),
 		validate_password("aa bb cc dd aa", SystemPolicy::PartOne)
 	);
 	assert_eq!(
@@ -94,21 +94,21 @@ pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 	Ok(passwords)
 }
 
-pub fn part_one(passwords: &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_one(passwords: &Intermediate) -> Option<Solution> {
 	Some(
 		passwords
 			.iter()
-			.filter(|password| password_is_valid(&password, SystemPolicy::PartOne))
+			.filter(|password| password_is_valid(password, SystemPolicy::PartOne))
 			.count(),
 	)
 }
 
-pub fn part_two(passwords: &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_two(passwords: &Intermediate) -> Option<Solution> {
 	Some(
 		passwords
 			.iter()
-			.filter(|password| password_is_valid(&password, SystemPolicy::PartOne))
-			.filter(|password| password_is_valid(&password, SystemPolicy::PartTwo))
+			.filter(|password| password_is_valid(password, SystemPolicy::PartOne))
+			.filter(|password| password_is_valid(password, SystemPolicy::PartTwo))
 			.count(),
 	)
 }

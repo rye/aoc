@@ -50,7 +50,7 @@ pub type Intermediate = (i64, Vec<Option<i64>>);
 type Solution = i64;
 
 pub fn parse(data: &str) -> Result<Intermediate, core::convert::Infallible> {
-	let timestamp = data.lines().nth(0).unwrap().parse::<i64>().unwrap();
+	let timestamp = data.lines().next().unwrap().parse::<i64>().unwrap();
 
 	let bus_intervals: Vec<Option<i64>> = data
 		.lines()

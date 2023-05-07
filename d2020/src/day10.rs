@@ -49,10 +49,7 @@ fn split_non_overlapping(arrangement: &Vec<u64>) -> Vec<Vec<u64>> {
 
 	for idx in non_removable(arrangement) {
 		if idx - prev_idx > 1 {
-			let chunk = arrangement[prev_idx..=idx]
-				.into_iter()
-				.cloned()
-				.collect::<Vec<_>>();
+			let chunk = arrangement[prev_idx..=idx].to_vec();
 
 			v.push(chunk);
 		}

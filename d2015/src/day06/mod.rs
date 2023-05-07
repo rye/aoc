@@ -57,7 +57,7 @@ impl core::str::FromStr for Instruction {
 	fn from_str(string: &str) -> Result<Self, Self::Err> {
 		let chunks: Vec<&str> = string.split(' ').collect();
 
-		let action: Action = match chunks.get(0) {
+		let action: Action = match chunks.first() {
 			Some(&"toggle") => Ok(Action::Toggle),
 			Some(&"turn") => match chunks.get(1) {
 				Some(&"on") => Ok(Action::TurnOn),

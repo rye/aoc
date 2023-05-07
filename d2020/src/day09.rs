@@ -40,10 +40,7 @@ fn find_weakness(numbers: &Vec<isize>, impostor: isize) -> Option<Vec<isize>> {
 			if sum > impostor {
 				break;
 			} else if sum == impostor {
-				let region = numbers[start_idx..end_idx + 1]
-					.into_iter()
-					.cloned()
-					.collect();
+				let region = numbers[start_idx..end_idx + 1].to_vec();
 				return Some(region);
 			}
 		}
@@ -65,15 +62,15 @@ pub fn parse(data: &str) -> Result<Intermediate, core::convert::Infallible> {
 }
 
 pub fn part_one(numbers: &Intermediate) -> Option<Solution> {
-	sus(&numbers)
+	sus(numbers)
 }
 
 pub fn part_two(numbers: &Intermediate) -> Option<Solution> {
-	let impostor = sus(&numbers).expect("couldn't find impostor");
+	let impostor = sus(numbers).expect("couldn't find impostor");
 
 	let mut result = None;
 
-	if let Some(set) = find_weakness(&numbers, impostor) {
+	if let Some(set) = find_weakness(numbers, impostor) {
 		if let (Some(max), Some(min)) = (set.iter().max(), set.iter().min()) {
 			result = Some(max + min);
 		}

@@ -110,5 +110,5 @@ pub fn part_two((_, allergens): &Intermediate) -> Option<Solution> {
 		.map(|ingredient| ingredient.0.as_str())
 		.collect::<Vec<&str>>();
 
-	Some(all_ingredients.join(",").to_string())
+	Some(all_ingredients.join(","))
 }

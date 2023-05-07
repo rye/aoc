@@ -17,7 +17,7 @@ impl core::str::FromStr for Value {
 	type Err = core::convert::Infallible;
 
 	fn from_str(s: &str) -> Result<Self, Self::Err> {
-		match s.chars().nth(0) {
+		match s.chars().next() {
 			Some('w') => Ok(Value::W),
 			Some('x') => Ok(Value::X),
 			Some('y') => Ok(Value::Y),
@@ -160,7 +160,7 @@ impl ALU {
 		}
 	}
 
-	fn inp(&mut self, destination: &Value, digits: &Vec<u8>, index: &mut usize) {
+	fn inp(&mut self, destination: &Value, digits: &[u8], index: &mut usize) {
 		let digit = digits[*index];
 		*index += 1;
 		*self.deref_destination(destination) = i64::from(digit);
@@ -193,15 +193,15 @@ impl ALU {
 	fn eql(&mut self, a: &Value, b: &Value) {
 		let a_value = self.get_value(a);
 		let b_value = self.get_value(b);
-		*self.deref_destination(a) = if a_value == b_value { 1 } else { 0 };
+		*self.deref_destination(a) = i64::from(a_value == b_value);
 	}
 
-	fn eval(&mut self, digits: &Vec<u8>, instructions: &[Instruction]) -> (i64, i64, i64, i64) {
+	fn eval(&mut self, digits: &[u8], instructions: &[Instruction]) -> (i64, i64, i64, i64) {
 		let mut idx = 0;
 
 		for instruction in instructions {
 			match instruction {
-				Instruction::Inp(dest) => self.inp(&dest, digits, &mut idx),
+				Instruction::Inp(dest) => self.inp(dest, digits, &mut idx),
 				Instruction::Add(a, b) => self.add(a, b),
 				Instruction::Mul(a, b) => self.mul(a, b),
 				Instruction::Div(a, b) => self.div(a, b),
@@ -229,11 +229,11 @@ fn model_number_to_i64(digits: &[u8]) -> i64 {
 fn model_number_convert_12345678954321() {
 	assert_eq!(
 		model_number_to_i64(&[1, 2, 3, 4, 5, 6, 7, 8, 9, 5, 4, 3, 2, 1]),
-		12345678954321_i64
+		12_345_678_954_321_i64
 	);
 }
 
-pub fn part_one((alu, program): &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_one((alu, program): &Intermediate) -> Option<Solution> {
 	let mut alu: ALU = alu.clone();
 
 	let mut counter: usize = 0;
@@ -269,6 +269,6 @@ pub fn part_one((alu, program): &Intermediate) -> Option<Solution> {
 	earliest_valid.map(|earliest_valid| model_number_to_i64(&earliest_valid))
 }
 
-pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
+#[must_use] pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
 	None
 }

@@ -94,7 +94,7 @@ impl FromStr for Connection {
 		let (lhs, rhs): (&str, &str) = {
 			let split: Vec<_> = specifier.split(" -> ").collect();
 			(
-				split.get(0).ok_or(Error::InvalidInstruction)?,
+				split.first().ok_or(Error::InvalidInstruction)?,
 				split.get(1).ok_or(Error::InvalidInstruction)?,
 			)
 		};
@@ -102,12 +102,12 @@ impl FromStr for Connection {
 		let lhs_split: Vec<&str> = lhs.split(' ').collect();
 
 		let input: Input = match lhs_split.len() {
-			1 => match lhs_split.get(0).unwrap().parse::<Signal>() {
+			1 => match lhs_split.first().unwrap().parse::<Signal>() {
 				Ok(signal) => Input::Source(Source::Signal(signal)),
-				Err(_) => Input::Source(Source::Wire(lhs_split.get(0).unwrap().into())),
+				Err(_) => Input::Source(Source::Wire(lhs_split.first().unwrap().into())),
 			},
 			3 => {
-				let a: Source = lhs_split.get(0).unwrap().into();
+				let a: Source = lhs_split.first().unwrap().into();
 				let op = *lhs_split.get(1).unwrap();
 
 				//let a: WireId = lhs_split.get(0).unwrap().into();
@@ -134,7 +134,7 @@ impl FromStr for Connection {
 					_ => unreachable!(),
 				}
 			}
-			2 => match *lhs_split.get(0).unwrap() {
+			2 => match *lhs_split.first().unwrap() {
 				"NOT" => Input::Not(lhs_split.get(1).unwrap().into()),
 				_ => unreachable!(),
 			},
@@ -403,18 +403,18 @@ fn process_connections(connections: VecDeque<Connection>) -> BTreeMap<WireId, Si
 				// Evaluate and place the result.
 				match (&connection.input, &connection.output) {
 					(Input::Source(Source::Wire(wire)), output) => {
-						eval_source(&mut signal_tracker, &wire, &output)
+						eval_source(&mut signal_tracker, wire, output)
 					}
 					(Input::Source(_), _) => unreachable!(),
-					(Input::And(a, b), output) => eval_and(&mut signal_tracker, &a, &b, &output),
-					(Input::Or(a, b), output) => eval_or(&mut signal_tracker, &a, &b, &output),
+					(Input::And(a, b), output) => eval_and(&mut signal_tracker, a, b, output),
+					(Input::Or(a, b), output) => eval_or(&mut signal_tracker, a, b, output),
 					(Input::LShift(input, value), output) => {
-						eval_lshift(&mut signal_tracker, &input, &value, &output)
+						eval_lshift(&mut signal_tracker, input, value, output)
 					}
 					(Input::RShift(input, value), output) => {
-						eval_rshift(&mut signal_tracker, &input, &value, &output)
+						eval_rshift(&mut signal_tracker, input, value, output)
 					}
-					(Input::Not(input), output) => eval_not(&mut signal_tracker, &input, &output),
+					(Input::Not(input), output) => eval_not(&mut signal_tracker, input, output),
 				}
 			} else {
 				// Restore the connection back onto the stack.
@@ -433,9 +433,9 @@ pub fn part_one(connections: &Intermediate) -> Option<Solution> {
 
 	let mut signal_tracker = process_connections(connections);
 
-	let result = signal_tracker.remove(&WireId::from("a"));
+	
 
-	result
+	signal_tracker.remove(&WireId::from("a"))
 }
 
 pub fn part_two(connections: &Intermediate) -> Option<Solution> {

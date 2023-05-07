@@ -1,5 +1,5 @@
 pub fn neighbors<const N: usize>(y_0: u8, x_0: u8) -> impl Iterator<Item = (u8, u8)> {
-	assert!(N <= u8::MAX as usize);
+	assert!(u8::try_from(N).is_ok());
 
 	let upper_bound = N as u8;
 
