@@ -3,6 +3,7 @@ use std::collections::BTreeSet;
 pub type Intermediate<'input> = Vec<&'input str>;
 pub type Solution = usize;
 
+#[derive(Clone, Copy)]
 enum SystemPolicy {
 	PartOne,
 	PartTwo,
@@ -18,9 +19,9 @@ fn validate_password(password: &str, policy: SystemPolicy) -> Result<(), String>
 			for word in words {
 				if seen_set.contains(word) {
 					return Err(format!("password contains word {word} more than once"));
-				} else {
-					seen_set.insert(word);
 				}
+
+				seen_set.insert(word);
 			}
 		}
 
@@ -35,9 +36,9 @@ fn validate_password(password: &str, policy: SystemPolicy) -> Result<(), String>
 						"password contains anagrams of {} more than once",
 						chars.iter().collect::<String>()
 					));
-				} else {
-					seen_set.insert(chars);
 				}
+
+				seen_set.insert(chars);
 			}
 		}
 	}
@@ -94,7 +95,8 @@ pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 	Ok(passwords)
 }
 
-#[must_use] pub fn part_one(passwords: &Intermediate) -> Option<Solution> {
+#[must_use]
+pub fn part_one(passwords: &Intermediate) -> Option<Solution> {
 	Some(
 		passwords
 			.iter()
@@ -103,7 +105,8 @@ pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 	)
 }
 
-#[must_use] pub fn part_two(passwords: &Intermediate) -> Option<Solution> {
+#[must_use]
+pub fn part_two(passwords: &Intermediate) -> Option<Solution> {
 	Some(
 		passwords
 			.iter()

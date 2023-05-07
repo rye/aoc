@@ -61,21 +61,21 @@ macro_rules! day_solver {
 ///
 /// ```rust
 /// mod dayXX {
-/// 	type Intermediate = usize;
+///     type Intermediate = usize;
 ///
-/// 	pub(super) fn parse(input: &str) -> Intermediate {
-/// 		input.lines().count()
-/// 	}
+///     pub(super) fn parse(input: &str) -> Intermediate {
+///         input.lines().count()
+///     }
 ///
-/// 	type Solution = usize;
+///     type Solution = usize;
 ///
-/// 	pub(super) fn part_one(line_count: &Intermediate) -> Option<Solution> {
-/// 		Some(*line_count)
-/// 	}
+///     pub(super) fn part_one(line_count: &Intermediate) -> Option<Solution> {
+///         Some(*line_count)
+///     }
 ///
-/// 	pub(super) fn part_two(line_count: &Intermediate) -> Option<Solution> {
-/// 		Some(*line_count)
-/// 	}
+///     pub(super) fn part_two(line_count: &Intermediate) -> Option<Solution> {
+///         Some(*line_count)
+///     }
 /// }
 ///
 /// d2015::day_solver_from!(dayXX);

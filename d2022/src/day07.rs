@@ -71,8 +71,8 @@ pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 			Line::Command(command) => {
 				let parts: Vec<&str> = command.split(' ').collect();
 
-				match parts[0] {
-					"cd" => match (&mut cwd, parts[1]) {
+				match parts.first() {
+					Some(&"cd") => match (&mut cwd, parts[1]) {
 						(None, "/") => {
 							cwd.replace(vec![String::new()]);
 
@@ -85,7 +85,7 @@ pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 						}
 						(None, _) => unreachable!(),
 					},
-					"ls" => {}
+					Some(&"ls") => {}
 					_ => unreachable!(),
 				}
 			}

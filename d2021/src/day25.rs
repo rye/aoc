@@ -87,7 +87,7 @@ impl<const WIDTH: usize, const HEIGHT: usize> Space<WIDTH, HEIGHT> {
 		x += 1;
 
 		while x >= WIDTH {
-			x -= WIDTH
+			x -= WIDTH;
 		}
 
 		x
@@ -99,7 +99,7 @@ impl<const WIDTH: usize, const HEIGHT: usize> Space<WIDTH, HEIGHT> {
 		y += 1;
 
 		while y >= HEIGHT {
-			y -= HEIGHT
+			y -= HEIGHT;
 		}
 
 		y
@@ -148,7 +148,8 @@ pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
 
 type Solution = usize;
 
-#[must_use] pub fn part_one(floor: &Intermediate) -> Option<Solution> {
+#[must_use]
+pub fn part_one(floor: &Intermediate) -> Option<Solution> {
 	let mut space: Intermediate = (*floor);
 
 	let mut counter = 0;
@@ -168,6 +169,7 @@ type Solution = usize;
 	Some(counter)
 }
 
-#[must_use] pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
+#[must_use]
+pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
 	None
 }

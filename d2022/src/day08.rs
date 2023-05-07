@@ -142,8 +142,6 @@ pub fn part_one((lines, height, width): &Intermediate) -> Option<Output> {
 				if visible_in_direction {
 					visible_in_any_direction = true;
 					break;
-				} else {
-					// Need to check another direction...
 				}
 			} else {
 				visible_in_any_direction = true;

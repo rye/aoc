@@ -21,7 +21,7 @@ impl core::ops::Add<PVec> for PVec {
 }
 
 impl Direction {
-	fn to_pvec(&self) -> PVec {
+	fn to_pvec(self) -> PVec {
 		match self {
 			Self::North => PVec([0, 1]),
 			Self::South => PVec([0, -1]),
@@ -56,6 +56,7 @@ type Solution = usize;
 pub fn part_one(directions: &Intermediate) -> Option<Solution> {
 	let positions: Vec<PVec> = directions
 		.iter()
+		.copied()
 		.map(Direction::to_pvec)
 		.scan(PVec([0, 0]), |pos, cur| {
 			let old = *pos;
@@ -89,6 +90,7 @@ pub fn part_two(directions: &Intermediate) -> Option<Solution> {
 	let santa_track: Vec<PVec> = chunks
 		.iter()
 		.map(|pair| &pair[0])
+		.copied()
 		.map(Direction::to_pvec)
 		.scan(PVec([0, 0]), |pos, cur| {
 			let old = *pos;
@@ -100,6 +102,7 @@ pub fn part_two(directions: &Intermediate) -> Option<Solution> {
 	let robo_santa_track: Vec<PVec> = chunks
 		.iter()
 		.map(|pair| &pair[1])
+		.copied()
 		.map(Direction::to_pvec)
 		.scan(PVec([0, 0]), |pos, cur| {
 			let old = *pos;

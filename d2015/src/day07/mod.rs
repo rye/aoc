@@ -366,10 +366,7 @@ fn process_connections(connections: VecDeque<Connection>) -> BTreeMap<WireId, Si
 	let (signal_sources, mut connections): (VecDeque<&Connection>, VecDeque<&Connection>) =
 		connections
 			.iter()
-			.partition(|&connection| match connection.input {
-				Input::Source(Source::Signal(_)) => true,
-				_ => false,
-			});
+			.partition(|&connection| matches!(connection.input, Input::Source(Source::Signal(_))));
 
 	// Build up the initial state of the signal tracker, cloning the output so the tracker has ownership
 	// of its own wire identifiers.
@@ -385,43 +382,37 @@ fn process_connections(connections: VecDeque<Connection>) -> BTreeMap<WireId, Si
 
 	let mut signal_tracker: BTreeMap<WireId, Signal> = signal_sources;
 
-	loop {
-		if let Some(connection) = connections.pop_front() {
-			if match &connection.input {
-				Input::Source(Source::Wire(a)) => signal_tracker.contains_key(a),
-				Input::Source(_) => unreachable!(),
-				Input::And(a, b) => {
-					contains_source(&signal_tracker, a) && contains_source(&signal_tracker, b)
+	while let Some(connection) = connections.pop_front() {
+		if match &connection.input {
+			Input::Source(Source::Wire(a)) => signal_tracker.contains_key(a),
+			Input::Source(_) => unreachable!(),
+			Input::And(a, b) => {
+				contains_source(&signal_tracker, a) && contains_source(&signal_tracker, b)
+			}
+			Input::Or(a, b) => contains_source(&signal_tracker, a) && contains_source(&signal_tracker, b),
+			Input::LShift(a, _) => contains_source(&signal_tracker, a),
+			Input::RShift(a, _) => contains_source(&signal_tracker, a),
+			Input::Not(a) => contains_source(&signal_tracker, a),
+		} {
+			// Evaluate and place the result.
+			match (&connection.input, &connection.output) {
+				(Input::Source(Source::Wire(wire)), output) => {
+					eval_source(&mut signal_tracker, wire, output)
 				}
-				Input::Or(a, b) => {
-					contains_source(&signal_tracker, a) && contains_source(&signal_tracker, b)
+				(Input::Source(_), _) => unreachable!(),
+				(Input::And(a, b), output) => eval_and(&mut signal_tracker, a, b, output),
+				(Input::Or(a, b), output) => eval_or(&mut signal_tracker, a, b, output),
+				(Input::LShift(input, value), output) => {
+					eval_lshift(&mut signal_tracker, input, value, output)
 				}
-				Input::LShift(a, _) => contains_source(&signal_tracker, a),
-				Input::RShift(a, _) => contains_source(&signal_tracker, a),
-				Input::Not(a) => contains_source(&signal_tracker, a),
-			} {
-				// Evaluate and place the result.
-				match (&connection.input, &connection.output) {
-					(Input::Source(Source::Wire(wire)), output) => {
-						eval_source(&mut signal_tracker, wire, output)
-					}
-					(Input::Source(_), _) => unreachable!(),
-					(Input::And(a, b), output) => eval_and(&mut signal_tracker, a, b, output),
-					(Input::Or(a, b), output) => eval_or(&mut signal_tracker, a, b, output),
-					(Input::LShift(input, value), output) => {
-						eval_lshift(&mut signal_tracker, input, value, output)
-					}
-					(Input::RShift(input, value), output) => {
-						eval_rshift(&mut signal_tracker, input, value, output)
-					}
-					(Input::Not(input), output) => eval_not(&mut signal_tracker, input, output),
+				(Input::RShift(input, value), output) => {
+					eval_rshift(&mut signal_tracker, input, value, output)
 				}
-			} else {
-				// Restore the connection back onto the stack.
-				connections.push_back(connection);
+				(Input::Not(input), output) => eval_not(&mut signal_tracker, input, output),
 			}
 		} else {
-			break;
+			// Restore the connection back onto the stack.
+			connections.push_back(connection);
 		}
 	}
 
@@ -432,8 +423,6 @@ pub fn part_one(connections: &Intermediate) -> Option<Solution> {
 	let connections: VecDeque<Connection> = connections.clone();
 
 	let mut signal_tracker = process_connections(connections);
-
-	
 
 	signal_tracker.remove(&WireId::from("a"))
 }

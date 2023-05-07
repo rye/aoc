@@ -10,7 +10,7 @@ pub struct State {
 	tail_history: HashSet<(i32, i32)>,
 }
 
-fn calculate_tail_nudge(head_pos: &(i32, i32), tail_pos: &(i32, i32)) -> Option<(i32, i32)> {
+fn calculate_tail_nudge(head_pos: (i32, i32), tail_pos: (i32, i32)) -> Option<(i32, i32)> {
 	// This helper should be called for every new head_pos, and its return value, if Some, should be
 	// added componentwise to the existing tail_pos to get the new tail_pos.
 	//
@@ -61,96 +61,96 @@ mod calculate_tail_nudge {
 
 	#[test]
 	fn overlapping() {
-		assert_eq!(calculate_tail_nudge(&(0, 0), &(0, 0)), Some((0, 0)));
+		assert_eq!(calculate_tail_nudge((0, 0), (0, 0)), Some((0, 0)));
 	}
 
 	#[test]
 	fn connected_right() {
-		assert_eq!(calculate_tail_nudge(&(1, 0), &(0, 0)), Some((0, 0)));
+		assert_eq!(calculate_tail_nudge((1, 0), (0, 0)), Some((0, 0)));
 	}
 
 	#[test]
 	fn connected_left() {
-		assert_eq!(calculate_tail_nudge(&(-1, 0), &(0, 0)), Some((0, 0)));
+		assert_eq!(calculate_tail_nudge((-1, 0), (0, 0)), Some((0, 0)));
 	}
 
 	#[test]
 	fn connected_above() {
-		assert_eq!(calculate_tail_nudge(&(0, 1), &(0, 0)), Some((0, 0)));
+		assert_eq!(calculate_tail_nudge((0, 1), (0, 0)), Some((0, 0)));
 	}
 
 	#[test]
 	fn connected_below() {
-		assert_eq!(calculate_tail_nudge(&(0, -1), &(0, 0)), Some((0, 0)));
+		assert_eq!(calculate_tail_nudge((0, -1), (0, 0)), Some((0, 0)));
 	}
 
 	#[test]
 	fn connected_below_left() {
-		assert_eq!(calculate_tail_nudge(&(-1, -1), &(0, 0)), Some((0, 0)));
+		assert_eq!(calculate_tail_nudge((-1, -1), (0, 0)), Some((0, 0)));
 	}
 
 	#[test]
 	fn connected_below_right() {
-		assert_eq!(calculate_tail_nudge(&(1, -1), &(0, 0)), Some((0, 0)));
+		assert_eq!(calculate_tail_nudge((1, -1), (0, 0)), Some((0, 0)));
 	}
 
 	#[test]
 	fn connected_above_left() {
-		assert_eq!(calculate_tail_nudge(&(-1, 1), &(0, 0)), Some((0, 0)));
+		assert_eq!(calculate_tail_nudge((-1, 1), (0, 0)), Some((0, 0)));
 	}
 
 	#[test]
 	fn connected_above_right() {
-		assert_eq!(calculate_tail_nudge(&(1, 1), &(0, 0)), Some((0, 0)));
+		assert_eq!(calculate_tail_nudge((1, 1), (0, 0)), Some((0, 0)));
 	}
 
 	#[test]
 	fn disconnected_above() {
-		assert_eq!(calculate_tail_nudge(&(0, 2), &(0, 0)), Some((0, 1)));
+		assert_eq!(calculate_tail_nudge((0, 2), (0, 0)), Some((0, 1)));
 	}
 
 	#[test]
 	fn disconnected_below() {
-		assert_eq!(calculate_tail_nudge(&(0, -2), &(0, 0)), Some((0, -1)));
+		assert_eq!(calculate_tail_nudge((0, -2), (0, 0)), Some((0, -1)));
 	}
 
 	#[test]
 	fn disconnected_left() {
-		assert_eq!(calculate_tail_nudge(&(-2, 0), &(0, 0)), Some((-1, 0)));
+		assert_eq!(calculate_tail_nudge((-2, 0), (0, 0)), Some((-1, 0)));
 	}
 
 	#[test]
 	fn disconnected_right() {
-		assert_eq!(calculate_tail_nudge(&(2, 0), &(0, 0)), Some((1, 0)));
+		assert_eq!(calculate_tail_nudge((2, 0), (0, 0)), Some((1, 0)));
 	}
 
 	#[test]
 	fn disconnected_above_right() {
-		assert_eq!(calculate_tail_nudge(&(2, 1), &(0, 0)), Some((1, 1)));
-		assert_eq!(calculate_tail_nudge(&(1, 2), &(0, 0)), Some((1, 1)));
+		assert_eq!(calculate_tail_nudge((2, 1), (0, 0)), Some((1, 1)));
+		assert_eq!(calculate_tail_nudge((1, 2), (0, 0)), Some((1, 1)));
 	}
 
 	#[test]
 	fn disconnected_below_right() {
-		assert_eq!(calculate_tail_nudge(&(2, -1), &(0, 0)), Some((1, -1)));
-		assert_eq!(calculate_tail_nudge(&(1, -2), &(0, 0)), Some((1, -1)));
+		assert_eq!(calculate_tail_nudge((2, -1), (0, 0)), Some((1, -1)));
+		assert_eq!(calculate_tail_nudge((1, -2), (0, 0)), Some((1, -1)));
 	}
 
 	#[test]
 	fn disconnected_below_left() {
-		assert_eq!(calculate_tail_nudge(&(-2, -1), &(0, 0)), Some((-1, -1)));
-		assert_eq!(calculate_tail_nudge(&(-1, -2), &(0, 0)), Some((-1, -1)));
+		assert_eq!(calculate_tail_nudge((-2, -1), (0, 0)), Some((-1, -1)));
+		assert_eq!(calculate_tail_nudge((-1, -2), (0, 0)), Some((-1, -1)));
 	}
 
 	#[test]
 	fn disconnected_above_left() {
-		assert_eq!(calculate_tail_nudge(&(-2, 1), &(0, 0)), Some((-1, 1)));
-		assert_eq!(calculate_tail_nudge(&(-1, 2), &(0, 0)), Some((-1, 1)));
+		assert_eq!(calculate_tail_nudge((-2, 1), (0, 0)), Some((-1, 1)));
+		assert_eq!(calculate_tail_nudge((-1, 2), (0, 0)), Some((-1, 1)));
 	}
 
 	#[test]
 	fn disconnected_no_mapping() {
-		assert_eq!(calculate_tail_nudge(&(42, 1), &(0, 0)), None);
+		assert_eq!(calculate_tail_nudge((42, 1), (0, 0)), None);
 	}
 }
 
@@ -166,7 +166,7 @@ impl State {
 			}
 
 			// Figure out where the tail should move.
-			let nudge = calculate_tail_nudge(&self.head_pos, &self.tail_pos);
+			let nudge = calculate_tail_nudge(self.head_pos, self.tail_pos);
 
 			if let Some(nudge) = nudge {
 				self.tail_pos.0 += nudge.0;
@@ -235,7 +235,7 @@ pub fn part_one((state, moves): &Intermediate) -> Option<Output> {
 	let mut state: State = state.clone();
 
 	for moove in moves {
-		state.apply_move(moove)
+		state.apply_move(moove);
 	}
 
 	Some(state.tail_history.len())

@@ -50,6 +50,7 @@ pub fn parse(input: &str) -> Result<Intermediate, CommandParseError> {
 
 type Solution = usize;
 
+#[derive(Clone, Copy)]
 struct State {
 	position: usize,
 	aim: Option<usize>,

@@ -1,6 +1,6 @@
 use std::collections::*;
 
-fn sus(numbers: &Vec<isize>) -> Option<isize> {
+fn sus(numbers: &[isize]) -> Option<isize> {
 	let mut seen: HashSet<isize> = HashSet::new();
 
 	for number in &numbers[0..25] {
@@ -39,7 +39,9 @@ fn find_weakness(numbers: &Vec<isize>, impostor: isize) -> Option<Vec<isize>> {
 
 			if sum > impostor {
 				break;
-			} else if sum == impostor {
+			}
+
+			if sum == impostor {
 				let region = numbers[start_idx..end_idx + 1].to_vec();
 				return Some(region);
 			}

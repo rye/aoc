@@ -82,7 +82,8 @@ pub fn parse(points: &str) -> Result<Intermediate, core::convert::Infallible> {
 
 type Solution = u32;
 
-#[must_use] pub fn part_one(height_map: &Intermediate) -> Option<Solution> {
+#[must_use]
+pub fn part_one(height_map: &Intermediate) -> Option<Solution> {
 	let low_points = height_map.low_points().map(|(_, height)| height);
 
 	let risk_levels = low_points.map(|height| height + 1).sum();
@@ -90,7 +91,8 @@ type Solution = u32;
 	Some(risk_levels)
 }
 
-#[must_use] pub fn part_two(height_map: &Intermediate) -> Option<Solution> {
+#[must_use]
+pub fn part_two(height_map: &Intermediate) -> Option<Solution> {
 	use std::collections::{
 		hash_map::Entry,
 		{BTreeMap, BTreeSet}, {HashMap, HashSet, VecDeque},
@@ -131,7 +133,9 @@ fn basin_size(height_map: &HeightMap, (x, y): (u32, u32)) -> u32 {
 
 			if neighbor_height == 9 {
 				continue;
-			} else if neighbor_height > height {
+			}
+
+			if neighbor_height > height {
 				queue.push_back((nx, ny));
 			}
 		}

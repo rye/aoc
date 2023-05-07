@@ -91,7 +91,7 @@ fn one_step_example_nncb_nn_c_nc_b_cb_h() {
 }
 
 fn statistics(string: &str) -> BTreeMap<char, usize> {
-	let mut statistics: BTreeMap<char, usize> = Default::default();
+	let mut statistics: BTreeMap<char, usize> = BTreeMap::default();
 
 	for c in string.chars() {
 		match statistics.entry(c) {
@@ -103,7 +103,8 @@ fn statistics(string: &str) -> BTreeMap<char, usize> {
 	statistics
 }
 
-#[must_use] pub fn part_one((template, rules): &Intermediate) -> Option<Solution> {
+#[must_use]
+pub fn part_one((template, rules): &Intermediate) -> Option<Solution> {
 	let mut template = (*template).to_string();
 
 	for step in 0..10 {
@@ -119,7 +120,8 @@ fn statistics(string: &str) -> BTreeMap<char, usize> {
 	Some(qty_max - qty_min)
 }
 
-#[must_use] pub fn part_two((template, rules): &Intermediate) -> Option<Solution> {
+#[must_use]
+pub fn part_two((template, rules): &Intermediate) -> Option<Solution> {
 	let mut template = (*template).to_string();
 
 	for step in 0..40 {

@@ -94,7 +94,7 @@ fn rotate(v: &[Vec<char>]) -> Vec<Vec<char>> {
 }
 
 fn build_image(
-	images: &Vec<(usize, Image)>,
+	images: &[(usize, Image)],
 	matches: &BorderMatches,
 	corner: usize,
 ) -> Vec<Vec<char>> {

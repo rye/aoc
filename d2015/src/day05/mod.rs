@@ -9,10 +9,7 @@ type Solution = usize;
 fn contains_at_least_three_vowels(string: &str) -> bool {
 	string
 		.chars()
-		.filter(|c| match c.to_ascii_lowercase() {
-			'a' | 'e' | 'i' | 'o' | 'u' => true,
-			_ => false,
-		})
+		.filter(|c| matches!(c.to_ascii_lowercase(), 'a' | 'e' | 'i' | 'o' | 'u'))
 		.count()
 		>= 3
 }

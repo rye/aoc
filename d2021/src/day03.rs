@@ -87,17 +87,18 @@ fn find_component_rating(strings: &[[char; 12]], mode: Mode) -> String {
 
 		if strings.len() == 1 {
 			break strings[0].iter().collect();
-		} else {
-			idx += 1;
+		}
 
-			if idx >= 12 {
-				unreachable!();
-			}
+		idx += 1;
+
+		if idx >= 12 {
+			unreachable!();
 		}
 	}
 }
 
-#[must_use] pub fn part_two(strings: &Intermediate) -> Option<Solution> {
+#[must_use]
+pub fn part_two(strings: &Intermediate) -> Option<Solution> {
 	let oxygen_generator_rating_bits = find_component_rating(strings, Mode::KeepMostCommonOrOne);
 
 	let oxygen_generator_rating: u32 = u32::from_str_radix(&oxygen_generator_rating_bits, 2).unwrap();

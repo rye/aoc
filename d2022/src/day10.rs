@@ -146,15 +146,7 @@ fn render_crt_buffer(buffer: [[bool; 40]; 6]) -> String {
 
 	for row in buffer {
 		for cell in row {
-			write!(
-				string,
-				"{}",
-				match cell {
-					true => "#",
-					false => ".",
-				},
-			)
-			.expect("could not write cell");
+			write!(string, "{}", if cell { "#" } else { "." }).expect("could not write cell");
 		}
 		writeln!(string).expect("could not write line terminator");
 	}
@@ -164,6 +156,7 @@ fn render_crt_buffer(buffer: [[bool; 40]; 6]) -> String {
 
 #[must_use]
 pub fn part_two(instructions: &Intermediate) -> Option<Output> {
+	#[allow(clippy::similar_names)]
 	let (values_during, values_after) = values_during_and_after(instructions);
 
 	assert_eq!(values_during.len(), 241);
@@ -173,6 +166,7 @@ pub fn part_two(instructions: &Intermediate) -> Option<Output> {
 
 	#[allow(clippy::needless_range_loop)]
 	for cycle in 1..=240 {
+		#[allow(clippy::similar_names)]
 		let value_during = values_during[cycle];
 
 		let position: i32 = (cycle - 1) as i32 % 40;

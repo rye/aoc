@@ -26,11 +26,11 @@ fn example_positions() -> impl Iterator<Item = CrabPosition> {
 		.map(CrabPosition)
 }
 
-fn cost_to_align_one_linear(position: &CrabPosition, target: &CrabPosition) -> i32 {
+fn cost_to_align_one_linear(position: CrabPosition, target: CrabPosition) -> i32 {
 	(target.0 - position.0).abs()
 }
 
-fn cost_to_align_one_revised(position: &CrabPosition, target: &CrabPosition) -> i32 {
+fn cost_to_align_one_revised(position: CrabPosition, target: CrabPosition) -> i32 {
 	let difference = (target.0 - position.0).abs();
 
 	(difference * (difference + 1)) / 2
@@ -40,7 +40,7 @@ fn cost_to_align_one_revised(position: &CrabPosition, target: &CrabPosition) -> 
 fn example_cost_to_align_one_revised() {
 	let position = CrabPosition(16);
 	let target = CrabPosition(5);
-	assert_eq!(cost_to_align_one_revised(&position, &target), 66);
+	assert_eq!(cost_to_align_one_revised(position, target), 66);
 }
 
 fn cost_to_align_all<F>(
@@ -49,11 +49,12 @@ fn cost_to_align_all<F>(
 	calculator: F,
 ) -> i32
 where
-	F: Fn(&CrabPosition, &CrabPosition) -> i32,
+	F: Fn(CrabPosition, CrabPosition) -> i32,
 {
 	positions
 		.iter()
-		.map(|position| calculator(position, &chosen_position))
+		.copied()
+		.map(|position| calculator(position, chosen_position))
 		.sum()
 }
 
@@ -95,7 +96,7 @@ fn example_cost_to_align_all_10() {
 
 fn min_fuel<F>(positions: &[CrabPosition], individual_cost_calculator: F) -> i32
 where
-	F: Fn(&CrabPosition, &CrabPosition) -> i32 + Copy,
+	F: Fn(CrabPosition, CrabPosition) -> i32 + Copy,
 {
 	let (min, max) = positions.iter().fold((None, None), |(min, max), position| {
 		(

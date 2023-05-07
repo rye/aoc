@@ -85,7 +85,7 @@ impl<const N: usize> State<N> {
 				(y as u8, x as u8)
 			})
 		}) {
-			increases.push_back((y, x))
+			increases.push_back((y, x));
 		}
 
 		// Loop until there are no more increases to handle.
@@ -96,7 +96,9 @@ impl<const N: usize> State<N> {
 			// If we already flashed in this spot, we're done with this increase.
 			if flashed[y_idx][x_idx] {
 				continue;
-			} else {
+			}
+
+			{
 				// First, bump the value.
 				self.octopi[y_idx][x_idx].0 .0 += 1;
 

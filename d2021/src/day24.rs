@@ -156,7 +156,7 @@ impl ALU {
 			Value::X => &mut self.x,
 			Value::Y => &mut self.y,
 			Value::Z => &mut self.z,
-			_ => panic!("attempted to dereference a number as a destination"),
+			Value::Number(_) => panic!("attempted to dereference a number as a destination"),
 		}
 	}
 
@@ -233,7 +233,8 @@ fn model_number_convert_12345678954321() {
 	);
 }
 
-#[must_use] pub fn part_one((alu, program): &Intermediate) -> Option<Solution> {
+#[must_use]
+pub fn part_one((alu, program): &Intermediate) -> Option<Solution> {
 	let mut alu: ALU = alu.clone();
 
 	let mut counter: usize = 0;
@@ -269,6 +270,7 @@ fn model_number_convert_12345678954321() {
 	earliest_valid.map(|earliest_valid| model_number_to_i64(&earliest_valid))
 }
 
-#[must_use] pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
+#[must_use]
+pub fn part_two(_intermediate: &Intermediate) -> Option<Solution> {
 	None
 }

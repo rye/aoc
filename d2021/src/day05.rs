@@ -10,7 +10,7 @@ use {
 struct Vector(i16, i16);
 
 impl Vector {
-	fn unit_and_steps(&self) -> (Vector, i16) {
+	fn unit_and_steps(self) -> (Vector, i16) {
 		let unit: (i16, i16) = (
 			if self.0 == 0 {
 				0
@@ -84,7 +84,7 @@ mod point {
 
 	#[test]
 	fn from_str_simple() {
-		assert_eq!("1,2".parse(), Ok(Point(Vector(1, 2))))
+		assert_eq!("1,2".parse(), Ok(Point(Vector(1, 2))));
 	}
 }
 
@@ -102,20 +102,17 @@ impl LineSegment {
 		Self { origin, direction }
 	}
 
-	fn is_horizontal(&self) -> bool {
+	fn is_horizontal(self) -> bool {
 		self.direction.1 == 0
 	}
 
-	fn is_vertical(&self) -> bool {
+	fn is_vertical(self) -> bool {
 		self.direction.0 == 0
 	}
 
 	#[cfg(test)]
-	fn is_diagonal(&self) -> bool {
+	fn is_diagonal(self) -> bool {
 		self.direction.0 != 0 && (self.direction.1 / self.direction.0).abs() == 1
-		// let (dx, dy) = (self.b.0 - self.a.0, self.b.1 - self.a.1);
-
-		// dx.abs() == dy.abs()
 	}
 
 	fn points(&self) -> impl Iterator<Item = Point> + '_ {
@@ -136,7 +133,7 @@ fn points_diagonal_asc() {
 			Point(Vector(2, 2)),
 			Point(Vector(3, 3))
 		]
-	)
+	);
 }
 
 #[test]
@@ -152,7 +149,7 @@ fn points_diagonal_dsc() {
 			Point(Vector(8, 8)),
 			Point(Vector(7, 9))
 		]
-	)
+	);
 }
 
 pub type Intermediate = Vec<LineSegment>;
@@ -181,7 +178,8 @@ pub fn parse(input: &str) -> Result<Intermediate, Infallible> {
 
 type Solution = usize;
 
-#[must_use] pub fn part_one(segments: &Intermediate) -> Option<Solution> {
+#[must_use]
+pub fn part_one(segments: &Intermediate) -> Option<Solution> {
 	let segments: Vec<LineSegment> = segments
 		.iter()
 		.filter(|segment| segment.is_horizontal() || segment.is_vertical())
@@ -204,7 +202,8 @@ type Solution = usize;
 	Some(overlaps)
 }
 
-#[must_use] pub fn part_two(segments: &Intermediate) -> Option<Solution> {
+#[must_use]
+pub fn part_two(segments: &Intermediate) -> Option<Solution> {
 	let mut points: BTreeMap<Point, usize> = BTreeMap::new();
 
 	for segment in segments {

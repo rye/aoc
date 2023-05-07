@@ -32,10 +32,14 @@ fn step(program: &mut [i32], offset: &mut usize, mode: Mode) {
 		(Mode::PartTwo, _) => unreachable!(),
 	}
 
-	*offset = ((*offset as i32) + jump_size) as usize;
+	*offset = (i32::try_from(*offset)
+		.expect("offset should be greater than zero and less than i32::MAX as usize")
+		+ jump_size)
+		.unsigned_abs() as usize;
 }
 
-#[must_use] pub fn part_one(program: &Intermediate) -> Option<Solution> {
+#[must_use]
+pub fn part_one(program: &Intermediate) -> Option<Solution> {
 	let mut program: Vec<i32> = program.clone();
 	let mut offset = 0;
 
@@ -61,7 +65,8 @@ daocutil::test_example!(
 	Some(10)
 );
 
-#[must_use] pub fn part_two(program: &Intermediate) -> Option<Solution> {
+#[must_use]
+pub fn part_two(program: &Intermediate) -> Option<Solution> {
 	let mut program: Vec<i32> = program.clone();
 	let mut offset = 0;
 

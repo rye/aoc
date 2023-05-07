@@ -56,7 +56,8 @@ impl Board {
 		winning_moves
 	}
 
-	#[must_use] pub fn score(&self, last_call: Number, seen_calls: &BTreeSet<Number>) -> u32 {
+	#[must_use]
+	pub fn score(&self, last_call: Number, seen_calls: &BTreeSet<Number>) -> u32 {
 		u32::from(
 			self
 				.numbers()
@@ -66,11 +67,13 @@ impl Board {
 		) * u32::from(last_call)
 	}
 
-	#[must_use] pub fn numbers(&self) -> &BTreeSet<Number> {
+	#[must_use]
+	pub fn numbers(&self) -> &BTreeSet<Number> {
 		&self.all_contents
 	}
 
-	#[must_use] pub fn find_winning_move(&self, seen_calls: &BTreeSet<Number>) -> Option<&BTreeSet<Number>> {
+	#[must_use]
+	pub fn find_winning_move(&self, seen_calls: &BTreeSet<Number>) -> Option<&BTreeSet<Number>> {
 		self
 			.winning_moves
 			.iter()
@@ -109,7 +112,7 @@ mod parse_board_line {
 
 	#[test]
 	fn line_62_5_77_94_asdf() {
-		assert!(parse_board_line("62  5 77 94 asdf").is_err())
+		assert!(parse_board_line("62  5 77 94 asdf").is_err());
 	}
 }
 

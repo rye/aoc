@@ -57,6 +57,7 @@ fn transform_sub_s7_l11() {
 	assert_eq!(transform_sub(&subject, loop_size), 17807724_usize);
 }
 
+#[cfg(test)]
 fn find_loop_size(target: &usize, subject: &usize) -> usize {
 	let mut loop_size = 0_usize;
 

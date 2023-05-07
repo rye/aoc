@@ -10,7 +10,6 @@ use super::{edge::Edge, node::Node};
 
 #[derive(Clone, Debug)]
 pub struct Graph {
-	nodes: HashSet<Rc<Node>>,
 	edges: HashMap<Rc<Node>, HashSet<Rc<Node>>>,
 }
 
@@ -37,8 +36,6 @@ impl Graph {
 
 impl FromIterator<Edge> for Graph {
 	fn from_iter<T: IntoIterator<Item = Edge>>(iter: T) -> Self {
-		let mut nodes = HashSet::new();
-
 		let mut edges = HashMap::new();
 
 		for edge in iter {
@@ -57,12 +54,8 @@ impl FromIterator<Edge> for Graph {
 				.entry(right.clone())
 				.or_insert(HashSet::default())
 				.insert(left.clone());
-
-			// Add nodes (L and R) to node set.
-			nodes.insert(left);
-			nodes.insert(right);
 		}
 
-		Graph { nodes, edges }
+		Graph { edges }
 	}
 }
