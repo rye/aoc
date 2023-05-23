@@ -9,7 +9,7 @@ edition = "2021"
 itertools = "0.10.5"
 md5 = "0.7.0"
 rayon = "1.7.0"
-regex = "1.8.1"
+regex = "1.8.2"
 thiserror = "1.0.40"
 
 daocutil = { path = "../daocutil" }
