@@ -9,4 +9,4 @@ daocutil = { path = "../daocutil" }
 anyhow = "1.0.71"
 thiserror = "1.0.40"
 itertools = "0.10.5"
-nu-ansi-term = "0.47.0"
+nu-ansi-term = "0.48.0"
