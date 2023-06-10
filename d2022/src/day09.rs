@@ -123,7 +123,7 @@ impl Rope {
 
 		// Step 2: Cascade all changes down.
 		for window in position_cells.windows(2) {
-			if let Some(nudge) = Rope::pair_nudge(&window[0].get(), &window[1].get()) {
+			if let Some(nudge) = Rope::pair_nudge(window[0].get(), window[1].get()) {
 				let mut new_pos = window[1].get();
 				new_pos.0 += nudge.0;
 				new_pos.1 += nudge.1;
@@ -136,11 +136,11 @@ impl Rope {
 		self.positions.iter()
 	}
 
-	const fn pair_nudge(head: &(i32, i32), tail: &(i32, i32)) -> Option<(i32, i32)> {
+	const fn pair_nudge(head: (i32, i32), tail: (i32, i32)) -> Option<(i32, i32)> {
 		match (head.0 - tail.0, head.1 - tail.1) {
 			// A total of 9 possibilities require no nudge. These are the cases
 			// where the head and tail are either on top of each other or touching.
-			(-1, -1) | (0, -1) | (1, -1) | (-1, 0) | (0, 0) | (1, 0) | (-1, 1) | (0, 1) | (1, 1) => None,
+			(-1 | 0 | 1, -1 | 0 | 1) => None,
 
 			// Cardinal direction overextensions always nudge in the same direction
 			// to close the gap.
@@ -150,10 +150,10 @@ impl Rope {
 			(2, 0) => Some((1, 0)),
 
 			// Off-axis overextensions require a diagonal move.
-			(2, 2) | (2, 1) | (1, 2) => Some((1, 1)),
-			(-2, 2) | (-2, 1) | (-1, 2) => Some((-1, 1)),
-			(-2, -2) | (-1, -2) | (-2, -1) => Some((-1, -1)),
-			(2, -2) | (1, -2) | (2, -1) => Some((1, -1)),
+			(2, 2 | 1) | (1, 2) => Some((1, 1)),
+			(-2, 2 | 1) | (-1, 2) => Some((-1, 1)),
+			(-2 | -1, -2) | (-2, -1) => Some((-1, -1)),
+			(2 | 1, -2) | (2, -1) => Some((1, -1)),
 
 			// Assuming this gets called correctly, there is never a scenario where
 			// we should have more than (-2..=2, -2..=2).
