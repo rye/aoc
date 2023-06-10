@@ -1,253 +1,276 @@
-use {
-	core::{convert::Infallible, str::FromStr},
-	std::collections::HashSet,
+use core::{
+	convert::Infallible,
+	fmt::{self, Display, Formatter},
+	iter::repeat,
+	str::FromStr,
 };
 
-#[derive(Default, Clone)]
+use std::collections::BTreeMap;
+
+pub type Intermediate = Vec<Move>;
+pub type Output = usize;
+
 pub struct State {
-	head_pos: (i32, i32),
-	tail_pos: (i32, i32),
-	tail_history: HashSet<(i32, i32)>,
+	start: (i32, i32),
+	rope: Rope,
+	tail_history: BTreeMap<(i32, i32), usize>,
 }
 
-fn calculate_tail_nudge(head_pos: (i32, i32), tail_pos: (i32, i32)) -> Option<(i32, i32)> {
-	// This helper should be called for every new head_pos, and its return value, if Some, should be
-	// added componentwise to the existing tail_pos to get the new tail_pos.
-	//
-	// As indicated by the below illustration, there are a grand total of 5^2 - 4 = 21 cases we have
-	// a defined movement for, which break down to be:
-	//
-	// - 9 cases (indicated by the lowercase letters) where no movement is necessary as the new
-	//   head_pos and tail_pos are already connected.
-	//
-	// - 12 cases (indicated by uppercase letters) where the tail does need to move into one of the
-	//   `o` positions.
-	//
-	// .BAB.
-	// BoooB
-	// AotoA
-	// BoooB
-	// .BAB.
-	//
-	// There is an implicit assumption here that the head can only move in the 4 cardinal directions,
-	// which is important because the outer corners (the final 4 positions in the 5^2 grid) are not
-	// mapped to anything.
+#[derive(Default)]
+struct StateDisplay {
+	min: (i32, i32),
+	max: (i32, i32),
+	symbols: BTreeMap<(i32, i32), String>,
+}
 
-	match (head_pos.0 - tail_pos.0, head_pos.1 - tail_pos.1) {
-		// If the head is in one of the `o` positions, the tail is connected so does not need to move.
-		(-1..=1, -1..=1) => Some((0, 0)),
+impl StateDisplay {
+	fn add_symbol(&mut self, position: (i32, i32), symbol: String) {
+		if position.0 - 1 < self.min.0 {
+			self.min.0 = position.0 - 1;
+		}
+		if position.1 - 1 < self.min.1 {
+			self.min.1 = position.1 - 1;
+		}
+		if position.0 + 1 > self.max.0 {
+			self.max.0 = position.0 + 1;
+		}
+		if position.1 + 1 > self.max.1 {
+			self.max.1 = position.1 + 1;
+		}
 
-		// The head has moved and the tail just needs to move in the same row or column. (`A` cases)
-		(2, 0) => Some((1, 0)),
-		(-2, 0) => Some((-1, 0)),
-		(0, 2) => Some((0, 1)),
-		(0, -2) => Some((0, -1)),
-
-		// The head has moved and the tail needs to move to one of the corners. (`B` cases)
-		(2, 1) | (1, 2) => Some((1, 1)),
-		(2, -1) | (1, -2) => Some((1, -1)),
-		(-2, -1) | (-1, -2) => Some((-1, -1)),
-		(-2, 1) | (-1, 2) => Some((-1, 1)),
-
-		// As a fallback, we have no idea what to do, so return no nudge and let the caller report
-		// that as they wish.
-		_ => None,
+		self.symbols.insert(position, symbol);
 	}
 }
 
-#[cfg(test)]
-mod calculate_tail_nudge {
-	use super::calculate_tail_nudge;
+impl Display for StateDisplay {
+	fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+		debug_assert!(self.min.0 < self.max.0);
+		debug_assert!(self.min.1 < self.max.1);
 
-	#[test]
-	fn overlapping() {
-		assert_eq!(calculate_tail_nudge((0, 0), (0, 0)), Some((0, 0)));
+		for y in self.min.1..=self.max.1 {
+			for x in self.min.0..=self.max.0 {
+				let sym = self.symbols.get(&(x, y));
+				match sym {
+					Some(s) => write!(f, "{s}"),
+					None => write!(f, " "),
+				}?;
+			}
+			writeln!(f)?;
+		}
+		Ok(())
+	}
+}
+
+impl Display for State {
+	fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+		let mut display = StateDisplay::default();
+
+		// seen tail positions are always on the bottom
+		for pos in self.tail_history.keys() {
+			display.add_symbol(*pos, "*".to_string());
+		}
+
+		// start is next
+		display.add_symbol(self.start, "s".to_string());
+
+		// rope positions are next...
+		for (idx, pos) in self.rope.positions().enumerate() {
+			display.add_symbol(*pos, (idx % 10).to_string());
+		}
+
+		// tail after that
+		display.add_symbol(*self.rope.tail(), "T".to_string());
+
+		// head is always last, therefore on top.
+		display.add_symbol(*self.rope.head(), "H".to_string());
+
+		writeln!(f, "{display}")
+
+		// todo!()
+	}
+}
+
+struct Rope {
+	positions: Vec<(i32, i32)>,
+}
+
+impl Rope {
+	fn with_length(at_pos: (i32, i32), length: usize) -> Self {
+		let positions = repeat(at_pos).take(length).collect();
+
+		Self { positions }
 	}
 
-	#[test]
-	fn connected_right() {
-		assert_eq!(calculate_tail_nudge((1, 0), (0, 0)), Some((0, 0)));
+	fn head(&self) -> &(i32, i32) {
+		self.positions.first().expect("missing first position")
 	}
 
-	#[test]
-	fn connected_left() {
-		assert_eq!(calculate_tail_nudge((-1, 0), (0, 0)), Some((0, 0)));
+	fn tail(&self) -> &(i32, i32) {
+		self.positions.last().expect("missing first position")
 	}
 
-	#[test]
-	fn connected_above() {
-		assert_eq!(calculate_tail_nudge((0, 1), (0, 0)), Some((0, 0)));
+	fn apply_tug(&mut self, step_vec: (i32, i32)) {
+		use core::cell::Cell;
+
+		let position_cells: &[Cell<(i32, i32)>] =
+			Cell::from_mut(&mut self.positions[..]).as_slice_of_cells();
+
+		// Step 1: Move the head.
+		if let Some(head) = position_cells.first() {
+			let new_head = (head.get().0 + step_vec.0, head.get().1 + step_vec.1);
+			Cell::set(head, new_head);
+		}
+
+		// Step 2: Cascade all changes down.
+		for window in position_cells.windows(2) {
+			if let Some(nudge) = Rope::pair_nudge(window[0].get(), window[1].get()) {
+				let mut new_pos = window[1].get();
+				new_pos.0 += nudge.0;
+				new_pos.1 += nudge.1;
+				Cell::set(&window[1], new_pos);
+			}
+		}
 	}
 
-	#[test]
-	fn connected_below() {
-		assert_eq!(calculate_tail_nudge((0, -1), (0, 0)), Some((0, 0)));
+	fn positions(&self) -> impl Iterator<Item = &(i32, i32)> {
+		self.positions.iter()
 	}
 
-	#[test]
-	fn connected_below_left() {
-		assert_eq!(calculate_tail_nudge((-1, -1), (0, 0)), Some((0, 0)));
-	}
+	const fn pair_nudge(head: (i32, i32), tail: (i32, i32)) -> Option<(i32, i32)> {
+		match (head.0 - tail.0, head.1 - tail.1) {
+			// A total of 9 possibilities require no nudge. These are the cases
+			// where the head and tail are either on top of each other or touching.
+			(-1 | 0 | 1, -1 | 0 | 1) => None,
 
-	#[test]
-	fn connected_below_right() {
-		assert_eq!(calculate_tail_nudge((1, -1), (0, 0)), Some((0, 0)));
-	}
+			// Cardinal direction overextensions always nudge in the same direction
+			// to close the gap.
+			(0, -2) => Some((0, -1)),
+			(0, 2) => Some((0, 1)),
+			(-2, 0) => Some((-1, 0)),
+			(2, 0) => Some((1, 0)),
 
-	#[test]
-	fn connected_above_left() {
-		assert_eq!(calculate_tail_nudge((-1, 1), (0, 0)), Some((0, 0)));
-	}
+			// Off-axis overextensions require a diagonal move.
+			(2, 2 | 1) | (1, 2) => Some((1, 1)),
+			(-2, 2 | 1) | (-1, 2) => Some((-1, 1)),
+			(-2 | -1, -2) | (-2, -1) => Some((-1, -1)),
+			(2 | 1, -2) | (2, -1) => Some((1, -1)),
 
-	#[test]
-	fn connected_above_right() {
-		assert_eq!(calculate_tail_nudge((1, 1), (0, 0)), Some((0, 0)));
-	}
-
-	#[test]
-	fn disconnected_above() {
-		assert_eq!(calculate_tail_nudge((0, 2), (0, 0)), Some((0, 1)));
-	}
-
-	#[test]
-	fn disconnected_below() {
-		assert_eq!(calculate_tail_nudge((0, -2), (0, 0)), Some((0, -1)));
-	}
-
-	#[test]
-	fn disconnected_left() {
-		assert_eq!(calculate_tail_nudge((-2, 0), (0, 0)), Some((-1, 0)));
-	}
-
-	#[test]
-	fn disconnected_right() {
-		assert_eq!(calculate_tail_nudge((2, 0), (0, 0)), Some((1, 0)));
-	}
-
-	#[test]
-	fn disconnected_above_right() {
-		assert_eq!(calculate_tail_nudge((2, 1), (0, 0)), Some((1, 1)));
-		assert_eq!(calculate_tail_nudge((1, 2), (0, 0)), Some((1, 1)));
-	}
-
-	#[test]
-	fn disconnected_below_right() {
-		assert_eq!(calculate_tail_nudge((2, -1), (0, 0)), Some((1, -1)));
-		assert_eq!(calculate_tail_nudge((1, -2), (0, 0)), Some((1, -1)));
-	}
-
-	#[test]
-	fn disconnected_below_left() {
-		assert_eq!(calculate_tail_nudge((-2, -1), (0, 0)), Some((-1, -1)));
-		assert_eq!(calculate_tail_nudge((-1, -2), (0, 0)), Some((-1, -1)));
-	}
-
-	#[test]
-	fn disconnected_above_left() {
-		assert_eq!(calculate_tail_nudge((-2, 1), (0, 0)), Some((-1, 1)));
-		assert_eq!(calculate_tail_nudge((-1, 2), (0, 0)), Some((-1, 1)));
-	}
-
-	#[test]
-	fn disconnected_no_mapping() {
-		assert_eq!(calculate_tail_nudge((42, 1), (0, 0)), None);
+			// Assuming this gets called correctly, there is never a scenario where
+			// we should have more than (-2..=2, -2..=2).
+			_ => unreachable!(),
+		}
 	}
 }
 
 impl State {
 	fn apply_move(&mut self, mv: &Move) {
-		for _i in 0..mv.size {
-			// Move the head.
-			match mv.direction {
-				Direction::Up => self.head_pos.1 += 1,
-				Direction::Down => self.head_pos.1 -= 1,
-				Direction::Left => self.head_pos.0 -= 1,
-				Direction::Right => self.head_pos.0 += 1,
-			}
+		let step_vec = (&mv.direction).into();
 
-			// Figure out where the tail should move.
-			let nudge = calculate_tail_nudge(self.head_pos, self.tail_pos);
+		for _n in 0..mv.distance {
+			self.rope.apply_tug(step_vec);
 
-			if let Some(nudge) = nudge {
-				self.tail_pos.0 += nudge.0;
-				self.tail_pos.1 += nudge.1;
-			} else {
-				panic!(
-					"No known nudge for head at {:?}, tail at {:?}",
-					self.head_pos, self.tail_pos
-				);
-			}
-
-			// Log the new tail pos.
-			self.tail_history.insert(self.tail_pos);
+			*self
+				.tail_history
+				.entry(self.rope.tail().to_owned())
+				.or_insert(0) += 1;
 		}
 	}
 }
 
-enum Direction {
+pub enum Direction {
 	Up,
 	Down,
 	Left,
 	Right,
 }
 
-impl FromStr for Move {
-	type Err = Infallible;
-
-	fn from_str(s: &str) -> Result<Self, Self::Err> {
-		let direction = match &s[0..1] {
-			"D" => Direction::Down,
-			"U" => Direction::Up,
-			"L" => Direction::Left,
-			"R" => Direction::Right,
-			_ => unreachable!(),
-		};
-
-		let size: u16 = s[2..].parse().expect("failure");
-
-		Ok(Move { direction, size })
+impl From<&Direction> for (i32, i32) {
+	fn from(value: &Direction) -> Self {
+		match value {
+			Direction::Up => (0, -1),
+			Direction::Down => (0, 1),
+			Direction::Left => (-1, 0),
+			Direction::Right => (1, 0),
+		}
 	}
 }
 
-pub struct Move {
-	direction: Direction,
-	size: u16,
+impl FromStr for Direction {
+	type Err = Infallible;
+
+	fn from_str(s: &str) -> Result<Self, Self::Err> {
+		match s {
+			"U" => Ok(Self::Up),
+			"D" => Ok(Self::Down),
+			"L" => Ok(Self::Left),
+			"R" => Ok(Self::Right),
+			_ => unreachable!(),
+		}
+	}
 }
 
-pub type Intermediate = (State, Vec<Move>);
-pub type Output = usize;
+mod r#move;
+pub use r#move::*;
 
 /// # Errors
 pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
-	let mut state = State::default();
-	state.tail_history.insert(state.tail_pos);
-
-	let moves: Vec<Move> = input
+	let moves = input
 		.lines()
 		.map(str::parse)
 		.collect::<Result<Vec<Move>, _>>()?;
 
-	Ok((state, moves))
+	Ok(moves)
 }
 
 #[must_use]
-pub fn part_one((state, moves): &Intermediate) -> Option<Output> {
-	let mut state: State = state.clone();
+pub fn part_one(moves: &Intermediate) -> Option<Output> {
+	let mut state = State {
+		start: (0, 0),
+		rope: Rope::with_length((0, 0), 2),
+		tail_history: BTreeMap::default(),
+	};
 
-	for moove in moves {
-		state.apply_move(moove);
+	for r#move in moves {
+		// println!("== {move} ==");
+		state.apply_move(r#move);
 	}
 
 	Some(state.tail_history.len())
 }
 
-#[test]
-fn part_one_example() {
-	let input = "R 4\nU 4\nL 3\nD 1\nR 4\nD 1\nL 5\nR 2";
-	daocutil::test_example!(input, part_one, parse, Some(13));
+#[must_use]
+pub fn part_two(moves: &Intermediate) -> Option<Output> {
+	let mut state = State {
+		start: (0, 0),
+		rope: Rope::with_length((0, 0), 10),
+		tail_history: BTreeMap::default(),
+	};
+
+	// println!("== Initial State ==");
+
+	// print!("{}", state);
+
+	for r#move in moves {
+		// println!("== {move} ==");
+		state.apply_move(r#move);
+		// print!("{}", state);
+	}
+
+	Some(state.tail_history.len())
 }
 
-#[must_use]
-pub fn part_two(_intermediate: &Intermediate) -> Option<Output> {
-	None
-}
+daocutil::test_example!(
+	part_two_simple,
+	parse,
+	part_two,
+	"R 4\nU 4\nL 3\nD 1\nR 4\nD 1\nL 5\nR 2",
+	Some(1)
+);
+
+daocutil::test_example!(
+	part_two_larger,
+	parse,
+	part_two,
+	"R 5\nU 8\nL 8\nD 3\nR 17\nD 10\nL 25\nU 20",
+	Some(36)
+);
