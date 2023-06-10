@@ -51,11 +51,11 @@ impl Display for StateDisplay {
 			for x in self.min.0..=self.max.0 {
 				let sym = self.symbols.get(&(x, y));
 				match sym {
-					Some(s) => write!(f, "{}", s),
+					Some(s) => write!(f, "{s}"),
 					None => write!(f, " "),
 				}?;
 			}
-			writeln!(f, "")?;
+			writeln!(f)?;
 		}
 		Ok(())
 	}
@@ -74,7 +74,7 @@ impl Display for State {
 		display.add_symbol(self.start, "s".to_string());
 
 		// rope positions are next...
-		for (idx, pos) in self.rope.positions.iter().enumerate() {
+		for (idx, pos) in self.rope.positions().enumerate() {
 			display.add_symbol(*pos, (idx % 10).to_string());
 		}
 
@@ -84,7 +84,7 @@ impl Display for State {
 		// head is always last, therefore on top.
 		display.add_symbol(*self.rope.head(), "H".to_string());
 
-		writeln!(f, "{}", display)
+		writeln!(f, "{display}")
 
 		// todo!()
 	}
