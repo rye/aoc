@@ -1,4 +1,10 @@
-use core::{convert::Infallible, iter::repeat, str::FromStr};
+use core::{
+	convert::Infallible,
+	fmt::{self, Display, Formatter},
+	iter::repeat,
+	str::FromStr,
+};
+
 use std::collections::BTreeMap;
 
 pub type Intermediate = Vec<Move>;
@@ -36,8 +42,8 @@ impl StateDisplay {
 	}
 }
 
-impl core::fmt::Display for StateDisplay {
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl Display for StateDisplay {
+	fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
 		debug_assert!(self.min.0 < self.max.0);
 		debug_assert!(self.min.1 < self.max.1);
 
@@ -55,8 +61,8 @@ impl core::fmt::Display for StateDisplay {
 	}
 }
 
-impl core::fmt::Display for State {
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl Display for State {
+	fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
 		let mut display = StateDisplay::default();
 
 		// seen tail positions are always on the bottom
