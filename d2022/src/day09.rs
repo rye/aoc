@@ -13,7 +13,7 @@ pub type Output = usize;
 pub struct State {
 	start: (i32, i32),
 	rope: Rope,
-	tail_pos: BTreeMap<(i32, i32), usize>,
+	tail_history: BTreeMap<(i32, i32), usize>,
 }
 
 #[derive(Default)]
@@ -66,7 +66,7 @@ impl Display for State {
 		let mut display = StateDisplay::default();
 
 		// seen tail positions are always on the bottom
-		for pos in self.rope.tail_history.keys() {
+		for pos in self.tail_history.keys() {
 			display.add_symbol(*pos, "*".to_string());
 		}
 
@@ -92,19 +92,13 @@ impl Display for State {
 
 struct Rope {
 	positions: Vec<(i32, i32)>,
-	tail_history: BTreeMap<(i32, i32), usize>,
 }
 
 impl Rope {
 	fn with_length(at_pos: (i32, i32), length: usize) -> Self {
 		let positions = repeat(at_pos).take(length).collect();
 
-		let tail_history = BTreeMap::default();
-
-		Self {
-			positions,
-			tail_history,
-		}
+		Self { positions }
 	}
 
 	fn head(&self) -> &(i32, i32) {
@@ -115,34 +109,25 @@ impl Rope {
 		self.positions.last().expect("missing first position")
 	}
 
-	fn apply_move(&mut self, mv: &Move) {
+	fn apply_tug(&mut self, step_vec: (i32, i32)) {
 		use core::cell::Cell;
-
-		let step_vec: (i32, i32) = (&mv.direction).into();
 
 		let position_cells: &[Cell<(i32, i32)>] =
 			Cell::from_mut(&mut self.positions[..]).as_slice_of_cells();
 
-		for _n in 0..mv.distance {
-			// Step 1: Move the head.
-			if let Some(head) = position_cells.first() {
-				let new_head = (head.get().0 + step_vec.0, head.get().1 + step_vec.1);
-				Cell::set(head, new_head);
-			}
+		// Step 1: Move the head.
+		if let Some(head) = position_cells.first() {
+			let new_head = (head.get().0 + step_vec.0, head.get().1 + step_vec.1);
+			Cell::set(head, new_head);
+		}
 
-			// Step 2: Cascade all changes down.
-			for window in position_cells.windows(2) {
-				if let Some(nudge) = Rope::pair_nudge(&window[0].get(), &window[1].get()) {
-					let mut new_pos = window[1].get();
-					new_pos.0 += nudge.0;
-					new_pos.1 += nudge.1;
-					Cell::set(&window[1], new_pos);
-				}
-			}
-
-			// Step 3: Record tail history.
-			if let Some(tail) = position_cells.last() {
-				*self.tail_history.entry(tail.get()).or_insert(1) += 1;
+		// Step 2: Cascade all changes down.
+		for window in position_cells.windows(2) {
+			if let Some(nudge) = Rope::pair_nudge(&window[0].get(), &window[1].get()) {
+				let mut new_pos = window[1].get();
+				new_pos.0 += nudge.0;
+				new_pos.1 += nudge.1;
+				Cell::set(&window[1], new_pos);
 			}
 		}
 	}
@@ -193,11 +178,16 @@ impl Rope {
 
 impl State {
 	fn apply_move(&mut self, mv: &Move) {
-		self.rope.apply_move(mv);
-		self
-			.tail_pos
-			.entry(self.rope.tail().to_owned())
-			.or_insert(1);
+		let step_vec = (&mv.direction).into();
+
+		for _n in 0..mv.distance {
+			self.rope.apply_tug(step_vec);
+
+			*self
+				.tail_history
+				.entry(self.rope.tail().to_owned())
+				.or_insert(0) += 1;
+		}
 	}
 }
 
@@ -251,7 +241,7 @@ pub fn part_one(moves: &Intermediate) -> Option<Output> {
 	let mut state = State {
 		start: (0, 0),
 		rope: Rope::with_length((0, 0), 2),
-		tail_pos: BTreeMap::default(),
+		tail_history: BTreeMap::default(),
 	};
 
 	for r#move in moves {
@@ -259,7 +249,7 @@ pub fn part_one(moves: &Intermediate) -> Option<Output> {
 		state.apply_move(r#move);
 	}
 
-	Some(state.rope.tail_history.len())
+	Some(state.tail_history.len())
 }
 
 #[must_use]
@@ -267,7 +257,7 @@ pub fn part_two(moves: &Intermediate) -> Option<Output> {
 	let mut state = State {
 		start: (0, 0),
 		rope: Rope::with_length((0, 0), 10),
-		tail_pos: BTreeMap::default(),
+		tail_history: BTreeMap::default(),
 	};
 
 	// println!("== Initial State ==");
@@ -280,7 +270,7 @@ pub fn part_two(moves: &Intermediate) -> Option<Output> {
 		// print!("{}", state);
 	}
 
-	Some(state.rope.tail_history.len())
+	Some(state.tail_history.len())
 }
 
 daocutil::test_example!(
