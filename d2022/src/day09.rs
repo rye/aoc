@@ -1,5 +1,5 @@
 use core::{convert::Infallible, iter::repeat, str::FromStr};
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 
 pub type Intermediate = Vec<Move>;
 pub type Output = usize;
@@ -55,21 +55,6 @@ impl core::fmt::Display for StateDisplay {
 	}
 }
 
-fn extend_bbox((min, max): ((i32, i32), (i32, i32)), pos: &(i32, i32)) -> ((i32, i32), (i32, i32)) {
-	let mut min = min;
-	let mut max = max;
-
-	if (pos.0 - 1) < min.0 || (pos.1 - 1) < min.1 {
-		min = (pos.0 - 1, pos.1 - 1);
-	}
-
-	if (pos.0 + 1) > min.0 || (pos.1 + 1) > min.1 {
-		max = (pos.0 + 1, pos.1 + 1);
-	}
-
-	(min, max)
-}
-
 impl core::fmt::Display for State {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		let mut display = StateDisplay::default();
@@ -92,9 +77,6 @@ impl core::fmt::Display for State {
 
 		// head is always last, therefore on top.
 		display.add_symbol(*self.rope.head(), "H".to_string());
-
-		writeln!(f, "{:?}, {:?}", display.min, display.max)?;
-		writeln!(f, "head: {:?}", self.rope.head())?;
 
 		writeln!(f, "{}", display)
 
@@ -267,7 +249,7 @@ pub fn part_one(moves: &Intermediate) -> Option<Output> {
 	};
 
 	for r#move in moves {
-		println!("== {move} ==");
+		// println!("== {move} ==");
 		state.apply_move(r#move);
 	}
 
@@ -282,14 +264,14 @@ pub fn part_two(moves: &Intermediate) -> Option<Output> {
 		tail_pos: BTreeMap::default(),
 	};
 
-	println!("== Initial State ==");
+	// println!("== Initial State ==");
 
-	print!("{}", state);
+	// print!("{}", state);
 
 	for r#move in moves {
-		println!("== {move} ==");
+		// println!("== {move} ==");
 		state.apply_move(r#move);
-		print!("{}", state);
+		// print!("{}", state);
 	}
 
 	Some(state.rope.tail_history.len())
