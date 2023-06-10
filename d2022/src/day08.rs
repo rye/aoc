@@ -3,6 +3,7 @@ use std::collections::BTreeMap;
 pub type Intermediate = BTreeMap<(u32, u32), u8>;
 pub type Output = usize;
 
+/// # Errors
 pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 	let lines: BTreeMap<(u32, u32), u8> = input
 		.lines()
