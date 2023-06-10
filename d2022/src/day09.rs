@@ -25,7 +25,7 @@ struct StateDisplay {
 
 impl StateDisplay {
 	fn add_symbol(&mut self, position: (i32, i32), symbol: String) {
-		if (position.0 - 1 < self.min.0) && (position.1 - 1 < self.min.1) {
+		if position.0 - 1 < self.min.0 {
 			self.min.0 = position.0 - 1;
 		}
 		if position.1 - 1 < self.min.1 {
