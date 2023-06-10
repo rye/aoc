@@ -126,6 +126,7 @@ dependencies = [
  "daocutil",
  "itertools",
  "nu-ansi-term",
+ "regex",
  "thiserror",
 ]
 
