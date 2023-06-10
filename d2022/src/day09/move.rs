@@ -1,4 +1,8 @@
-use core::{convert::Infallible, str::FromStr};
+use core::{
+	convert::Infallible,
+	fmt::{self, Display, Formatter},
+	str::FromStr,
+};
 
 use crate::day09::Direction;
 
@@ -111,5 +115,21 @@ mod to_i32_i32 {
 			}
 			.into(),
 		);
+	}
+}
+
+impl Display for Move {
+	fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+		write!(
+			f,
+			"{} {}",
+			match self.direction {
+				Direction::Up => "U",
+				Direction::Down => "D",
+				Direction::Left => "L",
+				Direction::Right => "R",
+			},
+			self.distance
+		)
 	}
 }
