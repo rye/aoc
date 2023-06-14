@@ -9,7 +9,7 @@ use regex::Regex;
 use daocutil::SolverMode;
 
 pub type Intermediate = BTreeMap<u8, Monkey>;
-pub type Output = u32;
+pub type Output = u64;
 
 const PARSE_RE_STR: &str = r"(?s)^Monkey (?P<id>\d+):$\n^\s+Starting items: (?P<si>[\d, ]+)$\n^\s+Operation: new = (?P<oprd1>\b[\w\d]+\b) (?P<oprtr>[*+]) (?P<oprd2>\b[\w\d]+\b)$\n^\s+Test: divisible by (?P<divisor>\d+)$\n^\s+If true: throw to monkey (?P<true_dest>\d+).*?$\n^\s+If false: throw to monkey (?P<false_dest>\d+)$";
 
@@ -30,7 +30,7 @@ pub struct Monkey {
 	divisor: u32,
 	true_dest: u8,
 	false_dest: u8,
-	inspect_counter: u32,
+	inspect_counter: u64,
 }
 
 impl FromStr for Monkey {
@@ -100,7 +100,7 @@ impl FromStr for Monkey {
 			divisor,
 			true_dest,
 			false_dest,
-			inspect_counter: 0_u32,
+			inspect_counter: 0_u64,
 		};
 
 		Ok(monkey)
@@ -117,6 +117,11 @@ pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 }
 
 fn turn(monkey_set: &mut BTreeMap<u8, Cell<Monkey>>, mode: SolverMode) {
+	let lcm_divisor: u32 = monkey_set
+		.values_mut()
+		.map(|monkey| monkey.get_mut().divisor)
+		.product();
+
 	let mut in_flight_items: BTreeMap<u8, Vec<u32>> = BTreeMap::default();
 
 	// Handle each monkey's turns:
@@ -145,10 +150,16 @@ fn turn(monkey_set: &mut BTreeMap<u8, Cell<Monkey>>, mode: SolverMode) {
 			match monkey.operation {
 				Operation::Add(amt) => new_value += amt,
 				Operation::Mul(amt) => new_value *= amt,
-				Operation::Square => new_value = new_value.pow(2),
+				Operation::Square => {
+					new_value = u32::try_from(u64::from(new_value).pow(2) % u64::from(lcm_divisor))
+						.expect("divisor lcm should not be greater than u32::MAX")
+				}
 			}
 
-			new_value /= 3;
+			match mode {
+				SolverMode::PartOne => new_value /= 3,
+				SolverMode::PartTwo => new_value %= lcm_divisor,
+			}
 
 			if new_value % monkey.divisor == 0 {
 				in_flight_items
@@ -186,11 +197,11 @@ pub fn part_one(monkeys: &Intermediate) -> Option<Output> {
 		turn(&mut monkey_set, SolverMode::PartOne)
 	}
 
-	let monkey_business: u32 = monkey_set
+	let monkey_business: u64 = monkey_set
 		.into_values()
 		.map(Cell::into_inner)
 		.map(|monkey| monkey.inspect_counter)
-		.collect::<BTreeSet<u32>>()
+		.collect::<BTreeSet<u64>>()
 		.iter()
 		.rev()
 		.take(2)
@@ -200,6 +211,25 @@ pub fn part_one(monkeys: &Intermediate) -> Option<Output> {
 }
 
 #[must_use]
-pub fn part_two(_intermediate: &Intermediate) -> Option<Output> {
-	None
+pub fn part_two(monkeys: &Intermediate) -> Option<Output> {
+	let mut monkey_set: BTreeMap<u8, Cell<Monkey>> = monkeys
+		.iter()
+		.map(|(id, monkey)| (id.to_owned(), Cell::new((*monkey).clone())))
+		.collect();
+
+	for _n in 0..10000 {
+		turn(&mut monkey_set, SolverMode::PartTwo)
+	}
+
+	let monkey_business: u64 = monkey_set
+		.into_values()
+		.map(Cell::into_inner)
+		.map(|monkey| monkey.inspect_counter)
+		.collect::<BTreeSet<u64>>()
+		.iter()
+		.rev()
+		.take(2)
+		.product();
+
+	Some(monkey_business)
 }
