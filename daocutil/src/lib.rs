@@ -198,3 +198,9 @@ macro_rules! test_examples {
 
 mod neighbors;
 pub use neighbors::*;
+
+#[derive(PartialEq)]
+pub enum SolverMode {
+	PartOne,
+	PartTwo,
+}

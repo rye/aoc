@@ -1,10 +1,12 @@
 use core::{cell::Cell, str::FromStr};
 use std::{
-	collections::{BTreeMap, VecDeque},
+	collections::{BTreeMap, BTreeSet, VecDeque},
 	sync::OnceLock,
 };
 
 use regex::Regex;
+
+use daocutil::SolverMode;
 
 pub type Intermediate = BTreeMap<u8, Monkey>;
 pub type Output = u32;
@@ -28,7 +30,7 @@ pub struct Monkey {
 	divisor: u32,
 	true_dest: u8,
 	false_dest: u8,
-	inspect_counter: usize,
+	inspect_counter: u32,
 }
 
 impl FromStr for Monkey {
@@ -98,7 +100,7 @@ impl FromStr for Monkey {
 			divisor,
 			true_dest,
 			false_dest,
-			inspect_counter: 0_usize,
+			inspect_counter: 0_u32,
 		};
 
 		Ok(monkey)
@@ -114,9 +116,87 @@ pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 		.collect::<Result<BTreeMap<u8, Monkey>, _>>()
 }
 
+fn turn(monkey_set: &mut BTreeMap<u8, Cell<Monkey>>, mode: SolverMode) {
+	let mut in_flight_items: BTreeMap<u8, Vec<u32>> = BTreeMap::default();
+
+	// Handle each monkey's turns:
+	for (monkey_id, monkey) in monkey_set.iter_mut() {
+		// If there any items incoming to the monkey, go ahead and add them to the list.
+		if let Some(incoming_items) = in_flight_items.get_mut(monkey_id) {
+			let monkey = monkey.get_mut();
+			for item in incoming_items.drain(..) {
+				monkey.items.push_back(item);
+			}
+		}
+
+		// Snag all the items so we don't have to mutate the monkey in-place.
+		let items: Vec<u32> = {
+			let monkey = monkey.get_mut();
+			monkey.items.drain(..).collect()
+		};
+
+		let monkey: &mut Monkey = monkey.get_mut();
+
+		for item in items {
+			let mut new_value = item;
+
+			monkey.inspect_counter += 1;
+
+			match monkey.operation {
+				Operation::Add(amt) => new_value += amt,
+				Operation::Mul(amt) => new_value *= amt,
+				Operation::Square => new_value = new_value.pow(2),
+			}
+
+			new_value /= 3;
+
+			if new_value % monkey.divisor == 0 {
+				in_flight_items
+					.entry(monkey.true_dest)
+					.or_insert_with(Default::default)
+					.push(new_value);
+			} else {
+				in_flight_items
+					.entry(monkey.false_dest)
+					.or_insert_with(Default::default)
+					.push(new_value);
+			}
+		}
+	}
+
+	for (monkey_id, mut incoming) in in_flight_items {
+		let monkey = monkey_set
+			.get_mut(&monkey_id)
+			.expect("monke gone")
+			.get_mut();
+		for item in incoming.drain(..) {
+			monkey.items.push_back(item);
+		}
+	}
+}
+
 #[must_use]
-pub fn part_one(_intermediate: &Intermediate) -> Option<Output> {
-	None
+pub fn part_one(monkeys: &Intermediate) -> Option<Output> {
+	let mut monkey_set: BTreeMap<u8, Cell<Monkey>> = monkeys
+		.iter()
+		.map(|(id, monkey)| (id.to_owned(), Cell::new((*monkey).clone())))
+		.collect();
+
+	for _n in 0..20 {
+		turn(&mut monkey_set, SolverMode::PartOne)
+	}
+
+	let monkey_business: u32 = monkey_set
+		.into_values()
+		.map(Cell::into_inner)
+		.map(|monkey| monkey.inspect_counter)
+		.collect::<BTreeSet<u32>>()
+		.iter()
+		.rev()
+		.take(2)
+		.product();
+
+	Some(monkey_business)
 }
 
 #[must_use]
