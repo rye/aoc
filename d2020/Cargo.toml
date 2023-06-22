@@ -6,7 +6,7 @@ authors = ["Kristofer Rye <kristofer.rye@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-itertools = "0.10.5"
+itertools = "0.11.0"
 num = "0.4.0"
 num-integer = "0.1.45"
 regex = "1.8.4"
