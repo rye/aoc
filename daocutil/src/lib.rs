@@ -19,11 +19,11 @@ pub fn string_from(mut read: impl io::Read) -> io::Result<String> {
 	Ok(buf)
 }
 
-fn parse_just_numbers(str: &str) -> Result<u32, ParseIntError> {
+fn parse_just_numbers(str: &str) -> Result<u8, ParseIntError> {
 	str.matches(char::is_numeric).collect::<String>().parse()
 }
 
-pub fn parse_day_identifier(str: &str) -> Option<u32> {
+pub fn parse_day_identifier(str: &str) -> Option<u8> {
 	match (str.parse(), parse_just_numbers(str)) {
 		(Ok(u32), _) => Some(u32),
 		(Err(_), Ok(u32)) => Some(u32),
@@ -78,7 +78,7 @@ macro_rules! generate_solvers {
 			)*
 
 			{
-				let mut map: std::collections::HashMap<u32, daocutil::Solver> = std::collections::HashMap::new();
+				let mut map: std::collections::HashMap<u8, daocutil::Solver> = std::collections::HashMap::new();
 
 				$(
 					map.insert($id, $fn_name);
@@ -94,31 +94,31 @@ macro_rules! generate_solvers {
 			use $place as base;
 
 			daocutil::generate_solvers![
-				1_u32 day01 | => base::day01,
-				2_u32 day02 | => base::day02,
-				3_u32 day03 | => base::day03,
-				4_u32 day04 | => base::day04,
-				5_u32 day05 | => base::day05,
-				6_u32 day06 | => base::day06,
-				7_u32 day07 | => base::day07,
-				8_u32 day08 | => base::day08,
-				9_u32 day09 | => base::day09,
-				10_u32 day10 | => base::day10,
-				11_u32 day11 | => base::day11,
-				12_u32 day12 | => base::day12,
-				13_u32 day13 | => base::day13,
-				14_u32 day14 | => base::day14,
-				15_u32 day15 | => base::day15,
-				16_u32 day16 | => base::day16,
-				17_u32 day17 | => base::day17,
-				18_u32 day18 | => base::day18,
-				19_u32 day19 | => base::day19,
-				20_u32 day20 | => base::day20,
-				21_u32 day21 | => base::day21,
-				22_u32 day22 | => base::day22,
-				23_u32 day23 | => base::day23,
-				24_u32 day24 | => base::day24,
-				25_u32 day25 | => base::day25,
+				1_u8 day01 | => base::day01,
+				2_u8 day02 | => base::day02,
+				3_u8 day03 | => base::day03,
+				4_u8 day04 | => base::day04,
+				5_u8 day05 | => base::day05,
+				6_u8 day06 | => base::day06,
+				7_u8 day07 | => base::day07,
+				8_u8 day08 | => base::day08,
+				9_u8 day09 | => base::day09,
+				10_u8 day10 | => base::day10,
+				11_u8 day11 | => base::day11,
+				12_u8 day12 | => base::day12,
+				13_u8 day13 | => base::day13,
+				14_u8 day14 | => base::day14,
+				15_u8 day15 | => base::day15,
+				16_u8 day16 | => base::day16,
+				17_u8 day17 | => base::day17,
+				18_u8 day18 | => base::day18,
+				19_u8 day19 | => base::day19,
+				20_u8 day20 | => base::day20,
+				21_u8 day21 | => base::day21,
+				22_u8 day22 | => base::day22,
+				23_u8 day23 | => base::day23,
+				24_u8 day24 | => base::day24,
+				25_u8 day25 | => base::day25,
 			]
 		}
 	};
@@ -132,7 +132,7 @@ macro_rules! generate_main {
 
 	($solvers_expr:expr) => {
 		fn main() -> Result<(), Box<dyn std::error::Error>> {
-			let solvers: std::collections::HashMap<u32, daocutil::Solver> = { $solvers_expr };
+			let solvers: std::collections::HashMap<u8, daocutil::Solver> = { $solvers_expr };
 
 			let mut args = std::env::args();
 
