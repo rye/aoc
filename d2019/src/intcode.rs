@@ -13,6 +13,13 @@ pub enum Opcode {
 	Halt,
 }
 
+fn debug_param(param: impl core::fmt::Display, parameter_mode: ParameterMode) -> String {
+	match parameter_mode {
+		ParameterMode::Position => format!("[{param}]"),
+		ParameterMode::Immediate => format!("({param})"),
+	}
+}
+
 impl From<i32> for Opcode {
 	fn from(raw: i32) -> Opcode {
 		use Opcode::*;
@@ -30,7 +37,7 @@ impl From<i32> for Opcode {
 			7 => LessThan,
 			8 => Equals,
 			99 => Halt,
-			_ => panic!(),
+			_ => panic!("unknown opcode {raw}"),
 		}
 	}
 }
@@ -72,11 +79,27 @@ impl From<i32> for Instruction {
 	}
 }
 
+#[test]
+fn instruction_example() {
+	assert_eq!(
+		Instruction {
+			opcode: Opcode::Mul,
+			parameter_modes: (
+				ParameterMode::Position,
+				ParameterMode::Immediate,
+				ParameterMode::Position
+			)
+		},
+		1002_i32.into()
+	)
+}
+
 #[derive(Debug)]
 pub struct Intcode {
 	inner: Vec<i32>,
 	head: usize,
 	interactive: bool,
+	debug: bool,
 	input: VecDeque<i32>,
 	output: VecDeque<i32>,
 }
@@ -89,6 +112,10 @@ impl Intcode {
 			inner,
 			head,
 			interactive: true,
+			#[cfg(test)]
+			debug: true,
+			#[cfg(not(test))]
+			debug: false,
 			input,
 			output,
 		}
@@ -167,6 +194,14 @@ impl Intcode {
 			Opcode::Input => {
 				let location = self.inner[self.head + 1];
 
+				if self.debug {
+					println!(
+						"{:04} INPUT -> {}",
+						self.head,
+						debug_param(location, ParameterMode::Position)
+					);
+				}
+
 				// If the user has supplied us with an input in the queue, use it.
 				// Otherwise, prompt for an input.
 				if self.interactive {
@@ -222,7 +257,21 @@ impl Intcode {
 					ParameterMode::Immediate => param_a,
 				};
 
-				let b = param_b;
+				let b = match parameter_modes.1 {
+					ParameterMode::Position => self.inner[param_b as usize],
+					ParameterMode::Immediate => param_b,
+				};
+
+				if self.debug {
+					println!(
+						"{:04} JUMP-IF-TRUE {} ({}) -> {} ({})",
+						self.head,
+						debug_param(param_a, parameter_modes.0),
+						a,
+						debug_param(param_b, parameter_modes.1),
+						b,
+					);
+				}
 
 				if a != 0 {
 					self.head = b as usize;
@@ -242,7 +291,21 @@ impl Intcode {
 					ParameterMode::Immediate => param_a,
 				};
 
-				let b = param_b;
+				let b = match parameter_modes.1 {
+					ParameterMode::Position => self.inner[param_b as usize],
+					ParameterMode::Immediate => param_b,
+				};
+
+				if self.debug {
+					println!(
+						"{:04} JUMP-IF-FALSE {} ({}) -> {} ({})",
+						self.head,
+						debug_param(param_a, parameter_modes.0),
+						a,
+						debug_param(param_b, parameter_modes.1),
+						b,
+					);
+				}
 
 				if a == 0 {
 					self.head = b as usize;
@@ -657,6 +720,93 @@ mod tests {
 			program.data(),
 			&vec![3, 3, 1107, expected_output, 8, 3, 4, 3, 99]
 		);
+		assert_eq!(program.output(), Some(expected_output));
+
+		assert_eq!(program.step(), None);
+	}
+
+	#[test]
+	fn pgm_position_input_0_eq_0() {
+		let input = 0;
+		let expected_output = (input != 0).into();
+		let mut program: Intcode = Intcode::from(vec![
+			3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9,
+		]);
+		program = program.input(input);
+
+		assert_eq!(
+			program.data(),
+			&vec![3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9]
+		);
+		assert_eq!(program.head, 0_usize);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(
+			program.data(),
+			&vec![3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, input, 0, 1, 9]
+		);
+		assert_eq!(program.head, 2_usize);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(
+			program.data(),
+			&vec![3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, input, 0, 1, 9]
+		);
+		assert_eq!(program.head, 9_usize);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(
+			program.data(),
+			&vec![3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, input, 0, 1, 9]
+		);
+		assert_eq!(program.head, 11_usize);
+		assert_eq!(program.output(), Some(expected_output));
+
+		assert_eq!(program.step(), None);
+	}
+
+	#[test]
+	fn pgm_position_input_1_neq_0() {
+		let input = 1;
+		let expected_output = (input != 0).into();
+		let mut program: Intcode = Intcode::from(vec![
+			3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9,
+		]);
+		program = program.input(input);
+
+		assert_eq!(
+			program.data(),
+			&vec![3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9]
+		);
+		assert_eq!(program.head, 0_usize);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(
+			program.data(),
+			&vec![3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, input, 0, 1, 9]
+		);
+		assert_eq!(program.head, 2_usize);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(
+			program.data(),
+			&vec![3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, input, 0, 1, 9]
+		);
+		assert_eq!(program.head, 5_usize);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(
+			program.data(),
+			&vec![3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, input, 1, 1, 9]
+		);
+		assert_eq!(program.head, 9_usize);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(
+			program.data(),
+			&vec![3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, input, 1, 1, 9]
+		);
+		assert_eq!(program.head, 11_usize);
 		assert_eq!(program.output(), Some(expected_output));
 
 		assert_eq!(program.step(), None);

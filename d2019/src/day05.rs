@@ -34,6 +34,21 @@ pub fn part_one(program: &Intermediate) -> Option<Output> {
 }
 
 #[must_use]
-pub fn part_two(_intermediate: &Intermediate) -> Option<Output> {
-	None
+pub fn part_two(program: &Intermediate) -> Option<Output> {
+	let program = program.clone();
+	let mut intcode: intcode::Intcode = intcode::Intcode::from(program);
+	intcode = intcode.input(5);
+	intcode = intcode.run();
+
+	let mut outputs: Vec<i32> = Vec::new();
+
+	loop {
+		if let Some(output) = intcode.output() {
+			outputs.push(output);
+		} else {
+			break;
+		}
+	}
+
+	Some(*outputs.last().expect("expected an output"))
 }
