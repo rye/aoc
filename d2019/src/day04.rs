@@ -36,8 +36,15 @@ pub fn part_one((starting_bound, ending_bound): &Intermediate) -> Option<Output>
 }
 
 #[must_use]
-pub fn part_two(_intermediate: &Intermediate) -> Option<Output> {
-	None
+pub fn part_two((starting_bound, ending_bound): &Intermediate) -> Option<Output> {
+	let valid_passwords = (*starting_bound..=*ending_bound)
+		.filter(|number| {
+			let password = Password(*number);
+			password.is_monotonically_increasing() && password.has_exactly_two_adjacent_digits()
+		})
+		.collect::<Vec<u32>>();
+
+	Some(valid_passwords.len())
 }
 
 #[derive(Debug, Copy, Clone, PartialOrd, PartialEq, Ord, Eq)]
@@ -73,6 +80,21 @@ impl<'i> Password {
 		digits.dedup();
 		let final_len = digits.len();
 		starting_len - final_len >= 1
+	}
+
+	fn has_exactly_two_adjacent_digits(&self) -> bool {
+		let digits: Vec<u32> = self.digits().collect();
+
+		let counts: Vec<u32> = (0..=9)
+			.map(|cur| -> u32 {
+				digits
+					.iter()
+					.map(|digit| if *digit == cur { 1 } else { 0 })
+					.sum()
+			})
+			.collect();
+
+		counts.contains(&2)
 	}
 }
 
