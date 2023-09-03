@@ -43,18 +43,12 @@ pub fn part_two(module_weights: &Intermediate) -> Option<Output> {
 		// Copy and mutify the mass variable.
 		let mut mass = mass;
 
-		// This loop runs until no more fuel is required for the remaining unaccounted mass.
-		loop {
-			// If we need some more fuel for the mass,
-			if let Some(part) = fuel_for_mass(mass) {
-				// add the required fuel to the total.
-				total += part;
-				// Now we only have to compute for the mass we added.
-				mass = part;
-			} else {
-				// If we didn't need any additional fuel, we're done.
-				break;
-			}
+		// If we need some more fuel for the remaining unaccounted mass...
+		while let Some(part) = fuel_for_mass(mass) {
+			// ... add the required fuel to the total ...
+			total += part;
+			// ... and now our mass calculation should happen again for the fuel we just added.
+			mass = part;
 		}
 
 		total

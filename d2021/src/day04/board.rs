@@ -46,7 +46,7 @@ impl Board {
 		for column in 0..5 {
 			let mut file_set: BTreeSet<Number> = BTreeSet::new();
 
-			for &row in contents.iter() {
+			for &row in contents {
 				file_set.insert(row[column]);
 			}
 

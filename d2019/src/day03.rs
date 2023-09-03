@@ -37,10 +37,7 @@ pub fn part_one((_a, _b, intersections): &Intermediate) -> Option<Output> {
 	let mut intersection_distances: Vec<(Vec2d, i32)> = intersections
 		.iter()
 		.map(|intersection: &Vec2d| -> (Vec2d, i32) {
-			(
-				intersection.clone(),
-				intersection.manhattan_distance(&origin),
-			)
+			(*intersection, intersection.manhattan_distance(&origin))
 		})
 		.collect();
 
@@ -61,7 +58,7 @@ pub fn part_two((a, b, intersections): &Intermediate) -> Option<Output> {
 			let b: i32 = b
 				.signal_distance_to(intersection)
 				.expect("intersection not on wire b?");
-			(intersection.clone(), a, b, a + b)
+			(*intersection, a, b, a + b)
 		})
 		.collect();
 
@@ -237,6 +234,6 @@ mod tests {
 		let v1: Vec2d = Vec2d(0, 0);
 		let v2: Vec2d = Vec2d(3, 5);
 
-		assert_eq!(v1 + v2, Vec2d(3, 5))
+		assert_eq!(v1 + v2, Vec2d(3, 5));
 	}
 }

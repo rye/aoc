@@ -5,13 +5,12 @@ pub type Output = usize;
 pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 	let bounds: Vec<u32> = input
 		.lines()
-		.map(|line| -> Vec<u32> {
+		.flat_map(|line| -> Vec<u32> {
 			line
-				.split("-")
+				.split('-')
 				.map(|num| -> u32 { num.parse::<u32>().expect("malformed bound") })
 				.collect()
 		})
-		.flatten()
 		.collect();
 
 	assert_eq!(bounds.len(), 2);
@@ -50,7 +49,7 @@ pub fn part_two((starting_bound, ending_bound): &Intermediate) -> Option<Output>
 #[derive(Debug, Copy, Clone, PartialOrd, PartialEq, Ord, Eq)]
 struct Password(u32);
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 struct Digits<'i, I> {
 	number: &'i I,
 	pow: i32,
@@ -64,17 +63,17 @@ impl<'i> Password {
 		}
 	}
 
-	fn is_monotonically_increasing(&self) -> bool {
+	fn is_monotonically_increasing(self) -> bool {
 		let digits: Vec<u32> = self.digits().collect();
 		let sorted: Vec<u32> = {
 			let mut tmp = digits.clone();
-			tmp.sort();
+			tmp.sort_unstable();
 			tmp
 		};
 		sorted == digits
 	}
 
-	fn has_at_least_two_adjacent_digits(&self) -> bool {
+	fn has_at_least_two_adjacent_digits(self) -> bool {
 		let mut digits: Vec<u32> = self.digits().collect();
 		let starting_len = digits.len();
 		digits.dedup();
@@ -82,16 +81,11 @@ impl<'i> Password {
 		starting_len - final_len >= 1
 	}
 
-	fn has_exactly_two_adjacent_digits(&self) -> bool {
+	fn has_exactly_two_adjacent_digits(self) -> bool {
 		let digits: Vec<u32> = self.digits().collect();
 
 		let counts: Vec<u32> = (0..=9)
-			.map(|cur| -> u32 {
-				digits
-					.iter()
-					.map(|digit| if *digit == cur { 1 } else { 0 })
-					.sum()
-			})
+			.map(|cur| -> u32 { digits.iter().map(|digit| u32::from(*digit == cur)).sum() })
 			.collect();
 
 		counts.contains(&2)
@@ -146,7 +140,7 @@ mod tests {
 
 	#[test]
 	fn digits_123456() {
-		let password: Password = Password(123456_u32);
+		let password: Password = Password(123_456_u32);
 		let mut digits = password.digits();
 		assert_eq!(digits.next(), Some(1_u32));
 		assert_eq!(digits.next(), Some(2_u32));

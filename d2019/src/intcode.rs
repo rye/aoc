@@ -13,7 +13,7 @@ pub enum Opcode {
 	Halt,
 }
 
-fn debug_param(param: impl core::fmt::Display, parameter_mode: ParameterMode) -> String {
+fn debug_param(param: impl core::fmt::Display, parameter_mode: &ParameterMode) -> String {
 	match parameter_mode {
 		ParameterMode::Position => format!("[{param}]"),
 		ParameterMode::Immediate => format!("({param})"),
@@ -22,7 +22,7 @@ fn debug_param(param: impl core::fmt::Display, parameter_mode: ParameterMode) ->
 
 impl From<i32> for Opcode {
 	fn from(raw: i32) -> Opcode {
-		use Opcode::*;
+		use Opcode::{Add, Equals, Halt, Input, JumpIfFalse, JumpIfTrue, LessThan, Mul, Output};
 
 		// We should not get values >= 100.
 		assert_eq!(raw % 100, raw);
@@ -91,7 +91,7 @@ fn instruction_example() {
 			)
 		},
 		1002_i32.into()
-	)
+	);
 }
 
 #[derive(Debug)]
@@ -125,6 +125,7 @@ impl Intcode {
 		Self::new(inner, 0_usize)
 	}
 
+	#[must_use]
 	pub fn input(mut self, value: i32) -> Self {
 		self.input.push_back(value);
 
@@ -198,7 +199,7 @@ impl Intcode {
 					println!(
 						"{:04} INPUT -> {}",
 						self.head,
-						debug_param(location, ParameterMode::Position)
+						debug_param(location, &ParameterMode::Position)
 					);
 				}
 
@@ -212,7 +213,7 @@ impl Intcode {
 					let _ = stdout().flush();
 
 					stdin().read_line(&mut input).expect("invalid input");
-					let input: i32 = input.parse::<i32>().expect("invalid input");
+					let input: i32 = input.trim_end().parse::<i32>().expect("invalid input");
 					self.inner[location as usize] = input;
 				} else if let Some(input) = self.input.pop_front() {
 					self.inner[location as usize] = input;
@@ -236,7 +237,7 @@ impl Intcode {
 				};
 
 				if self.interactive {
-					println!("=> {}", value);
+					println!("=> {value}");
 				} else {
 					self.output.push_back(value);
 				}
@@ -264,9 +265,9 @@ impl Intcode {
 					println!(
 						"{:04} JUMP-IF-TRUE {} ({}) -> {} ({})",
 						self.head,
-						debug_param(param_a, parameter_modes.0),
+						debug_param(param_a, &parameter_modes.0),
 						a,
-						debug_param(param_b, parameter_modes.1),
+						debug_param(param_b, &parameter_modes.1),
 						b,
 					);
 				}
@@ -298,9 +299,9 @@ impl Intcode {
 					println!(
 						"{:04} JUMP-IF-FALSE {} ({}) -> {} ({})",
 						self.head,
-						debug_param(param_a, parameter_modes.0),
+						debug_param(param_a, &parameter_modes.0),
 						a,
-						debug_param(param_b, parameter_modes.1),
+						debug_param(param_b, &parameter_modes.1),
 						b,
 					);
 				}
@@ -356,6 +357,7 @@ impl Intcode {
 		}
 	}
 
+	#[must_use]
 	pub fn run(mut self) -> Self {
 		loop {
 			if self.step().is_none() {
@@ -396,7 +398,7 @@ mod tests {
 						ParameterMode::Position
 					)
 				}
-			)
+			);
 		}
 
 		#[test]
@@ -411,7 +413,7 @@ mod tests {
 						ParameterMode::Position
 					)
 				}
-			)
+			);
 		}
 
 		#[test]
@@ -426,7 +428,7 @@ mod tests {
 						ParameterMode::Position
 					)
 				}
-			)
+			);
 		}
 
 		#[test]
@@ -441,7 +443,7 @@ mod tests {
 						ParameterMode::Position
 					)
 				}
-			)
+			);
 		}
 	}
 

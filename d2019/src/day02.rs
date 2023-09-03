@@ -45,7 +45,7 @@ pub fn part_two(program: &Intermediate) -> Option<Output> {
 
 			let output = intcode::Intcode::from(program).run().data()[0];
 
-			if output == 19690720 {
+			if output == 19_690_720 {
 				done = true;
 				pair = (noun, verb);
 				break;

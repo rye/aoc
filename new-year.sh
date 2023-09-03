@@ -66,7 +66,7 @@ echo ">>> Adding stub for src/lib.rs"
 
 echo "#![deny(clippy::all)]
 #![warn(clippy::cargo, clippy::pedantic, clippy::cognitive_complexity)]
-#![allow(clippy::missing_panics_doc)]" > src/lib.rs
+#![allow(clippy::missing_panics_doc, clippy::must_use_candidate)]" > src/lib.rs
 
 echo "" >> src/lib.rs
 

@@ -22,12 +22,8 @@ pub fn part_one(program: &Intermediate) -> Option<Output> {
 
 	let mut outputs: Vec<i32> = Vec::new();
 
-	loop {
-		if let Some(output) = intcode.output() {
-			outputs.push(output);
-		} else {
-			break;
-		}
+	while let Some(output) = intcode.output() {
+		outputs.push(output);
 	}
 
 	Some(*outputs.last().expect("expected an output"))
@@ -42,12 +38,8 @@ pub fn part_two(program: &Intermediate) -> Option<Output> {
 
 	let mut outputs: Vec<i32> = Vec::new();
 
-	loop {
-		if let Some(output) = intcode.output() {
-			outputs.push(output);
-		} else {
-			break;
-		}
+	while let Some(output) = intcode.output() {
+		outputs.push(output);
 	}
 
 	Some(*outputs.last().expect("expected an output"))
