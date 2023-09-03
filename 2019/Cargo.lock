@@ -30,13 +30,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "d2019-02"
-version = "0.1.0"
-dependencies = [
- "d2019",
-]
-
-[[package]]
 name = "d2019-03"
 version = "0.1.0"
 

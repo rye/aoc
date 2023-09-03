@@ -30,6 +30,31 @@ pub fn part_one(program: &Intermediate) -> Option<Output> {
 }
 
 #[must_use]
-pub fn part_two(_intermediate: &Intermediate) -> Option<Output> {
-	None
+pub fn part_two(program: &Intermediate) -> Option<Output> {
+	let mut done = false;
+	let mut pair = (0, 0);
+
+	for noun in 0..=100 {
+		for verb in 0..=100 {
+			let program = {
+				let mut program = program.clone();
+				program[1] = noun;
+				program[2] = verb;
+				program
+			};
+
+			let output = intcode::Intcode::from(program).run().data()[0];
+
+			if output == 19690720 {
+				done = true;
+				pair = (noun, verb);
+				break;
+			}
+		}
+		if done {
+			break;
+		}
+	}
+
+	Some(pair.0 * 100 + pair.1)
 }
