@@ -238,8 +238,6 @@ impl Intcode {
 				if self.interactive {
 					println!("=> {}", value);
 				} else {
-					println!("=> {}", value);
-
 					self.output.push_back(value);
 				}
 
@@ -805,6 +803,89 @@ mod tests {
 		assert_eq!(
 			program.data(),
 			&vec![3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, input, 1, 1, 9]
+		);
+		assert_eq!(program.head, 11_usize);
+		assert_eq!(program.output(), Some(expected_output));
+
+		assert_eq!(program.step(), None);
+	}
+
+	#[test]
+	fn pgm_immediate_0_eq_0() {
+		let input = 0;
+		let expected_output = (input != 0).into();
+		let mut program: Intcode = Intcode::from(vec![3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1]);
+		program = program.input(input);
+
+		assert_eq!(
+			program.data(),
+			&vec![3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1]
+		);
+		assert_eq!(program.head, 0_usize);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(
+			program.data(),
+			&vec![3, 3, 1105, input, 9, 1101, 0, 0, 12, 4, 12, 99, 1]
+		);
+		assert_eq!(program.head, 2_usize);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(
+			program.data(),
+			&vec![3, 3, 1105, input, 9, 1101, 0, 0, 12, 4, 12, 99, 1]
+		);
+		assert_eq!(program.head, 5_usize);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(
+			program.data(),
+			&vec![3, 3, 1105, input, 9, 1101, 0, 0, 12, 4, 12, 99, 0]
+		);
+		assert_eq!(program.head, 9_usize);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(
+			program.data(),
+			&vec![3, 3, 1105, input, 9, 1101, 0, 0, 12, 4, 12, 99, 0]
+		);
+		assert_eq!(program.head, 11_usize);
+		assert_eq!(program.output(), Some(expected_output));
+
+		assert_eq!(program.step(), None);
+	}
+
+	#[test]
+	fn pgm_immediate_1_neq_0() {
+		let input = 1;
+		let expected_output = (input != 0).into();
+		let mut program: Intcode = Intcode::from(vec![3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1]);
+		program = program.input(input);
+
+		assert_eq!(
+			program.data(),
+			&vec![3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1]
+		);
+		assert_eq!(program.head, 0_usize);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(
+			program.data(),
+			&vec![3, 3, 1105, input, 9, 1101, 0, 0, 12, 4, 12, 99, 1]
+		);
+		assert_eq!(program.head, 2_usize);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(
+			program.data(),
+			&vec![3, 3, 1105, input, 9, 1101, 0, 0, 12, 4, 12, 99, 1]
+		);
+		assert_eq!(program.head, 9_usize);
+
+		assert_eq!(program.step(), Some(()));
+		assert_eq!(
+			program.data(),
+			&vec![3, 3, 1105, input, 9, 1101, 0, 0, 12, 4, 12, 99, 1]
 		);
 		assert_eq!(program.head, 11_usize);
 		assert_eq!(program.output(), Some(expected_output));
