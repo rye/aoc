@@ -15,21 +15,6 @@ fn main() {
 		})
 		.collect();
 
-	// Part One: Compute value left at position 0.
-	{
-		let program = {
-			let mut program = program.clone();
-			program[1] = 12;
-			program[2] = 2;
-			program
-		};
-
-		let mut intcode: intcode::Intcode = intcode::Intcode::from(program);
-		intcode = intcode.run();
-		let final_memory = intcode.data();
-		println!("Part One: {}", final_memory[0]);
-	}
-
 	// Part Two: Figure out what pair of inputs produces the output 19690720.
 	{
 		let mut done = false;
