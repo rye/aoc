@@ -1,3 +1,3 @@
 [workspace]
 
-members = ["d2019-03", "d2019-04"]
+members = ["d2019-04"]

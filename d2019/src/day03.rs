@@ -6,7 +6,6 @@ use core::{
 };
 
 use std::collections::HashSet;
-use std::io::BufRead;
 
 pub type Intermediate = (Wire, Wire, Vec<Vec2d>);
 pub type Output = i32;
@@ -52,8 +51,23 @@ pub fn part_one((_a, _b, intersections): &Intermediate) -> Option<Output> {
 }
 
 #[must_use]
-pub fn part_two(_intermediate: &Intermediate) -> Option<Output> {
-	None
+pub fn part_two((a, b, intersections): &Intermediate) -> Option<Output> {
+	let mut intersection_signal_distances: Vec<(Vec2d, i32, i32, i32)> = intersections
+		.iter()
+		.map(|intersection: &Vec2d| {
+			let a: i32 = a
+				.signal_distance_to(intersection)
+				.expect("intersection not on wire a?");
+			let b: i32 = b
+				.signal_distance_to(intersection)
+				.expect("intersection not on wire b?");
+			(intersection.clone(), a, b, a + b)
+		})
+		.collect();
+
+	intersection_signal_distances.sort_by(|a, b| a.3.partial_cmp(&b.3).unwrap());
+
+	Some(intersection_signal_distances[1].3)
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
