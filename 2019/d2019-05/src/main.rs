@@ -1,3 +1,5 @@
+use d2019::intcode;
+
 fn main() {
 	use std::io::BufRead;
 

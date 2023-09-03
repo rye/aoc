@@ -2,6 +2,8 @@
 #![warn(clippy::cargo, clippy::pedantic, clippy::cognitive_complexity)]
 #![allow(clippy::missing_panics_doc)]
 
+pub mod intcode;
+
 pub mod day01;
 pub mod day02;
 pub mod day03;
