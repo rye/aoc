@@ -20,8 +20,6 @@ impl From<i32> for Opcode {
 		// We should not get values >= 100.
 		assert_eq!(raw % 100, raw);
 
-		dbg!(raw);
-
 		match raw {
 			1 => Add,
 			2 => Mul,
