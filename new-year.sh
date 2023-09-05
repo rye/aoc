@@ -29,9 +29,7 @@ then
 fi
 
 echo ">>> /!\\ Please add the cargo package to the workspace members. /!\\"
-print ">>>     When done, type \"done\":"
-
-read input
+read -p ">>>     When done, type \"done\": " input
 
 if [ "$input" != "done" ];
 then
