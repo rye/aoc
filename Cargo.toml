@@ -3,6 +3,7 @@ resolver = "2"
 members = [
 	"daocutil",
 	"d2015",
+	"d2016",
 	"d2017",
 	# "2019"
 	"d2018",
