@@ -140,7 +140,7 @@ impl Rope {
 		match (head.0 - tail.0, head.1 - tail.1) {
 			// A total of 9 possibilities require no nudge. These are the cases
 			// where the head and tail are either on top of each other or touching.
-			(-1 | 0 | 1, -1 | 0 | 1) => None,
+			(-1..=1, -1..=1) => None,
 
 			// Cardinal direction overextensions always nudge in the same direction
 			// to close the gap.

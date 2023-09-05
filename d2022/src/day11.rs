@@ -116,6 +116,7 @@ pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 		.collect::<Result<BTreeMap<u8, Monkey>, _>>()
 }
 
+#[allow(clippy::needless_pass_by_value)]
 fn turn(monkey_set: &mut BTreeMap<u8, Cell<Monkey>>, mode: SolverMode) {
 	let lcm_divisor: u32 = monkey_set
 		.values_mut()
@@ -125,7 +126,7 @@ fn turn(monkey_set: &mut BTreeMap<u8, Cell<Monkey>>, mode: SolverMode) {
 	let mut in_flight_items: BTreeMap<u8, Vec<u32>> = BTreeMap::default();
 
 	// Handle each monkey's turns:
-	for (monkey_id, monkey) in monkey_set.iter_mut() {
+	for (monkey_id, monkey) in &mut *monkey_set {
 		// If there any items incoming to the monkey, go ahead and add them to the list.
 		if let Some(incoming_items) = in_flight_items.get_mut(monkey_id) {
 			let monkey = monkey.get_mut();
@@ -152,7 +153,7 @@ fn turn(monkey_set: &mut BTreeMap<u8, Cell<Monkey>>, mode: SolverMode) {
 				Operation::Mul(amt) => new_value *= amt,
 				Operation::Square => {
 					new_value = u32::try_from(u64::from(new_value).pow(2) % u64::from(lcm_divisor))
-						.expect("divisor lcm should not be greater than u32::MAX")
+						.expect("divisor lcm should not be greater than u32::MAX");
 				}
 			}
 
@@ -164,12 +165,12 @@ fn turn(monkey_set: &mut BTreeMap<u8, Cell<Monkey>>, mode: SolverMode) {
 			if new_value % monkey.divisor == 0 {
 				in_flight_items
 					.entry(monkey.true_dest)
-					.or_insert_with(Default::default)
+					.or_default()
 					.push(new_value);
 			} else {
 				in_flight_items
 					.entry(monkey.false_dest)
-					.or_insert_with(Default::default)
+					.or_default()
 					.push(new_value);
 			}
 		}
@@ -194,7 +195,7 @@ pub fn part_one(monkeys: &Intermediate) -> Option<Output> {
 		.collect();
 
 	for _n in 0..20 {
-		turn(&mut monkey_set, SolverMode::PartOne)
+		turn(&mut monkey_set, SolverMode::PartOne);
 	}
 
 	let monkey_business: u64 = monkey_set
@@ -218,7 +219,7 @@ pub fn part_two(monkeys: &Intermediate) -> Option<Output> {
 		.collect();
 
 	for _n in 0..10000 {
-		turn(&mut monkey_set, SolverMode::PartTwo)
+		turn(&mut monkey_set, SolverMode::PartTwo);
 	}
 
 	let monkey_business: u64 = monkey_set

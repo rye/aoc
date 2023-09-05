@@ -157,7 +157,6 @@ pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 				match value {
 					' ' => break,
 					c if c.is_ascii_uppercase() => {
-						let stack = stack;
 						let krate = Crate(c);
 
 						// Insert onto stack
