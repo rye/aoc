@@ -2,7 +2,7 @@ use core::str::FromStr;
 use std::{cmp::Ordering, collections::VecDeque};
 
 pub type Intermediate = Vec<Pair>;
-pub type Output = u32;
+pub type Output = usize;
 
 #[derive(PartialEq, PartialOrd, Eq, Ord, Clone)]
 #[cfg_attr(test, derive(Debug))]
@@ -294,10 +294,10 @@ fn compare(a: &PacketData, b: &PacketData) -> Option<Ordering> {
 			None
 		}
 		(PD::Integer(a), PD::List(b)) => {
-			compare(&PD::List(vec![PD::Integer(*a)]), &PD::List(b.to_vec()))
+			compare(&PD::List(vec![PD::Integer(*a)]), &PD::List(b.clone()))
 		}
 		(PD::List(a), PD::Integer(b)) => {
-			compare(&PD::List(a.to_vec()), &PD::List(vec![PD::Integer(*b)]))
+			compare(&PD::List(a.clone()), &PD::List(vec![PD::Integer(*b)]))
 		}
 	}
 }
@@ -320,7 +320,7 @@ pub fn part_one(pairs: &Intermediate) -> Option<Output> {
 		let comparison_result = compare(&pair.0, &pair.1);
 		match comparison_result {
 			Some(Ordering::Greater) => {}
-			_ => sum += (idx + 1) as u32,
+			_ => sum += idx + 1,
 		}
 	}
 
@@ -336,6 +336,38 @@ daocutil::test_example!(
 );
 
 #[must_use]
-pub fn part_two(_intermediate: &Intermediate) -> Option<Output> {
-	None
+pub fn part_two(pairs: &Intermediate) -> Option<Output> {
+	let mut all_packets: Vec<&PacketData> = pairs
+		.iter()
+		.flat_map(|pair| vec![&pair.0, &pair.1])
+		.collect();
+
+	let marker_a = PacketData::List(vec![PacketData::List(vec![PacketData::Integer(2)])]);
+	let marker_b = PacketData::List(vec![PacketData::List(vec![PacketData::Integer(6)])]);
+
+	all_packets.push(&marker_a);
+	all_packets.push(&marker_b);
+
+	all_packets.sort_by(|a, b| compare(a, b).expect("expected to get an ordering"));
+
+	let result = [&marker_a, &marker_b]
+		.map(|needle| {
+			all_packets
+				.iter()
+				.position(|&c| c == needle)
+				.expect("can't find the markers we just put in the array")
+				+ 1
+		})
+		.iter()
+		.product();
+
+	Some(result)
 }
+
+daocutil::test_example!(
+	part_two_example,
+	parse,
+	part_two,
+	include_str!("examples/day13"),
+	Some(140)
+);
