@@ -145,8 +145,8 @@ macro_rules! generate_main {
 							std::fs::File::open(format!("inputs/day{:02}", ident)),
 							args.next(),
 						) {
-							(Ok(file), _) => daocutil::string_from(file)?,
 							(_, Some(filename)) => daocutil::string_from(std::fs::File::open(filename)?)?,
+							(Ok(file), _) => daocutil::string_from(file)?,
 							(_, None) => daocutil::string_from(std::io::stdin())?,
 						};
 
