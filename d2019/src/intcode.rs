@@ -140,6 +140,13 @@ impl Intcode {
 		self.output.pop_front()
 	}
 
+	fn resolve_parameter(&self, value: i32, mode: &ParameterMode) -> i32 {
+		match mode {
+			ParameterMode::Position => self.inner[usize::try_from(value).expect("what")],
+			ParameterMode::Immediate => value,
+		}
+	}
+
 	pub fn step(&mut self) -> Option<()> {
 		let instruction: Instruction = Instruction::from(self.inner[self.head]);
 		let opcode: Opcode = instruction.opcode;
@@ -155,20 +162,16 @@ impl Intcode {
 				// Ensure no illegal output parameter in immediate mode.
 				assert!(parameter_modes.2 != ParameterMode::Immediate);
 
-				let a = match parameter_modes.0 {
-					ParameterMode::Position => self.inner[param_a as usize],
-					ParameterMode::Immediate => param_a,
-				};
+				let a = self.resolve_parameter(param_a, &parameter_modes.0);
+				let b = self.resolve_parameter(param_b, &parameter_modes.1);
 
-				let b = match parameter_modes.1 {
-					ParameterMode::Position => self.inner[param_b as usize],
-					ParameterMode::Immediate => param_b,
-				};
+				self.inner[usize::try_from(param_outpos)
+					.expect("failed to convert output position for add instruction")] = a + b;
 
-				self.inner[param_outpos as usize] = a + b;
 				self.head += 4;
 				Some(())
 			}
+
 			Opcode::Mul => {
 				let param_a = self.inner[self.head + 1];
 				let param_b = self.inner[self.head + 2];
@@ -177,17 +180,12 @@ impl Intcode {
 				// Ensure no illegal output parameter in immediate mode.
 				assert!(parameter_modes.2 != ParameterMode::Immediate);
 
-				let a = match parameter_modes.0 {
-					ParameterMode::Position => self.inner[param_a as usize],
-					ParameterMode::Immediate => param_a,
-				};
+				let a = self.resolve_parameter(param_a, &parameter_modes.0);
+				let b = self.resolve_parameter(param_b, &parameter_modes.1);
 
-				let b = match parameter_modes.1 {
-					ParameterMode::Position => self.inner[param_b as usize],
-					ParameterMode::Immediate => param_b,
-				};
+				self.inner[usize::try_from(param_outpos)
+					.expect("failed to convert output position for mul instruction")] = a * b;
 
-				self.inner[param_outpos as usize] = a * b;
 				self.head += 4;
 				Some(())
 			}
@@ -231,10 +229,7 @@ impl Intcode {
 			Opcode::Output => {
 				let param = self.inner[self.head + 1];
 
-				let value = match parameter_modes.0 {
-					ParameterMode::Position => self.inner[param as usize],
-					ParameterMode::Immediate => param,
-				};
+				let value = self.resolve_parameter(param, &parameter_modes.0);
 
 				if self.interactive {
 					println!("=> {value}");
@@ -251,15 +246,8 @@ impl Intcode {
 				let param_a = self.inner[self.head + 1];
 				let param_b = self.inner[self.head + 2];
 
-				let a = match parameter_modes.0 {
-					ParameterMode::Position => self.inner[param_a as usize],
-					ParameterMode::Immediate => param_a,
-				};
-
-				let b = match parameter_modes.1 {
-					ParameterMode::Position => self.inner[param_b as usize],
-					ParameterMode::Immediate => param_b,
-				};
+				let a = self.resolve_parameter(param_a, &parameter_modes.0);
+				let b = self.resolve_parameter(param_b, &parameter_modes.1);
 
 				if self.debug {
 					println!(
@@ -285,15 +273,8 @@ impl Intcode {
 				let param_a = self.inner[self.head + 1];
 				let param_b = self.inner[self.head + 2];
 
-				let a = match parameter_modes.0 {
-					ParameterMode::Position => self.inner[param_a as usize],
-					ParameterMode::Immediate => param_a,
-				};
-
-				let b = match parameter_modes.1 {
-					ParameterMode::Position => self.inner[param_b as usize],
-					ParameterMode::Immediate => param_b,
-				};
+				let a = self.resolve_parameter(param_a, &parameter_modes.0);
+				let b = self.resolve_parameter(param_b, &parameter_modes.1);
 
 				if self.debug {
 					println!(
@@ -320,14 +301,8 @@ impl Intcode {
 				let param_b = self.inner[self.head + 2];
 				let param_outpos = self.inner[self.head + 3];
 
-				let a = match parameter_modes.0 {
-					ParameterMode::Position => self.inner[param_a as usize],
-					ParameterMode::Immediate => param_a,
-				};
-				let b = match parameter_modes.1 {
-					ParameterMode::Position => self.inner[param_b as usize],
-					ParameterMode::Immediate => param_b,
-				};
+				let a = self.resolve_parameter(param_a, &parameter_modes.0);
+				let b = self.resolve_parameter(param_b, &parameter_modes.1);
 
 				self.inner[param_outpos as usize] = (a < b).into();
 				self.head += 4;
@@ -339,14 +314,8 @@ impl Intcode {
 				let param_b = self.inner[self.head + 2];
 				let param_outpos = self.inner[self.head + 3];
 
-				let a = match parameter_modes.0 {
-					ParameterMode::Position => self.inner[param_a as usize],
-					ParameterMode::Immediate => param_a,
-				};
-				let b = match parameter_modes.1 {
-					ParameterMode::Position => self.inner[param_b as usize],
-					ParameterMode::Immediate => param_b,
-				};
+				let a = self.resolve_parameter(param_a, &parameter_modes.0);
+				let b = self.resolve_parameter(param_b, &parameter_modes.1);
 
 				self.inner[param_outpos as usize] = (a == b).into();
 				self.head += 4;
