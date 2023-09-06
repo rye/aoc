@@ -1,8 +1,0 @@
-[package]
-name = "d2019-01"
-publish = false
-version = "0.1.0"
-authors = ["Kristofer Rye <kristofer.rye@gmail.com>"]
-edition = "2018"
-
-[dependencies]
