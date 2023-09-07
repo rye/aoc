@@ -102,6 +102,7 @@ pub struct Intcode {
 	debug: bool,
 	input: VecDeque<i32>,
 	output: VecDeque<i32>,
+	did_halt: bool,
 }
 
 impl Intcode {
@@ -118,6 +119,7 @@ impl Intcode {
 			debug: false,
 			input,
 			output,
+			did_halt: false,
 		}
 	}
 
@@ -125,15 +127,12 @@ impl Intcode {
 		Self::new(inner, 0_usize)
 	}
 
-	#[must_use]
-	pub fn input(mut self, value: i32) -> Self {
+	pub fn input(&mut self, value: i32) {
 		self.input.push_back(value);
 
 		if self.interactive {
 			self.interactive = false;
 		}
-
-		self
 	}
 
 	pub fn output(&mut self) -> Option<i32> {
@@ -147,11 +146,20 @@ impl Intcode {
 		}
 	}
 
+	pub fn did_halt(&self) -> bool {
+		self.did_halt
+	}
+
 	pub fn step(&mut self) -> Option<()> {
+		// Fetch
 		let instruction: Instruction = Instruction::from(self.inner[self.head]);
 		let opcode: Opcode = instruction.opcode;
 		let parameter_modes: (ParameterMode, ParameterMode, ParameterMode) =
 			instruction.parameter_modes;
+
+		if self.debug {
+			println!("{:04} {opcode:?}", self.head);
+		}
 
 		match opcode {
 			Opcode::Add => {
@@ -197,7 +205,7 @@ impl Intcode {
 					println!(
 						"{:04} INPUT -> {}",
 						self.head,
-						debug_param(location, &ParameterMode::Position)
+						debug_param(location, &ParameterMode::Immediate)
 					);
 				}
 
@@ -322,7 +330,10 @@ impl Intcode {
 				Some(())
 			}
 
-			Opcode::Halt => None,
+			Opcode::Halt => {
+				self.did_halt = true;
+				None
+			}
 		}
 	}
 
@@ -330,6 +341,24 @@ impl Intcode {
 	pub fn run(mut self) -> Self {
 		loop {
 			if self.step().is_none() {
+				break self;
+			}
+		}
+	}
+
+	#[must_use]
+	pub fn run_til_next_output(&mut self) -> &mut Self {
+		loop {
+			if self.step().is_none() {
+				break self;
+			}
+
+			if !self.output.is_empty() {
+				break self;
+			}
+
+			if self.did_halt {
+				println!("Did halt... before output was produced!");
 				break self;
 			}
 		}
@@ -421,7 +450,7 @@ mod tests {
 		let mut program: Intcode = Intcode::from(vec![3, 0, 4, 0, 99]);
 
 		// First, we should be able to set the input.
-		program = program.input(573);
+		program.input(573);
 		assert_eq!(program.data(), &vec![3, 0, 4, 0, 99]);
 
 		// After one step, the value we input should be stored in the data, and we
@@ -475,7 +504,7 @@ mod tests {
 		let input = 8;
 		let expected_output = (input == 8).into();
 		let mut program: Intcode = Intcode::from(vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]);
-		program = program.input(input);
+		program.input(input);
 
 		assert_eq!(program.data(), &vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]);
 
@@ -503,7 +532,7 @@ mod tests {
 		let input = 7;
 		let expected_output = (input == 8).into();
 		let mut program: Intcode = Intcode::from(vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]);
-		program = program.input(input);
+		program.input(input);
 
 		assert_eq!(program.data(), &vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]);
 
@@ -531,7 +560,7 @@ mod tests {
 		let input = 8;
 		let expected_output = (input < 8).into();
 		let mut program: Intcode = Intcode::from(vec![3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8]);
-		program = program.input(input);
+		program.input(input);
 
 		assert_eq!(program.data(), &vec![3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8]);
 
@@ -559,7 +588,7 @@ mod tests {
 		let input = 7;
 		let expected_output = (input < 8).into();
 		let mut program: Intcode = Intcode::from(vec![3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8]);
-		program = program.input(input);
+		program.input(input);
 
 		assert_eq!(program.data(), &vec![3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8]);
 
@@ -587,7 +616,7 @@ mod tests {
 		let input = 8;
 		let expected_output = (input == 8).into();
 		let mut program: Intcode = Intcode::from(vec![3, 3, 1108, -1, 8, 3, 4, 3, 99]);
-		program = program.input(input);
+		program.input(input);
 
 		assert_eq!(program.data(), &vec![3, 3, 1108, -1, 8, 3, 4, 3, 99]);
 
@@ -615,7 +644,7 @@ mod tests {
 		let input = 7;
 		let expected_output = (input == 8).into();
 		let mut program: Intcode = Intcode::from(vec![3, 3, 1108, -1, 8, 3, 4, 3, 99]);
-		program = program.input(input);
+		program.input(input);
 
 		assert_eq!(program.data(), &vec![3, 3, 1108, -1, 8, 3, 4, 3, 99]);
 
@@ -643,7 +672,7 @@ mod tests {
 		let input = 8;
 		let expected_output = (input < 8).into();
 		let mut program: Intcode = Intcode::from(vec![3, 3, 1107, -1, 8, 3, 4, 3, 99]);
-		program = program.input(input);
+		program.input(input);
 
 		assert_eq!(program.data(), &vec![3, 3, 1107, -1, 8, 3, 4, 3, 99]);
 
@@ -671,7 +700,7 @@ mod tests {
 		let input = 7;
 		let expected_output = (input < 8).into();
 		let mut program: Intcode = Intcode::from(vec![3, 3, 1107, -1, 8, 3, 4, 3, 99]);
-		program = program.input(input);
+		program.input(input);
 
 		assert_eq!(program.data(), &vec![3, 3, 1107, -1, 8, 3, 4, 3, 99]);
 
@@ -701,7 +730,7 @@ mod tests {
 		let mut program: Intcode = Intcode::from(vec![
 			3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9,
 		]);
-		program = program.input(input);
+		program.input(input);
 
 		assert_eq!(
 			program.data(),
@@ -741,7 +770,7 @@ mod tests {
 		let mut program: Intcode = Intcode::from(vec![
 			3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9,
 		]);
-		program = program.input(input);
+		program.input(input);
 
 		assert_eq!(
 			program.data(),
@@ -786,7 +815,7 @@ mod tests {
 		let input = 0;
 		let expected_output = (input != 0).into();
 		let mut program: Intcode = Intcode::from(vec![3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1]);
-		program = program.input(input);
+		program.input(input);
 
 		assert_eq!(
 			program.data(),
@@ -831,7 +860,7 @@ mod tests {
 		let input = 1;
 		let expected_output = (input != 0).into();
 		let mut program: Intcode = Intcode::from(vec![3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1]);
-		program = program.input(input);
+		program.input(input);
 
 		assert_eq!(
 			program.data(),

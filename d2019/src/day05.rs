@@ -17,7 +17,7 @@ pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 pub fn part_one(program: &Intermediate) -> Option<Output> {
 	let program = program.clone();
 	let mut intcode: intcode::Intcode = intcode::Intcode::from(program);
-	intcode = intcode.input(1);
+	intcode.input(1);
 	intcode = intcode.run();
 
 	let mut outputs: Vec<i32> = Vec::new();
@@ -33,7 +33,7 @@ pub fn part_one(program: &Intermediate) -> Option<Output> {
 pub fn part_two(program: &Intermediate) -> Option<Output> {
 	let program = program.clone();
 	let mut intcode: intcode::Intcode = intcode::Intcode::from(program);
-	intcode = intcode.input(5);
+	intcode.input(5);
 	intcode = intcode.run();
 
 	let mut outputs: Vec<i32> = Vec::new();
