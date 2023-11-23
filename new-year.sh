@@ -64,11 +64,7 @@ echo "inputs/*	linguist-generated=true" > .gitattributes
 
 echo ">>> Adding stub for src/lib.rs"
 
-echo "#![deny(clippy::all)]
-#![warn(clippy::cargo, clippy::pedantic, clippy::cognitive_complexity)]
-#![allow(clippy::missing_panics_doc, clippy::must_use_candidate)]" > src/lib.rs
-
-echo "" >> src/lib.rs
+touch src/lib.rs
 
 echo ">>> Creating day parts"
 
