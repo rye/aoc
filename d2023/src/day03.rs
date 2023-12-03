@@ -15,7 +15,7 @@ pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 	for (y, line) in input.lines().enumerate() {
 		let y: u32 = y.try_into().expect("too many lines");
 
-		for ((x, y), number) in re.find_iter(&line).map(|matzch| {
+		for ((x, y), number) in re.find_iter(line).map(|matzch| {
 			(
 				(
 					matzch.start().try_into().expect("start exceeds u32::max"),
@@ -32,7 +32,7 @@ pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 
 		for (x, byte) in line.bytes().enumerate() {
 			let x: u32 = x.try_into().expect("too many characters on line");
-			let char: char = byte.try_into().expect("asdf");
+			let char: char = byte.into();
 
 			chars.insert((x, y), char);
 		}
@@ -87,7 +87,7 @@ fn part_numbers(schematic: &Intermediate) -> impl Iterator<Item = u32> + '_ {
 
 			neighbors_to_check
 				.iter()
-				.any(|neighbor| match schematic.0.get(&neighbor) {
+				.any(|neighbor| match schematic.0.get(neighbor) {
 					Some('#') => true,
 					Some('$') => true,
 					Some('%') => true,
@@ -136,7 +136,7 @@ fn parts(schematic: &Intermediate) -> impl Iterator<Item = ((u32, u32), char, u3
 
 			let neighbor = neighbors_to_check
 				.iter()
-				.find(|neighbor| match schematic.0.get(&neighbor) {
+				.find(|neighbor| match schematic.0.get(neighbor) {
 					Some('#') => true,
 					Some('$') => true,
 					Some('%') => true,
@@ -167,10 +167,10 @@ daocutil::test_example!(
 
 #[must_use]
 pub fn part_two(schematic: &Intermediate) -> Option<Output> {
-	let gear_candidate_locations = parts(schematic)
+	let gear_candidate_locations: BTreeMap<(u32, u32), Vec<u32>> = parts(schematic)
 		.filter(|(_part_pos, c, _part_num)| c == &'*')
 		.fold(BTreeMap::new(), |mut map, (pos, _c, part_number)| {
-			map.entry(pos).or_insert(Vec::new()).push(part_number);
+			map.entry(pos).or_default().push(part_number);
 			map
 		});
 
