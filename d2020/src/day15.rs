@@ -1,3 +1,5 @@
+use core::convert::TryFrom;
+
 const END: u32 = 30_000_000;
 
 pub type Intermediate = Vec<u32>;
@@ -17,12 +19,12 @@ pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
 pub fn part_one(intermediate: &Intermediate) -> Option<Solution> {
 	let mut history = vec![0u32; END as usize];
 	let mut last = intermediate[0];
-	for turn in 0..intermediate.len() as u32 {
+	for turn in 0..u32::try_from(intermediate.len()).unwrap() {
 		history[last as usize] = turn;
 		last = intermediate[turn as usize];
 	}
 
-	for turn in intermediate.len() as u32..2020 {
+	for turn in u32::try_from(intermediate.len()).unwrap()..2020 {
 		let stored = history[last as usize];
 		history[last as usize] = turn;
 		last = if stored == 0 { 0 } else { turn - stored };
@@ -35,12 +37,12 @@ pub fn part_one(intermediate: &Intermediate) -> Option<Solution> {
 pub fn part_two(intermediate: &Intermediate) -> Option<Solution> {
 	let mut history = vec![0u32; END as usize];
 	let mut last = intermediate[0];
-	for turn in 0..intermediate.len() as u32 {
+	for turn in 0..u32::try_from(intermediate.len()).unwrap() {
 		history[last as usize] = turn;
 		last = intermediate[turn as usize];
 	}
 
-	for turn in intermediate.len() as u32..END {
+	for turn in u32::try_from(intermediate.len()).unwrap()..END {
 		let stored = history[last as usize];
 		history[last as usize] = turn;
 		last = if stored == 0 { 0 } else { turn - stored };

@@ -14,6 +14,7 @@ type RouteDistances = Vec<Distance>;
 
 const LINE_PARSE_RE: &str = r"^(?P<start>\w+) to (?P<end>\w+) = (?P<distance>\d+)$";
 
+#[allow(clippy::needless_pass_by_value)]
 fn extract_line_captures(
 	captures: regex::Captures<'_>,
 ) -> (
@@ -62,7 +63,7 @@ fn all_routes<'places, 'input>(
 
 fn total_distance<'processing>(
 	distances: &'processing DistanceMap,
-	route: Vec<&'processing Place<'_>>,
+	route: &[&'processing Place<'_>],
 ) -> usize {
 	route
 		.windows(2)
@@ -112,7 +113,7 @@ pub fn parse(input: &str) -> Intermediate {
 
 	// Finally, permute all the places together and produce a mapping of routes to their total distance
 	all_routes(&places)
-		.map(|route| total_distance(&distances, route))
+		.map(|route| total_distance(&distances, &route))
 		.collect()
 }
 

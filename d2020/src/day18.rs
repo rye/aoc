@@ -144,11 +144,7 @@ impl Expr {
 
 const fn part_one_prec_props_fn(token: &Token) -> OpTokenProps {
 	match *token {
-		Token::Asterisk => OpTokenProps {
-			precedence: 1,
-			left_associative: true,
-		},
-		Token::Plus => OpTokenProps {
+		Token::Asterisk | Token::Plus => OpTokenProps {
 			precedence: 1,
 			left_associative: true,
 		},

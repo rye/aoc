@@ -1,3 +1,4 @@
+use core::convert::TryFrom;
 use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -16,7 +17,7 @@ pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
 					.chars()
 					.enumerate()
 					.filter(|&(_x, c)| c == '#')
-					.map(move |(x, _c)| Pos(x as i8, y as i8, 0, 0))
+					.map(move |(x, _c)| Pos(i8::try_from(x).unwrap(), i8::try_from(y).unwrap(), 0, 0))
 			})
 			.collect(),
 	)

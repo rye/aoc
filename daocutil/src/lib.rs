@@ -25,8 +25,7 @@ fn parse_just_numbers(str: &str) -> Result<u8, ParseIntError> {
 
 pub fn parse_day_identifier(str: &str) -> Option<u8> {
 	match (str.parse(), parse_just_numbers(str)) {
-		(Ok(u32), _) => Some(u32),
-		(Err(_), Ok(u32)) => Some(u32),
+		(Ok(u32), _) | (Err(_), Ok(u32)) => Some(u32),
 		(_, _) => None,
 	}
 }

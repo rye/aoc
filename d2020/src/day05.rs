@@ -1,5 +1,8 @@
+use core::convert::TryFrom;
+
 pub fn binary_hone(instructions: &str, left: char, right: char) -> usize {
-	let mut range: core::ops::Range<usize> = 0..2_usize.pow(instructions.len() as u32);
+	let mut range: core::ops::Range<usize> =
+		0..2_usize.pow(u32::try_from(instructions.len()).unwrap());
 
 	for instruction in instructions.chars() {
 		let midpoint = (range.start + range.end) / 2;
@@ -21,7 +24,7 @@ pub fn seat_id_from_bsp(bsp: &str) -> usize {
 	let row: usize = binary_hone(fb, 'F', 'B');
 	let column: usize = binary_hone(lr, 'L', 'R');
 
-	row * 2_usize.pow(lr.len() as u32) + column
+	row * 2_usize.pow(u32::try_from(lr.len()).unwrap()) + column
 }
 
 pub type Intermediate = std::collections::BTreeSet<usize>;
@@ -32,7 +35,10 @@ pub fn parse(data: &str) -> Result<Intermediate, core::convert::Infallible> {
 }
 
 pub fn part_one(seat_ids: &Intermediate) -> Option<Solution> {
-	seat_ids.iter().next_back().map(std::borrow::ToOwned::to_owned)
+	seat_ids
+		.iter()
+		.next_back()
+		.map(std::borrow::ToOwned::to_owned)
 }
 
 pub fn part_two(seat_ids: &Intermediate) -> Option<Solution> {

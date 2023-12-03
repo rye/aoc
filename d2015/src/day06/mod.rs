@@ -17,9 +17,7 @@ impl core::str::FromStr for Coord {
 	fn from_str(string: &str) -> Result<Self, Self::Err> {
 		let coords: Vec<&str> = string.split(',').collect();
 
-		if coords.len() != 2 {
-			Err(Error::CoordParse)
-		} else {
+		if coords.len() == 2 {
 			let x = coords[0].parse::<u16>().ok();
 			let y = coords[1].parse::<u16>().ok();
 
@@ -28,6 +26,8 @@ impl core::str::FromStr for Coord {
 			} else {
 				Err(Error::CoordParse)
 			}
+		} else {
+			Err(Error::CoordParse)
 		}
 	}
 }
@@ -211,7 +211,7 @@ impl Grid {
 					.map(|light| light.0)
 					.map(|state| match state {
 						LightState::On(_) => 1,
-						_ => 0,
+						LightState::Off => 0,
 					})
 					.sum::<usize>()
 			})
@@ -228,7 +228,7 @@ impl Grid {
 					.map(|light| light.0)
 					.map(|state| match state {
 						LightState::On(value) => value as usize,
-						_ => 0,
+						LightState::Off => 0,
 					})
 					.sum::<usize>()
 			})

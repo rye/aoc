@@ -1,6 +1,6 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, hash::BuildHasher};
 
-pub fn has_required_fields(passport: &HashMap<&str, &str>) -> bool {
+pub fn has_required_fields<S: BuildHasher>(passport: &HashMap<&str, &str, S>) -> bool {
 	matches!(
 		(
 			passport.get("byr"),
@@ -152,16 +152,30 @@ pub fn part_two(passports: &Intermediate) -> Option<Solution> {
 					passport.get("pid"),
 					passport.get("cid"),
 				) {
-					(Some(byr), Some(iyr), Some(eyr), Some(hgt), Some(hcl), Some(ecl), Some(pid), _) => {
-						let byr_ok: bool = valid_birth_year(byr);
-						let iyr_ok: bool = valid_issue_year(iyr);
-						let eyr_ok: bool = valid_expiry_year(eyr);
-						let hgt_ok: bool = valid_height(hgt);
-						let hcl_ok: bool = valid_hair_color(hcl);
-						let ecl_ok: bool = valid_eye_colors.contains(ecl);
+					(
+						Some(birth_year),
+						Some(issue_year),
+						Some(expiry_year),
+						Some(height),
+						Some(hair_color),
+						Some(eye_color),
+						Some(pid),
+						_,
+					) => {
+						let birth_year_ok: bool = valid_birth_year(birth_year);
+						let issue_year_ok: bool = valid_issue_year(issue_year);
+						let expiry_year_ok: bool = valid_expiry_year(expiry_year);
+						let height_ok: bool = valid_height(height);
+						let hair_color_ok: bool = valid_hair_color(hair_color);
+						let eye_color_ok: bool = valid_eye_colors.contains(eye_color);
 						let pid_ok: bool = { pid.len() == 9 && pid.chars().all(|c| c.is_ascii_digit()) };
 
-						byr_ok && iyr_ok && eyr_ok && hgt_ok && hcl_ok && ecl_ok && pid_ok
+						birth_year_ok
+							&& issue_year_ok
+							&& expiry_year_ok
+							&& height_ok && hair_color_ok
+							&& eye_color_ok
+							&& pid_ok
 					}
 					_ => false,
 				}

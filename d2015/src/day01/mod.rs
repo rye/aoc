@@ -39,7 +39,7 @@ pub fn part_two(directions: &Intermediate) -> Option<Solution> {
 		floor += i32::from(direction);
 
 		if floor < 0 {
-			let offset = index as i32 + 1;
+			let offset = i32::try_from(index).unwrap() + 1;
 			return Some(offset);
 		}
 	}

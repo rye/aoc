@@ -13,13 +13,6 @@ pub enum Opcode {
 	Halt,
 }
 
-fn debug_param(param: impl core::fmt::Display, parameter_mode: &ParameterMode) -> String {
-	match parameter_mode {
-		ParameterMode::Position => format!("[{param}]"),
-		ParameterMode::Immediate => format!("({param})"),
-	}
-}
-
 impl From<i32> for Opcode {
 	fn from(raw: i32) -> Opcode {
 		use Opcode::{Add, Equals, Halt, Input, JumpIfFalse, JumpIfTrue, LessThan, Mul, Output};
@@ -99,7 +92,6 @@ pub struct Intcode {
 	inner: Vec<i32>,
 	head: usize,
 	interactive: bool,
-	debug: bool,
 	input: VecDeque<i32>,
 	output: VecDeque<i32>,
 	did_halt: bool,
@@ -113,10 +105,6 @@ impl Intcode {
 			inner,
 			head,
 			interactive: true,
-			#[cfg(test)]
-			debug: true,
-			#[cfg(not(test))]
-			debug: false,
 			input,
 			output,
 			did_halt: false,
@@ -150,6 +138,133 @@ impl Intcode {
 		self.did_halt
 	}
 
+	fn eval_add(&mut self, parameter_modes: &(ParameterMode, ParameterMode, ParameterMode)) {
+		let param_a = self.inner[self.head + 1];
+		let param_b = self.inner[self.head + 2];
+		let param_outpos = self.inner[self.head + 3];
+
+		// Ensure no illegal output parameter in immediate mode.
+		assert!(parameter_modes.2 != ParameterMode::Immediate);
+
+		let a = self.resolve_parameter(param_a, &parameter_modes.0);
+		let b = self.resolve_parameter(param_b, &parameter_modes.1);
+
+		self.inner[usize::try_from(param_outpos)
+			.expect("failed to convert output position for add instruction")] = a + b;
+
+		self.head += 4;
+	}
+
+	fn eval_mul(&mut self, parameter_modes: &(ParameterMode, ParameterMode, ParameterMode)) {
+		let param_a = self.inner[self.head + 1];
+		let param_b = self.inner[self.head + 2];
+		let param_outpos = self.inner[self.head + 3];
+
+		// Ensure no illegal output parameter in immediate mode.
+		assert!(parameter_modes.2 != ParameterMode::Immediate);
+
+		let a = self.resolve_parameter(param_a, &parameter_modes.0);
+		let b = self.resolve_parameter(param_b, &parameter_modes.1);
+
+		self.inner[usize::try_from(param_outpos)
+			.expect("failed to convert output position for mul instruction")] = a * b;
+
+		self.head += 4;
+	}
+
+	fn eval_input(&mut self) {
+		let location = self.inner[self.head + 1];
+
+		// If the user has supplied us with an input in the queue, use it.
+		// Otherwise, prompt for an input.
+		if self.interactive {
+			use std::io::{stdin, stdout, Write};
+
+			let mut input: String = String::new();
+			print!("<= ");
+			let _ = stdout().flush();
+
+			stdin().read_line(&mut input).expect("invalid input");
+			let input: i32 = input.trim_end().parse::<i32>().expect("invalid input");
+			self.inner[usize::try_from(location).unwrap()] = input;
+		} else if let Some(input) = self.input.pop_front() {
+			self.inner[usize::try_from(location).unwrap()] = input;
+		} else {
+			panic!("Attempted to take input in non-interactive mode without anything in input buffer");
+		}
+
+		self.head += 2;
+	}
+
+	fn eval_output(&mut self, parameter_modes: &(ParameterMode, ParameterMode, ParameterMode)) {
+		let param = self.inner[self.head + 1];
+
+		let value = self.resolve_parameter(param, &parameter_modes.0);
+
+		if self.interactive {
+			println!("=> {value}");
+		} else {
+			self.output.push_back(value);
+		}
+
+		self.head += 2;
+	}
+
+	fn eval_jump_if_true(&mut self, parameter_modes: &(ParameterMode, ParameterMode, ParameterMode)) {
+		let param_a = self.inner[self.head + 1];
+		let param_b = self.inner[self.head + 2];
+
+		let a = self.resolve_parameter(param_a, &parameter_modes.0);
+		let b = self.resolve_parameter(param_b, &parameter_modes.1);
+
+		if a != 0 {
+			self.head = usize::try_from(b).unwrap();
+		} else {
+			self.head += 3;
+		}
+	}
+
+	fn eval_jump_if_false(
+		&mut self,
+		parameter_modes: &(ParameterMode, ParameterMode, ParameterMode),
+	) {
+		let param_a = self.inner[self.head + 1];
+		let param_b = self.inner[self.head + 2];
+
+		let a = self.resolve_parameter(param_a, &parameter_modes.0);
+		let b = self.resolve_parameter(param_b, &parameter_modes.1);
+
+		if a == 0 {
+			self.head = usize::try_from(b).unwrap();
+		} else {
+			self.head += 3;
+		}
+	}
+
+	fn eval_less_than(&mut self, parameter_modes: &(ParameterMode, ParameterMode, ParameterMode)) {
+		let param_a = self.inner[self.head + 1];
+		let param_b = self.inner[self.head + 2];
+		let param_outpos = self.inner[self.head + 3];
+
+		let a = self.resolve_parameter(param_a, &parameter_modes.0);
+		let b = self.resolve_parameter(param_b, &parameter_modes.1);
+
+		self.inner[usize::try_from(param_outpos).unwrap()] = (a < b).into();
+		self.head += 4;
+	}
+
+	fn eval_equals(&mut self, parameter_modes: &(ParameterMode, ParameterMode, ParameterMode)) {
+		let param_a = self.inner[self.head + 1];
+		let param_b = self.inner[self.head + 2];
+		let param_outpos = self.inner[self.head + 3];
+
+		let a = self.resolve_parameter(param_a, &parameter_modes.0);
+		let b = self.resolve_parameter(param_b, &parameter_modes.1);
+
+		self.inner[usize::try_from(param_outpos).unwrap()] = (a == b).into();
+		self.head += 4;
+	}
+
 	pub fn step(&mut self) -> Option<()> {
 		// Fetch
 		let instruction: Instruction = Instruction::from(self.inner[self.head]);
@@ -157,176 +272,44 @@ impl Intcode {
 		let parameter_modes: (ParameterMode, ParameterMode, ParameterMode) =
 			instruction.parameter_modes;
 
-		if self.debug {
-			println!("{:04} {opcode:?}", self.head);
-		}
-
 		match opcode {
 			Opcode::Add => {
-				let param_a = self.inner[self.head + 1];
-				let param_b = self.inner[self.head + 2];
-				let param_outpos = self.inner[self.head + 3];
-
-				// Ensure no illegal output parameter in immediate mode.
-				assert!(parameter_modes.2 != ParameterMode::Immediate);
-
-				let a = self.resolve_parameter(param_a, &parameter_modes.0);
-				let b = self.resolve_parameter(param_b, &parameter_modes.1);
-
-				self.inner[usize::try_from(param_outpos)
-					.expect("failed to convert output position for add instruction")] = a + b;
-
-				self.head += 4;
+				self.eval_add(&parameter_modes);
 				Some(())
 			}
 
 			Opcode::Mul => {
-				let param_a = self.inner[self.head + 1];
-				let param_b = self.inner[self.head + 2];
-				let param_outpos = self.inner[self.head + 3];
-
-				// Ensure no illegal output parameter in immediate mode.
-				assert!(parameter_modes.2 != ParameterMode::Immediate);
-
-				let a = self.resolve_parameter(param_a, &parameter_modes.0);
-				let b = self.resolve_parameter(param_b, &parameter_modes.1);
-
-				self.inner[usize::try_from(param_outpos)
-					.expect("failed to convert output position for mul instruction")] = a * b;
-
-				self.head += 4;
+				self.eval_mul(&parameter_modes);
 				Some(())
 			}
 
 			Opcode::Input => {
-				let location = self.inner[self.head + 1];
-
-				if self.debug {
-					println!(
-						"{:04} INPUT -> {}",
-						self.head,
-						debug_param(location, &ParameterMode::Immediate)
-					);
-				}
-
-				// If the user has supplied us with an input in the queue, use it.
-				// Otherwise, prompt for an input.
-				if self.interactive {
-					use std::io::{stdin, stdout, Write};
-
-					let mut input: String = String::new();
-					print!("<= ");
-					let _ = stdout().flush();
-
-					stdin().read_line(&mut input).expect("invalid input");
-					let input: i32 = input.trim_end().parse::<i32>().expect("invalid input");
-					self.inner[location as usize] = input;
-				} else if let Some(input) = self.input.pop_front() {
-					self.inner[location as usize] = input;
-				} else {
-					panic!(
-						"Attempted to take input in non-interactive mode without anything in input buffer"
-					);
-				}
-
-				self.head += 2;
-
+				self.eval_input();
 				Some(())
 			}
 
 			Opcode::Output => {
-				let param = self.inner[self.head + 1];
-
-				let value = self.resolve_parameter(param, &parameter_modes.0);
-
-				if self.interactive {
-					println!("=> {value}");
-				} else {
-					self.output.push_back(value);
-				}
-
-				self.head += 2;
-
+				self.eval_output(&parameter_modes);
 				Some(())
 			}
 
 			Opcode::JumpIfTrue => {
-				let param_a = self.inner[self.head + 1];
-				let param_b = self.inner[self.head + 2];
-
-				let a = self.resolve_parameter(param_a, &parameter_modes.0);
-				let b = self.resolve_parameter(param_b, &parameter_modes.1);
-
-				if self.debug {
-					println!(
-						"{:04} JUMP-IF-TRUE {} ({}) -> {} ({})",
-						self.head,
-						debug_param(param_a, &parameter_modes.0),
-						a,
-						debug_param(param_b, &parameter_modes.1),
-						b,
-					);
-				}
-
-				if a != 0 {
-					self.head = b as usize;
-				} else {
-					self.head += 3;
-				}
-
+				self.eval_jump_if_true(&parameter_modes);
 				Some(())
 			}
 
 			Opcode::JumpIfFalse => {
-				let param_a = self.inner[self.head + 1];
-				let param_b = self.inner[self.head + 2];
-
-				let a = self.resolve_parameter(param_a, &parameter_modes.0);
-				let b = self.resolve_parameter(param_b, &parameter_modes.1);
-
-				if self.debug {
-					println!(
-						"{:04} JUMP-IF-FALSE {} ({}) -> {} ({})",
-						self.head,
-						debug_param(param_a, &parameter_modes.0),
-						a,
-						debug_param(param_b, &parameter_modes.1),
-						b,
-					);
-				}
-
-				if a == 0 {
-					self.head = b as usize;
-				} else {
-					self.head += 3;
-				}
-
+				self.eval_jump_if_false(&parameter_modes);
 				Some(())
 			}
 
 			Opcode::LessThan => {
-				let param_a = self.inner[self.head + 1];
-				let param_b = self.inner[self.head + 2];
-				let param_outpos = self.inner[self.head + 3];
-
-				let a = self.resolve_parameter(param_a, &parameter_modes.0);
-				let b = self.resolve_parameter(param_b, &parameter_modes.1);
-
-				self.inner[param_outpos as usize] = (a < b).into();
-				self.head += 4;
+				self.eval_less_than(&parameter_modes);
 				Some(())
 			}
 
 			Opcode::Equals => {
-				let param_a = self.inner[self.head + 1];
-				let param_b = self.inner[self.head + 2];
-				let param_outpos = self.inner[self.head + 3];
-
-				let a = self.resolve_parameter(param_a, &parameter_modes.0);
-				let b = self.resolve_parameter(param_b, &parameter_modes.1);
-
-				self.inner[param_outpos as usize] = (a == b).into();
-				self.head += 4;
+				self.eval_equals(&parameter_modes);
 				Some(())
 			}
 

@@ -59,6 +59,7 @@ impl<'i> Password {
 	fn digits(&'i self) -> Digits<'i, u32> {
 		Digits {
 			number: &self.0,
+			#[allow(clippy::cast_possible_truncation)]
 			pow: f64::from(self.0).log10() as i32,
 		}
 	}
@@ -100,7 +101,7 @@ impl<'i> Iterator for Digits<'i, u32> {
 		let power: i32 = self.pow;
 
 		if self.pow >= 0 {
-			let current: u32 = (number / 10_u32.pow(power as u32)) % 10_u32;
+			let current: u32 = (number / 10_u32.pow(u32::try_from(power).unwrap())) % 10_u32;
 			self.pow -= 1;
 			Some(current)
 		} else {

@@ -1,3 +1,5 @@
+use core::convert::TryFrom;
+
 use num_integer::Integer;
 
 /// Compute the greatest common divisor of `a` and `b` using the Extended Euclidean Algorithm.
@@ -14,10 +16,10 @@ pub fn extended_gcd<T: Copy + Integer>(a: T, b: T) -> (T, T, T) {
 pub fn modular_multiplicative_inverse<T: Copy + Integer>(n: T, modulus: T) -> Option<T> {
 	let (g, x, _) = extended_gcd(n, modulus);
 
-	if g != T::one() {
-		None
-	} else {
+	if g == T::one() {
 		Some((x % modulus + modulus) % modulus)
+	} else {
+		None
 	}
 }
 
@@ -90,7 +92,7 @@ pub fn part_two((_timestamp, bus_intervals): &Intermediate) -> Option<Solution> 
 		.enumerate()
 		.filter(|(_, x)| x.is_some())
 		.map(|(i, x)| (i, x.unwrap()))
-		.map(|(idx, bus_id)| (bus_id, bus_id - idx as i64))
+		.map(|(idx, bus_id)| (bus_id, bus_id - i64::try_from(idx).unwrap()))
 		.collect();
 
 	Some(crt(&divisors_and_remainders))

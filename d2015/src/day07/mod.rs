@@ -217,7 +217,7 @@ fn eval_or(signal_tracker: &mut BTreeMap<WireId, Signal>, a: &Source, b: &Source
 fn eval_lshift(
 	signal_tracker: &mut BTreeMap<WireId, Signal>,
 	input: &Source,
-	value: &u16,
+	value: u16,
 	output: &WireId,
 ) {
 	let signal: Signal = match input {
@@ -234,7 +234,7 @@ fn eval_lshift(
 fn eval_rshift(
 	signal_tracker: &mut BTreeMap<WireId, Signal>,
 	input: &Source,
-	value: &u16,
+	value: u16,
 	output: &WireId,
 ) {
 	let signal: Signal = match input {
@@ -260,7 +260,7 @@ fn eval_not(signal_tracker: &mut BTreeMap<WireId, Signal>, input: &Source, outpu
 	signal_tracker.insert(output.clone(), output_signal);
 }
 
-fn process_connections(connections: VecDeque<Connection>) -> BTreeMap<WireId, Signal> {
+fn process_connections(connections: &VecDeque<Connection>) -> BTreeMap<WireId, Signal> {
 	// Isolate the connections that are supplying a direct input to a wire.
 	let (signal_sources, mut connections): (VecDeque<&Connection>, VecDeque<&Connection>) =
 		connections
@@ -285,13 +285,12 @@ fn process_connections(connections: VecDeque<Connection>) -> BTreeMap<WireId, Si
 		if match &connection.input {
 			Input::Source(Source::Wire(a)) => signal_tracker.contains_key(a),
 			Input::Source(_) => unreachable!(),
-			Input::And(a, b) => {
+			Input::And(a, b) | Input::Or(a, b) => {
 				contains_source(&signal_tracker, a) && contains_source(&signal_tracker, b)
 			}
-			Input::Or(a, b) => contains_source(&signal_tracker, a) && contains_source(&signal_tracker, b),
-			Input::LShift(a, _) => contains_source(&signal_tracker, a),
-			Input::RShift(a, _) => contains_source(&signal_tracker, a),
-			Input::Not(a) => contains_source(&signal_tracker, a),
+			Input::LShift(a, _) | Input::RShift(a, _) | Input::Not(a) => {
+				contains_source(&signal_tracker, a)
+			}
 		} {
 			// Evaluate and place the result.
 			match (&connection.input, &connection.output) {
@@ -302,10 +301,10 @@ fn process_connections(connections: VecDeque<Connection>) -> BTreeMap<WireId, Si
 				(Input::And(a, b), output) => eval_and(&mut signal_tracker, a, b, output),
 				(Input::Or(a, b), output) => eval_or(&mut signal_tracker, a, b, output),
 				(Input::LShift(input, value), output) => {
-					eval_lshift(&mut signal_tracker, input, value, output);
+					eval_lshift(&mut signal_tracker, input, *value, output);
 				}
 				(Input::RShift(input, value), output) => {
-					eval_rshift(&mut signal_tracker, input, value, output);
+					eval_rshift(&mut signal_tracker, input, *value, output);
 				}
 				(Input::Not(input), output) => eval_not(&mut signal_tracker, input, output),
 			}
@@ -319,8 +318,6 @@ fn process_connections(connections: VecDeque<Connection>) -> BTreeMap<WireId, Si
 }
 
 pub fn part_one(connections: &Intermediate) -> Option<Solution> {
-	let connections: VecDeque<Connection> = connections.clone();
-
 	let mut signal_tracker = process_connections(connections);
 
 	signal_tracker.remove(&WireId::from("a"))
@@ -329,7 +326,7 @@ pub fn part_one(connections: &Intermediate) -> Option<Solution> {
 pub fn part_two(connections: &Intermediate) -> Option<Solution> {
 	let mut connections: VecDeque<Connection> = connections.clone();
 
-	let mut signal_tracker = process_connections(connections.clone());
+	let mut signal_tracker = process_connections(&connections);
 
 	let result = signal_tracker.remove(&WireId::from("a")).unwrap();
 
@@ -338,7 +335,7 @@ pub fn part_two(connections: &Intermediate) -> Option<Solution> {
 		output: WireId("b".to_string()),
 	});
 
-	let mut signal_tracker = process_connections(connections);
+	let mut signal_tracker = process_connections(&connections);
 
 	let result: Option<u16> = signal_tracker.remove(&WireId::from("a"));
 

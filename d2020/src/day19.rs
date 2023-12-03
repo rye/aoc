@@ -16,21 +16,20 @@ impl FromStr for Rule {
 	fn from_str(str: &str) -> Result<Self, ()> {
 		let chars: Vec<char> = str.chars().collect();
 
-		match chars[0] {
-			'"' => Ok(Self::SingleChar(chars[1])),
-			_ => {
-				let groups: Vec<Vec<usize>> = str
-					.split(" | ")
-					.map(|group| {
-						group
-							.split(' ')
-							.map(|n| n.parse::<usize>().unwrap())
-							.collect()
-					})
-					.collect();
+		if chars[0] == '"' {
+			Ok(Self::SingleChar(chars[1]))
+		} else {
+			let groups: Vec<Vec<usize>> = str
+				.split(" | ")
+				.map(|group| {
+					group
+						.split(' ')
+						.map(|n| n.parse::<usize>().unwrap())
+						.collect()
+				})
+				.collect();
 
-				Ok(Self::Compound(groups))
-			}
+			Ok(Self::Compound(groups))
 		}
 	}
 }

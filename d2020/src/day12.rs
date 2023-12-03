@@ -213,6 +213,7 @@ pub fn part_two(instructions: &Intermediate) -> Option<Solution> {
 						let dx = state.waypoint.0 - state.position.0;
 						let dy = state.waypoint.1 - state.position.1;
 
+						#[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
 						for _ in 0..(times.trunc() as u64) {
 							state.position.0 += dx;
 							state.position.1 += dy;

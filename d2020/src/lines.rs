@@ -1,6 +1,7 @@
 use std::{
 	collections::{BTreeSet, HashSet},
 	fmt::Debug,
+	hash::BuildHasher,
 	io::StdinLock,
 };
 use std::{io::BufRead, str::FromStr};
@@ -48,7 +49,7 @@ where
 	}
 }
 
-impl<'stdin, T> From<Lines<StdinLock<'stdin>>> for HashSet<T>
+impl<'stdin, T, S: BuildHasher + Default> From<Lines<StdinLock<'stdin>>> for HashSet<T, S>
 where
 	T: FromStr,
 	<T as FromStr>::Err: Debug,

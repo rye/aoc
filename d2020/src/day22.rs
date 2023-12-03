@@ -80,22 +80,22 @@ mod deck_score {
 
 fn play_one_round<'round>(deck_a: &'round mut Deck, deck_b: &'round mut Deck) -> RoundResults {
 	if round_is_playable(deck_a, deck_b) {
-		let deck_a_plays = deck_a
+		let a_plays = deck_a
 			.0
 			.pop_front()
 			.expect("round is playable but deck is empty?");
-		let deck_b_plays = deck_b
+		let b_plays = deck_b
 			.0
 			.pop_front()
 			.expect("round is playable but deck is empty?");
 
-		if deck_a_plays > deck_b_plays {
-			deck_a.0.push_back(deck_a_plays);
-			deck_a.0.push_back(deck_b_plays);
+		if a_plays > b_plays {
+			deck_a.0.push_back(a_plays);
+			deck_a.0.push_back(b_plays);
 			RoundResults::RoundWon(Player(0_usize))
 		} else {
-			deck_b.0.push_back(deck_b_plays);
-			deck_b.0.push_back(deck_a_plays);
+			deck_b.0.push_back(b_plays);
+			deck_b.0.push_back(a_plays);
 			RoundResults::RoundWon(Player(1_usize))
 		}
 	} else {

@@ -18,10 +18,7 @@ pub fn process_content_spec(content_spec: &str) -> (usize, String) {
 pub fn process_contents(contents: &str) -> Vec<(usize, String)> {
 	match contents {
 		"no other bags" => Vec::new(),
-		_ => contents
-			.split(", ")
-			.map(process_content_spec)
-			.collect(),
+		_ => contents.split(", ").map(process_content_spec).collect(),
 	}
 }
 
@@ -31,11 +28,8 @@ pub fn duplicate_color(contents: &(usize, String)) -> Vec<String> {
 		.collect()
 }
 
-pub fn ruleify(container: String, contents: Vec<(usize, String)>) -> String {
-	let colors: Vec<String> = contents
-		.iter()
-		.flat_map(duplicate_color)
-		.collect();
+pub fn ruleify(container: &str, contents: &[(usize, String)]) -> String {
+	let colors: Vec<String> = contents.iter().flat_map(duplicate_color).collect();
 
 	format!("in({}, [{}]).", container, colors.join(", "))
 }
@@ -49,7 +43,7 @@ pub fn generate_output(data: &str) -> Result<(), Box<dyn std::error::Error>> {
 		let color = process_color(caps.get(1).unwrap().as_str());
 		let content = process_contents(caps.get(2).unwrap().as_str());
 
-		println!("{}", ruleify(color, content));
+		println!("{}", ruleify(&color, &content));
 	}
 
 	println!(

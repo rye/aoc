@@ -1,3 +1,4 @@
+use core::convert::TryFrom;
 use std::collections::HashMap;
 
 pub type Intermediate = Layout;
@@ -183,7 +184,7 @@ impl Layout {
 	}
 
 	fn occupied_neighbors(&self, coords: Coords) -> usize {
-		DELTAS.iter().fold(0, |count, delta| {
+		DELTAS.iter().fold(0, |count, &delta| {
 			if let Some(visible_coords) = self.delta_n(coords, delta, 1) {
 				if let Some(Occupied) = self.cells.get(&visible_coords) {
 					count + 1
@@ -197,13 +198,12 @@ impl Layout {
 	}
 
 	fn visible_occupied_neighbors(&self, coords: Coords) -> usize {
-		DELTAS.iter().fold(0, |count, delta| {
+		DELTAS.iter().fold(0, |count, &delta| {
 			if let Some(true) = (1..).find_map(|n| {
 				if let Some(visible_coords) = self.delta_n(coords, delta, n) {
 					match self.cells.get(&visible_coords) {
 						Some(Occupied) => Some(true),
-						Some(Empty) => Some(false),
-						None => Some(false),
+						Some(Empty) | None => Some(false),
 						_ => None,
 					}
 				} else {
@@ -220,16 +220,23 @@ impl Layout {
 	fn delta_n(
 		&self,
 		(row_idx, col_idx): Coords,
-		(row_delta, col_delta): &(i32, i32),
+		(row_delta, col_delta): (i32, i32),
 		n: i32,
 	) -> Option<Coords> {
 		let (row_idx, col_idx) = (
-			row_idx as i32 + row_delta * n,
-			col_idx as i32 + col_delta * n,
+			i32::try_from(row_idx).unwrap() + row_delta * n,
+			i32::try_from(col_idx).unwrap() + col_delta * n,
 		);
 
-		if row_idx >= 0 && col_idx >= 0 && row_idx < self.height as i32 && col_idx < self.width as i32 {
-			Some((row_idx as usize, col_idx as usize))
+		if row_idx >= 0
+			&& col_idx >= 0
+			&& row_idx < i32::try_from(self.height).unwrap()
+			&& col_idx < i32::try_from(self.width).unwrap()
+		{
+			Some((
+				usize::try_from(row_idx).unwrap(),
+				usize::try_from(col_idx).unwrap(),
+			))
 		} else {
 			None
 		}

@@ -1,4 +1,4 @@
-use core::str::FromStr;
+use core::{convert::TryFrom, str::FromStr};
 use std::collections::VecDeque;
 
 #[derive(Debug, Clone, Copy)]
@@ -32,8 +32,7 @@ pub enum ExecutionResult<T> {
 impl<T> ExecutionResult<T> {
 	pub fn unwrap(self) -> T {
 		match self {
-			Self::Normal(inner) => inner,
-			Self::Looped(inner) => inner,
+			Self::Normal(inner) | Self::Looped(inner) => inner,
 		}
 	}
 }
@@ -50,22 +49,23 @@ pub fn execute_program(program: &VecDeque<Instruction>) -> ExecutionResult<isize
 			break ExecutionResult::Normal(accumulator);
 		} else if visits[head] != 0_usize {
 			break ExecutionResult::Looped(accumulator);
-		} else {
-			visits[head] += 1_usize;
+		}
 
-			let instruction = &program[head];
+		visits[head] += 1_usize;
 
-			match instruction {
-				Instruction::Acc(x) => {
-					accumulator += x;
-					head += 1;
-				}
-				Instruction::Jmp(ofs) => {
-					head = (head as isize).checked_add(*ofs).unwrap() as usize;
-				}
-				Instruction::Nop(_) => {
-					head += 1;
-				}
+		let instruction = &program[head];
+
+		match instruction {
+			Instruction::Acc(x) => {
+				accumulator += x;
+				head += 1;
+			}
+			Instruction::Jmp(ofs) => {
+				head =
+					usize::try_from((isize::try_from(head).unwrap()).checked_add(*ofs).unwrap()).unwrap();
+			}
+			Instruction::Nop(_) => {
+				head += 1;
 			}
 		}
 	}
@@ -93,23 +93,21 @@ pub fn part_two(instructions: &Intermediate) -> Option<Solution> {
 	for position in 0..instructions.len() {
 		if let Instruction::Acc(_x) = instructions[position] {
 			continue;
-		} else {
-			let mut program = instructions.clone();
+		}
 
-			match program[position] {
-				Instruction::Jmp(ofs) => program[position] = Instruction::Nop(ofs),
-				Instruction::Nop(par) => program[position] = Instruction::Jmp(par),
-				Instruction::Acc(_) => unreachable!(),
-			}
+		let mut program = instructions.clone();
 
-			let result = execute_program(&program);
+		match program[position] {
+			Instruction::Jmp(ofs) => program[position] = Instruction::Nop(ofs),
+			Instruction::Nop(par) => program[position] = Instruction::Jmp(par),
+			Instruction::Acc(_) => unreachable!(),
+		}
 
-			if let ExecutionResult::Normal(acc) = result {
-				accumulator = Some(acc);
-				break;
-			} else {
-				continue;
-			}
+		let result = execute_program(&program);
+
+		if let ExecutionResult::Normal(acc) = result {
+			accumulator = Some(acc);
+			break;
 		}
 	}
 

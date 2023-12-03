@@ -1,4 +1,4 @@
-use core::convert::TryInto;
+use core::convert::{TryFrom, TryInto};
 
 use std::collections::{HashMap, HashSet};
 
@@ -140,7 +140,7 @@ fn find_monsters(image: &[Vec<char>], monster_coords: &HashSet<(isize, isize)>) 
 				.iter()
 				.enumerate()
 				.filter(|&(_, &c)| c == '#')
-				.map(move |(j, _)| (i as isize, j as isize))
+				.map(move |(j, _)| (isize::try_from(i).unwrap(), (isize::try_from(j).unwrap())))
 		})
 		.collect::<HashSet<_>>();
 
@@ -185,7 +185,7 @@ pub fn part_two((images, matches): &Intermediate) -> Option<Solution> {
 				.chars()
 				.enumerate()
 				.filter(|&(_, c)| c == '#')
-				.map(move |(j, _)| (i as isize - 1, j as isize))
+				.map(move |(j, _)| (isize::try_from(i).unwrap() - 1, isize::try_from(j).unwrap()))
 		})
 		.collect::<HashSet<_>>();
 
