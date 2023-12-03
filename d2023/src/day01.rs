@@ -1,38 +1,24 @@
-pub type Intermediate = Vec<(u8, u8)>;
+pub type Intermediate<'i> = Vec<&'i str>;
 pub type Output = u32;
 
 /// # Errors
 pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
-	Ok(
-		input
-			.lines()
-			.map(|line| line.chars().filter(|c| c.is_ascii_digit()))
-			.map(|c| {
-				let digits: Vec<u8> = c
-					.map(|char| {
-						char
-							.to_digit(10)
-							.expect("expected ascii digit to be convertible to base-10 value")
-							.try_into()
-							.expect("expected ascii digit to be convertible to u8")
-					})
-					.collect();
+	Ok(input.lines().collect())
+}
 
-				dbg!(&digits);
+fn get_calibration_value(str: &str, consider_spelling: bool) -> u32 {
+	let mut input = str.to_string();
+	if consider_spelling {
+		// do somethign
+	}
 
-				(
-					digits
-						.first()
-						.expect("expected at least one digit")
-						.to_owned(),
-					digits
-						.last()
-						.expect("expected at least one digit")
-						.to_owned(),
-				)
-			})
-			.collect(),
+	format!(
+		"{}{}",
+		input.chars().find(|c| c.is_ascii_digit()).unwrap(),
+		input.chars().rfind(|c| c.is_ascii_digit()).unwrap()
 	)
+	.parse()
+	.unwrap()
 }
 
 #[must_use]
@@ -40,7 +26,7 @@ pub fn part_one(terminal_digits: &Intermediate) -> Option<Output> {
 	Some(
 		terminal_digits
 			.iter()
-			.map(|&(tens, ones)| (u32::from(tens) * 10 + u32::from(ones)))
+			.map(|str| get_calibration_value(str, false))
 			.sum(),
 	)
 }
@@ -54,6 +40,19 @@ daocutil::test_example!(
 );
 
 #[must_use]
-pub fn part_two(_intermediate: &Intermediate) -> Option<Output> {
-	None
+pub fn part_two(terminal_digits: &Intermediate) -> Option<Output> {
+	Some(
+		terminal_digits
+			.iter()
+			.map(|str| get_calibration_value(str, true))
+			.sum(),
+	)
 }
+
+daocutil::test_example!(
+	part_two_example,
+	parse,
+	part_two,
+	include_str!("examples/day01-part2"),
+	Some(281)
+);
