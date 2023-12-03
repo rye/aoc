@@ -28,12 +28,7 @@ pub fn part_one(program: &Program) -> Option<Solution> {
 		}
 	}
 
-	Some(
-		program
-			.execute_part_one()
-			.memory.into_values()
-			.sum(),
-	)
+	Some(program.execute_part_one().memory.into_values().sum())
 }
 
 pub fn part_two(program: &Program) -> Option<Solution> {
@@ -60,12 +55,7 @@ pub fn part_two(program: &Program) -> Option<Solution> {
 		}
 	}
 
-	Some(
-		program
-			.execute_part_two()
-			.memory.into_values()
-			.sum(),
-	)
+	Some(program.execute_part_two().memory.into_values().sum())
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -130,7 +120,7 @@ impl Mask {
 							.collect()
 					}
 				}
-				_ => panic!("Unexpected mask char at {}: {}.", shift, ch),
+				_ => panic!("Unexpected mask char at {shift}: {ch}."),
 			})
 			.into_iter()
 			.map(|possibility: Vec<char>| {

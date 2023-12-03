@@ -1,5 +1,3 @@
-use core::convert::TryFrom;
-
 pub fn binary_hone(instructions: &str, left: char, right: char) -> usize {
 	let mut range: core::ops::Range<usize> =
 		0..2_usize.pow(u32::try_from(instructions.len()).unwrap());

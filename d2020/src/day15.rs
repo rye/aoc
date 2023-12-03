@@ -1,5 +1,3 @@
-use core::convert::TryFrom;
-
 const END: u32 = 30_000_000;
 
 pub type Intermediate = Vec<u32>;

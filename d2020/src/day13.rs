@@ -1,5 +1,3 @@
-use core::convert::TryFrom;
-
 use num_integer::Integer;
 
 /// Compute the greatest common divisor of `a` and `b` using the Extended Euclidean Algorithm.
