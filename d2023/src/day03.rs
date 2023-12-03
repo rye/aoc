@@ -62,7 +62,7 @@ fn part_numbers(schematic: &Intermediate) -> impl Iterator<Item = u32> + '_ {
 		.1
 		.iter()
 		.filter(|&((start_pos_x, start_pos_y), number)| {
-			let number_len = format!("{}", number).len();
+			let number_len = format!("{number}").len();
 
 			let digit_pos = (0..number_len).map(|xi| {
 				(
@@ -88,18 +88,8 @@ fn part_numbers(schematic: &Intermediate) -> impl Iterator<Item = u32> + '_ {
 			neighbors_to_check
 				.iter()
 				.any(|neighbor| match schematic.0.get(neighbor) {
-					Some('#') => true,
-					Some('$') => true,
-					Some('%') => true,
-					Some('&') => true,
-					Some('*') => true,
-					Some('+') => true,
-					Some('-') => true,
-					Some('/') => true,
-					Some('=') => true,
-					Some('@') => true,
-					Some(_) => false,
-					None => false,
+					Some('#' | '$' | '%' | '&' | '*' | '+' | '-' | '/' | '=' | '@') => true,
+					Some(_) | None => false,
 				})
 		})
 		.map(|x| x.1)
@@ -111,7 +101,7 @@ fn parts(schematic: &Intermediate) -> impl Iterator<Item = ((u32, u32), char, u3
 		.1
 		.iter()
 		.filter_map(|((start_pos_x, start_pos_y), number)| {
-			let number_len = format!("{}", number).len();
+			let number_len = format!("{number}").len();
 
 			let digit_pos = (0..number_len).map(|xi| {
 				(
@@ -137,23 +127,11 @@ fn parts(schematic: &Intermediate) -> impl Iterator<Item = ((u32, u32), char, u3
 			let neighbor = neighbors_to_check
 				.iter()
 				.find(|neighbor| match schematic.0.get(neighbor) {
-					Some('#') => true,
-					Some('$') => true,
-					Some('%') => true,
-					Some('&') => true,
-					Some('*') => true,
-					Some('+') => true,
-					Some('-') => true,
-					Some('/') => true,
-					Some('=') => true,
-					Some('@') => true,
-					Some(_) => false,
-					None => false,
+					Some('#' | '$' | '%' | '&' | '*' | '+' | '-' | '/' | '=' | '@') => true,
+					Some(_) | None => false,
 				});
 
-			neighbor
-				.map(|c| (*c, *schematic.0.get(c).expect("whoa"), *number))
-				.to_owned()
+			neighbor.map(|c| (*c, *schematic.0.get(c).expect("whoa"), *number))
 		})
 }
 
@@ -188,5 +166,5 @@ daocutil::test_example!(
 	parse,
 	part_two,
 	include_str!("examples/day03"),
-	Some(467835)
+	Some(467_835)
 );

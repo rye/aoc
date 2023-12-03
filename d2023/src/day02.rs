@@ -16,7 +16,7 @@ impl FromStr for Game {
 		let (game_n, handfuls) = s.split_at(s.find(": ").expect("expected \": \""));
 
 		let number = game_n
-			.split(" ")
+			.split(' ')
 			.last()
 			.expect("expected \" \" in game_n part")
 			.parse()
@@ -44,7 +44,7 @@ impl FromStr for Handful {
 	fn from_str(s: &str) -> Result<Self, Self::Err> {
 		let parts: Vec<Vec<&str>> = s
 			.split(", ")
-			.map(|part| part.split(" ").collect::<Vec<&str>>())
+			.map(|part| part.split(' ').collect::<Vec<&str>>())
 			.collect();
 
 		let mut red_count: Option<usize> = None;
@@ -52,10 +52,10 @@ impl FromStr for Handful {
 		let mut blue_count: Option<usize> = None;
 
 		for part in parts {
-			match part[1] {
-				"red" => red_count = Some(part[0].parse().expect("expected to parse as number")),
-				"green" => green_count = Some(part[0].parse().expect("expected to parse as number")),
-				"blue" => blue_count = Some(part[0].parse().expect("expected to parse as number")),
+			match part.get(1) {
+				Some(&"red") => red_count = Some(part[0].parse().expect("expected to parse as number")),
+				Some(&"green") => green_count = Some(part[0].parse().expect("expected to parse as number")),
+				Some(&"blue") => blue_count = Some(part[0].parse().expect("expected to parse as number")),
 				_ => {}
 			}
 		}
@@ -74,7 +74,7 @@ pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 }
 
 fn game_ids_not_exceeding_counts_with_replacement(
-	games: &Vec<Game>,
+	games: &[Game],
 	red_count: usize,
 	green_count: usize,
 	blue_count: usize,
@@ -183,7 +183,7 @@ fn game_minimum_power_examples() {
 
 #[must_use]
 pub fn part_two(games: &Intermediate) -> Option<Output> {
-	let prod: usize = games.iter().map(|game| game_minimum_power(game)).sum();
+	let prod: usize = games.iter().map(game_minimum_power).sum();
 	prod.try_into().ok()
 }
 

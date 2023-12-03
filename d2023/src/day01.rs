@@ -30,7 +30,7 @@ fn get_calibration_value(str: &str, consider_spelling: bool) -> u32 {
 				.iter()
 				.find(|(word, _substitution)| input[idx..].starts_with(word))
 			{
-				temp.push_str(&substitution);
+				temp.push_str(substitution);
 				idx += substitution.len();
 			} else {
 				temp.push_str(&input[idx..=idx]);
@@ -43,8 +43,8 @@ fn get_calibration_value(str: &str, consider_spelling: bool) -> u32 {
 
 	format!(
 		"{}{}",
-		input.chars().find(|c| c.is_ascii_digit()).unwrap(),
-		input.chars().rfind(|c| c.is_ascii_digit()).unwrap()
+		input.chars().find(char::is_ascii_digit).unwrap(),
+		input.chars().rfind(char::is_ascii_digit).unwrap()
 	)
 	.parse()
 	.unwrap()
