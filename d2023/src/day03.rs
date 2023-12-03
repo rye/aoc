@@ -43,7 +43,7 @@ pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
 
 #[must_use]
 pub fn part_one(schematic: &Intermediate) -> Option<Output> {
-	Some(part_numbers_all_directions(schematic).sum())
+	Some(part_numbers(schematic).sum())
 }
 
 const NEIGHBOR_OFFSETS: [(i32, i32); 8] = [
@@ -57,7 +57,7 @@ const NEIGHBOR_OFFSETS: [(i32, i32); 8] = [
 	(1, -1),
 ];
 
-fn part_numbers_all_directions(schematic: &Intermediate) -> impl Iterator<Item = u32> + '_ {
+fn part_numbers(schematic: &Intermediate) -> impl Iterator<Item = u32> + '_ {
 	schematic
 		.1
 		.iter()
@@ -106,6 +106,57 @@ fn part_numbers_all_directions(schematic: &Intermediate) -> impl Iterator<Item =
 		.copied()
 }
 
+fn parts(schematic: &Intermediate) -> impl Iterator<Item = ((u32, u32), char, u32)> + '_ {
+	schematic
+		.1
+		.iter()
+		.filter_map(|((start_pos_x, start_pos_y), number)| {
+			let number_len = format!("{}", number).len();
+
+			let digit_pos = (0..number_len).map(|xi| {
+				(
+					start_pos_x + u32::try_from(xi).expect("expected to be able to map digit offset to u32"),
+					start_pos_y,
+				)
+			});
+
+			let neighbors_to_check: BTreeSet<(u32, u32)> = digit_pos
+				.flat_map(|(x, y)| {
+					NEIGHBOR_OFFSETS.iter().filter_map(move |(xo, yo)| {
+						let x = x.checked_add_signed(*xo);
+						let y = y.checked_add_signed(*yo);
+
+						match (x, y) {
+							(Some(x), Some(y)) => Some((x, y)),
+							_ => None,
+						}
+					})
+				})
+				.collect();
+
+			let neighbor = neighbors_to_check
+				.iter()
+				.find(|neighbor| match schematic.0.get(&neighbor) {
+					Some('#') => true,
+					Some('$') => true,
+					Some('%') => true,
+					Some('&') => true,
+					Some('*') => true,
+					Some('+') => true,
+					Some('-') => true,
+					Some('/') => true,
+					Some('=') => true,
+					Some('@') => true,
+					Some(_) => false,
+					None => false,
+				});
+
+			neighbor
+				.map(|c| (*c, *schematic.0.get(c).expect("whoa"), *number))
+				.to_owned()
+		})
+}
+
 daocutil::test_example!(
 	part_one_example,
 	parse,
@@ -115,6 +166,27 @@ daocutil::test_example!(
 );
 
 #[must_use]
-pub fn part_two(_intermediate: &Intermediate) -> Option<Output> {
-	None
+pub fn part_two(schematic: &Intermediate) -> Option<Output> {
+	let gear_candidate_locations = parts(schematic)
+		.filter(|(_part_pos, c, _part_num)| c == &'*')
+		.fold(BTreeMap::new(), |mut map, (pos, _c, part_number)| {
+			map.entry(pos).or_insert(Vec::new()).push(part_number);
+			map
+		});
+
+	Some(
+		gear_candidate_locations
+			.iter()
+			.filter(|(_loc, part_nums)| part_nums.len() == 2)
+			.map(|(_loc, part_nums)| part_nums.iter().product::<u32>())
+			.sum(),
+	)
 }
+
+daocutil::test_example!(
+	part_two_example,
+	parse,
+	part_two,
+	include_str!("examples/day03"),
+	Some(467835)
+);
