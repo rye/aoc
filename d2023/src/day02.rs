@@ -108,11 +108,89 @@ daocutil::test_example!(
 	part_one_example,
 	parse,
 	part_one,
-	include_str!("examples/day02-part1"),
+	include_str!("examples/day02"),
 	Some(8)
 );
 
-#[must_use]
-pub fn part_two(_intermediate: &Intermediate) -> Option<Output> {
-	None
+fn game_minimum_power(game: &Game) -> usize {
+	let mut min_red_count: usize = 0;
+	let mut min_green_count: usize = 0;
+	let mut min_blue_count: usize = 0;
+
+	for handful in &game.handfuls {
+		if handful.red_count > min_red_count {
+			min_red_count = handful.red_count;
+		}
+
+		if handful.green_count > min_green_count {
+			min_green_count = handful.green_count;
+		}
+
+		if handful.blue_count > min_blue_count {
+			min_blue_count = handful.blue_count;
+		}
+	}
+
+	min_red_count * min_green_count * min_blue_count
 }
+
+#[test]
+fn game_minimum_power_examples() {
+	assert_eq!(
+		48,
+		game_minimum_power(
+			&"Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green"
+				.parse()
+				.unwrap()
+		)
+	);
+	assert_eq!(
+		12,
+		game_minimum_power(
+			&"Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue"
+				.parse()
+				.unwrap()
+		)
+	);
+
+	assert_eq!(
+		1560,
+		game_minimum_power(
+			&"Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red"
+				.parse()
+				.unwrap()
+		)
+	);
+
+	assert_eq!(
+		630,
+		game_minimum_power(
+			&"Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red"
+				.parse()
+				.unwrap()
+		)
+	);
+
+	assert_eq!(
+		36,
+		game_minimum_power(
+			&"Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green"
+				.parse()
+				.unwrap()
+		)
+	);
+}
+
+#[must_use]
+pub fn part_two(games: &Intermediate) -> Option<Output> {
+	let prod: usize = games.iter().map(|game| game_minimum_power(game)).sum();
+	prod.try_into().ok()
+}
+
+daocutil::test_example!(
+	part_two_example,
+	parse,
+	part_two,
+	include_str!("examples/day02"),
+	Some(2286)
+);
