@@ -3,10 +3,29 @@ use std::collections::{BTreeSet, VecDeque};
 pub type Intermediate = VecDeque<(u8, bool)>;
 type Solution = String;
 
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
+struct CupVal(u8);
+
+impl From<u8> for CupVal {
+	fn from(value: u8) -> Self {
+		Self(value)
+	}
+}
+
+struct Cup(CupVal);
+
 fn maxish(set: &BTreeSet<u8>, cur: u8) -> u8 {
 	let max = set.last().to_owned();
 
 	let max_below = set.range(0..cur).last().to_owned();
+
+	*max_below.or(max).expect("oops")
+}
+
+fn maxish_2(set: &BTreeSet<CupVal>, cur: CupVal) -> CupVal {
+	let max = set.last().to_owned();
+
+	let max_below = set.range(CupVal(0)..cur).last().to_owned();
 
 	*max_below.or(max).expect("oops")
 }
