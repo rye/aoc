@@ -87,7 +87,7 @@ mod tests {
 			let std_lines = buffer.clone().lines();
 			let cus_lines: Lines<std::io::Cursor<&str>> = buffer.clone().lines().into();
 
-			assert_eq!(format!("{:?}", std_lines), format!("{:?}", cus_lines));
+			assert_eq!(format!("{std_lines:?}"), format!("{:?}", cus_lines));
 		}
 	}
 }

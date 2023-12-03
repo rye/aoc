@@ -33,7 +33,7 @@ mod expr {
 			assert_eq!(
 				expr.shunting_yard(&ppf),
 				vec![&Number(1), &Number(2), &Number(3), &Asterisk, &Plus]
-			)
+			);
 		}
 
 		#[test]
@@ -60,7 +60,7 @@ mod expr {
 			assert_eq!(
 				expr.shunting_yard(&ppf),
 				vec![&Number(1), &Number(2), &Plus, &Number(3), &Asterisk]
-			)
+			);
 		}
 	}
 
@@ -91,7 +91,7 @@ mod expr {
 					])
 					.evaluate(&part_one_prec_props_fn),
 					Some(71)
-				)
+				);
 			}
 
 			#[test]
@@ -119,7 +119,7 @@ mod expr {
 					])
 					.evaluate(&part_one_prec_props_fn),
 					Some(51)
-				)
+				);
 			}
 
 			#[test]
@@ -139,7 +139,7 @@ mod expr {
 					])
 					.evaluate(&part_one_prec_props_fn),
 					Some(26)
-				)
+				);
 			}
 
 			#[test]
@@ -165,7 +165,7 @@ mod expr {
 					])
 					.evaluate(&part_one_prec_props_fn),
 					Some(437)
-				)
+				);
 			}
 
 			#[test]
@@ -199,7 +199,7 @@ mod expr {
 					])
 					.evaluate(&part_one_prec_props_fn),
 					Some(12240)
-				)
+				);
 			}
 
 			#[test]
@@ -237,7 +237,7 @@ mod expr {
 					])
 					.evaluate(&part_one_prec_props_fn),
 					Some(13632)
-				)
+				);
 			}
 		}
 
@@ -264,7 +264,7 @@ mod expr {
 					])
 					.evaluate(&part_two_prec_props_fn),
 					Some(231)
-				)
+				);
 			}
 
 			#[test]
@@ -292,7 +292,7 @@ mod expr {
 					])
 					.evaluate(&part_two_prec_props_fn),
 					Some(51)
-				)
+				);
 			}
 
 			#[test]
@@ -312,7 +312,7 @@ mod expr {
 					])
 					.evaluate(&part_two_prec_props_fn),
 					Some(46)
-				)
+				);
 			}
 
 			#[test]
@@ -338,7 +338,7 @@ mod expr {
 					])
 					.evaluate(&part_two_prec_props_fn),
 					Some(1445)
-				)
+				);
 			}
 
 			#[test]
@@ -371,8 +371,8 @@ mod expr {
 						CloseParen
 					])
 					.evaluate(&part_two_prec_props_fn),
-					Some(669060)
-				)
+					Some(669_060)
+				);
 			}
 
 			#[test]
@@ -410,7 +410,7 @@ mod expr {
 					])
 					.evaluate(&part_two_prec_props_fn),
 					Some(23340)
-				)
+				);
 			}
 		}
 	}

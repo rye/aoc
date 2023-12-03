@@ -21,7 +21,7 @@ pub fn parse(input: &str) -> Intermediate {
 			'(' => Some(Direction::Up),
 			')' => Some(Direction::Down),
 			c if c.is_whitespace() => None,
-			_ => panic!("unexpected character {}", c),
+			_ => panic!("unexpected character {c}"),
 		})
 		.collect()
 }

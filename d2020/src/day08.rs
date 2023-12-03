@@ -1,5 +1,5 @@
 use core::str::FromStr;
-use std::collections::*;
+use std::collections::VecDeque;
 
 #[derive(Debug, Clone, Copy)]
 pub enum Instruction {
@@ -58,7 +58,7 @@ pub fn execute_program(program: &VecDeque<Instruction>) -> ExecutionResult<isize
 			match instruction {
 				Instruction::Acc(x) => {
 					accumulator += x;
-					head += 1
+					head += 1;
 				}
 				Instruction::Jmp(ofs) => {
 					head = (head as isize).checked_add(*ofs).unwrap() as usize;

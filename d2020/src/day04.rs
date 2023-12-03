@@ -50,7 +50,7 @@ pub fn valid_expiry_year(s: &str) -> bool {
 }
 
 pub fn valid_height(s: &str) -> bool {
-	if let Some(first_letter_offset) = s.chars().position(|c| c.is_alphabetic()) {
+	if let Some(first_letter_offset) = s.chars().position(char::is_alphabetic) {
 		let maybe_number = &s[0..first_letter_offset];
 		if let Ok(number) = maybe_number.parse::<usize>() {
 			let rest = &s[first_letter_offset..];

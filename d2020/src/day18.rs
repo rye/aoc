@@ -10,7 +10,7 @@ pub enum Token {
 impl std::fmt::Display for Token {
 	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
 		match self {
-			Token::Number(n) => write!(f, "{}", n),
+			Token::Number(n) => write!(f, "{n}"),
 			Token::Plus => write!(f, "+"),
 			Token::Asterisk => write!(f, "*"),
 			Token::OpenParen => write!(f, "("),
@@ -27,11 +27,11 @@ impl std::fmt::Display for Expr {
 		let disp = self
 			.0
 			.iter()
-			.map(|tok| tok.to_string())
+			.map(std::string::ToString::to_string)
 			.collect::<Vec<String>>()
 			.join(" ");
 
-		write!(f, "{}", disp)
+		write!(f, "{disp}")
 	}
 }
 
@@ -84,7 +84,7 @@ impl Expr {
 				Token::OpenParen => operator_stack.push(token),
 				Token::CloseParen => {
 					while operator_stack.last().unwrap() != &&Token::OpenParen {
-						output_queue.push(operator_stack.pop().unwrap())
+						output_queue.push(operator_stack.pop().unwrap());
 					}
 
 					if let Some(Token::OpenParen) = operator_stack.last() {
@@ -101,7 +101,7 @@ impl Expr {
 						prec_props_fn: &dyn Fn(&Token) -> OpTokenProps,
 					) -> bool {
 						match last {
-							Some(Token::Asterisk) | Some(Token::Plus) | Some(Token::OpenParen) => {
+							Some(Token::Asterisk | Token::Plus | Token::OpenParen) => {
 								let token_props = prec_props_fn(token);
 								let last_props = prec_props_fn(last.unwrap());
 
@@ -119,16 +119,16 @@ impl Expr {
 					}
 
 					while should_pop(token, operator_stack.last(), prec_props_fn) {
-						output_queue.push(operator_stack.pop().unwrap())
+						output_queue.push(operator_stack.pop().unwrap());
 					}
 
-					operator_stack.push(token)
+					operator_stack.push(token);
 				}
 			}
 		}
 
-		while !operator_stack.is_empty() {
-			output_queue.push(operator_stack.pop().unwrap())
+		while let Some(element) = operator_stack.pop() {
+			output_queue.push(element);
 		}
 
 		assert!(operator_stack.is_empty());
@@ -194,13 +194,13 @@ pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
 			if c.is_ascii_digit() {
 				// TODO Not strictly necessary since we only have single digits
 				if let Some(n) = number {
-					number = Some(n * 10 + c.to_digit(10).expect("invalid digit"))
+					number = Some(n * 10 + c.to_digit(10).expect("invalid digit"));
 				} else {
-					number = Some(c.to_digit(10).expect("invalid digit"))
+					number = Some(c.to_digit(10).expect("invalid digit"));
 				}
 			} else {
 				if let Some(n) = number {
-					tokens.push(Token::Number(n as u64));
+					tokens.push(Token::Number(u64::from(n)));
 					number = None;
 				}
 
@@ -217,7 +217,7 @@ pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
 		}
 
 		if let Some(n) = number {
-			tokens.push(Token::Number(n as u64));
+			tokens.push(Token::Number(u64::from(n)));
 		}
 
 		exprs.push(Expr(tokens));

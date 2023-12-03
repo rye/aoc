@@ -12,7 +12,7 @@ pub fn part_one(program: &Program) -> Option<Solution> {
 		fn execute_part_one(&self) -> State {
 			let mut state = State::new();
 
-			for instr in self.0.iter() {
+			for instr in &self.0 {
 				match instr {
 					SetMask(mask) => {
 						state.mask = Some(mask.clone());
@@ -41,7 +41,7 @@ pub fn part_two(program: &Program) -> Option<Solution> {
 		fn execute_part_two(&self) -> State {
 			let mut state = State::new();
 
-			for instr in self.0.iter() {
+			for instr in &self.0 {
 				match instr {
 					SetMask(mask) => {
 						state.mask = Some(mask.clone());
@@ -49,7 +49,7 @@ pub fn part_two(program: &Program) -> Option<Solution> {
 					Write { address, value } => {
 						let addresses = state.mask.clone().unwrap().decode_memory_address(*address);
 
-						for address in addresses.into_iter() {
+						for address in addresses {
 							state.memory.insert(address, *value);
 						}
 					}
@@ -81,7 +81,7 @@ impl Mask {
 	}
 
 	pub fn decode_memory_address(&self, address: u64) -> Vec<u64> {
-		let address = format!("{:b}", address).chars().rev().collect::<Vec<_>>();
+		let address = format!("{address:b}").chars().rev().collect::<Vec<_>>();
 
 		self
 			.raw
@@ -157,7 +157,7 @@ pub enum InstructionParseError {
 	ValueError(String),
 }
 
-use Instruction::*;
+use Instruction::{SetMask, Write};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Program(Vec<Instruction>);

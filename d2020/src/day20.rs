@@ -1,6 +1,6 @@
 use core::convert::TryInto;
 
-use std::collections::*;
+use std::collections::{HashMap, HashSet};
 
 use itertools::Itertools;
 
@@ -48,7 +48,7 @@ impl Tile {
 	}
 
 	fn rotate(&mut self) {
-		self.v = rotate(&self.v)
+		self.v = rotate(&self.v);
 	}
 
 	fn match_right(&self, matches: &BorderMatches, images: &HashMap<usize, Image>) -> Self {
@@ -56,12 +56,12 @@ impl Tile {
 		let mut tile = Tile::from_input(&images[&id], id);
 
 		while tile.get_neighbor(matches, 3) != Some(self.id) {
-			tile.rotate()
+			tile.rotate();
 		}
 
 		if (0..10).any(|i| self.v[i][9] != tile.v[i][0]) {
 			for i in 0..5 {
-				tile.v.swap(i, 9 - i)
+				tile.v.swap(i, 9 - i);
 			}
 		}
 		tile
@@ -72,12 +72,12 @@ impl Tile {
 		let mut tile = Tile::from_input(&images[&id], id);
 
 		while tile.get_neighbor(matches, 0) != Some(self.id) {
-			tile.rotate()
+			tile.rotate();
 		}
 
 		if self.v[9] != tile.v[0] {
 			for s in &mut tile.v {
-				s.reverse()
+				s.reverse();
 			}
 		}
 		tile
@@ -230,7 +230,7 @@ pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
 
 		for edge in &[tile[0], tile[9], &b1, &b2] {
 			matches
-				.entry(edge.to_string())
+				.entry((*edge).to_string())
 				.or_insert_with(Vec::new)
 				.push(id);
 

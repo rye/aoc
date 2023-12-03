@@ -19,7 +19,7 @@ impl Graph {
 
 		for (left, right_set) in &self.edges {
 			for right in right_set {
-				string.push_str(&format!("{} -- {}\n", left, right));
+				string.push_str(&format!("{left} -- {right}\n"));
 			}
 		}
 

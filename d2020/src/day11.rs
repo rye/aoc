@@ -92,7 +92,7 @@ pub struct Layout {
 	height: usize,
 }
 
-use CellState::*;
+use CellState::{Empty, Floor, Occupied};
 
 const DELTAS: [(i32, i32); 8] = [
 	(-1, -1),

@@ -64,7 +64,7 @@ impl core::str::FromStr for Line {
 					None => panic!("stack empty :("),
 				}
 			} else {
-				panic!("unexpected {}", c);
+				panic!("unexpected {c}");
 			}
 		}
 

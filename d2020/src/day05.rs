@@ -32,7 +32,7 @@ pub fn parse(data: &str) -> Result<Intermediate, core::convert::Infallible> {
 }
 
 pub fn part_one(seat_ids: &Intermediate) -> Option<Solution> {
-	seat_ids.iter().next_back().map(|n| n.to_owned())
+	seat_ids.iter().next_back().map(std::borrow::ToOwned::to_owned)
 }
 
 pub fn part_two(seat_ids: &Intermediate) -> Option<Solution> {

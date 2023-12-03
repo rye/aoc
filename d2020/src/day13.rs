@@ -76,7 +76,7 @@ pub fn part_one((timestamp, bus_intervals): &Intermediate) -> Option<Solution> {
 
 	// Sort. For tuples, the first subscript is sorted on first, so we'll
 	// get the earliest next stop at the start of the list.
-	values.sort();
+	values.sort_unstable();
 
 	// Answer is the time until next stop * ID of the bus.
 	let result = values[0].0 * values[0].1;

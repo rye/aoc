@@ -23,7 +23,7 @@ fn transform_sub(subject: &usize, loop_size: usize) -> usize {
 
 	for _ in 0..loop_size {
 		value *= subject;
-		value %= 20201227_usize;
+		value %= 20_201_227_usize;
 	}
 
 	value
@@ -34,7 +34,7 @@ fn find_loop_size_for_key(pubkey: &usize, subject: &usize) -> usize {
 	let mut loop_size = 0;
 
 	while value != *pubkey {
-		value = value * subject % 20201227;
+		value = value * subject % 20_201_227;
 		loop_size += 1;
 	}
 
@@ -46,7 +46,7 @@ fn transform_sub_s7_l8() {
 	let subject = 7_usize;
 	let loop_size: usize = 8_usize;
 
-	assert_eq!(transform_sub(&subject, loop_size), 5764801_usize);
+	assert_eq!(transform_sub(&subject, loop_size), 5_764_801_usize);
 }
 
 #[test]
@@ -54,7 +54,7 @@ fn transform_sub_s7_l11() {
 	let subject = 7_usize;
 	let loop_size: usize = 11_usize;
 
-	assert_eq!(transform_sub(&subject, loop_size), 17807724_usize);
+	assert_eq!(transform_sub(&subject, loop_size), 17_807_724_usize);
 }
 
 #[cfg(test)]
@@ -84,7 +84,7 @@ fn find_subject(target: &usize, loop_size: usize) -> usize {
 
 #[test]
 fn find_subject_t5764801_l8() {
-	let target = 5764801_usize;
+	let target = 5_764_801_usize;
 	let loop_size: usize = 8_usize;
 
 	assert_eq!(find_subject(&target, loop_size), 7_usize);
@@ -92,7 +92,7 @@ fn find_subject_t5764801_l8() {
 
 #[test]
 fn find_subject_t17807724_l8() {
-	let target = 17807724_usize;
+	let target = 17_807_724_usize;
 	let loop_size: usize = 11_usize;
 
 	assert_eq!(find_subject(&target, loop_size), 7_usize);
@@ -100,7 +100,7 @@ fn find_subject_t17807724_l8() {
 
 #[test]
 fn find_loop_size_s7_u5764801() {
-	let target = 5764801_usize;
+	let target = 5_764_801_usize;
 	let subject = 7_usize;
 
 	assert_eq!(find_loop_size(&target, &subject), 8_usize);
@@ -108,7 +108,7 @@ fn find_loop_size_s7_u5764801() {
 
 #[test]
 fn find_loop_size_s7_u17807724() {
-	let target = 17807724_usize;
+	let target = 17_807_724_usize;
 	let subject = 7_usize;
 
 	assert_eq!(find_loop_size(&target, &subject), 11_usize);
@@ -136,11 +136,11 @@ fn find_encryption_key(pkey_card: &usize, pkey_door: &usize) -> usize {
 
 #[test]
 fn find_encryption_key_d17807724_c5764801() {
-	let card_pubkey = 5764801_usize;
-	let door_pubkey = 17807724_usize;
+	let card_pubkey = 5_764_801_usize;
+	let door_pubkey = 17_807_724_usize;
 
 	assert_eq!(
 		find_encryption_key(&card_pubkey, &door_pubkey),
-		14897079_usize
+		14_897_079_usize
 	);
 }

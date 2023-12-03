@@ -98,7 +98,7 @@ mod instruction_fromstr {
 				start: Coord { x: 0, y: 0 },
 				end: Coord { x: 999, y: 999 },
 			})
-		)
+		);
 	}
 
 	#[test]
@@ -110,7 +110,7 @@ mod instruction_fromstr {
 				start: Coord { x: 0, y: 0 },
 				end: Coord { x: 999, y: 0 },
 			})
-		)
+		);
 	}
 
 	#[test]
@@ -122,7 +122,7 @@ mod instruction_fromstr {
 				start: Coord { x: 499, y: 499 },
 				end: Coord { x: 500, y: 500 },
 			})
-		)
+		);
 	}
 }
 
@@ -169,7 +169,7 @@ impl Grid {
 					Action::TurnOff => LightState::Off,
 				};
 
-				self.lights[y as usize][x as usize].0 = new_state
+				self.lights[y as usize][x as usize].0 = new_state;
 			}
 		}
 	}

@@ -1,4 +1,4 @@
-use std::collections::*;
+use std::collections::{BTreeMap, HashMap, HashSet};
 
 #[derive(Debug, PartialEq, Hash, Eq, Clone, PartialOrd, Ord)]
 pub struct Ingredient(String);
@@ -59,7 +59,7 @@ pub fn parse(input: &str) -> Result<Intermediate, core::convert::Infallible> {
 
 	let mut candidates: HashMap<Allergen, HashSet<Ingredient>> = HashMap::new();
 
-	for food in foods.iter() {
+	for food in &foods {
 		let food_ingredients: HashSet<Ingredient> = food.ingredients.iter().cloned().collect();
 
 		for allergen in &food.allergens {

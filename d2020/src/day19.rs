@@ -91,8 +91,7 @@ fn convert_rule(ruleset: &RuleSet, rule_idx: usize) -> String {
 					inner_rules
 						.iter()
 						.map(|inner_rule_idx| convert_rule(ruleset, *inner_rule_idx))
-						.collect::<Vec<_>>()
-						.join("")
+						.collect::<String>()
 				})
 				.collect::<Vec<_>>()
 				.join("|");
@@ -100,7 +99,7 @@ fn convert_rule(ruleset: &RuleSet, rule_idx: usize) -> String {
 			if groups.len() == 1 {
 				group_string
 			} else {
-				format!("(?:{})", group_string)
+				format!("(?:{group_string})")
 			}
 		}
 	}
@@ -163,7 +162,7 @@ mod tests {
 impl From<&RuleSet> for Regex {
 	fn from(rule_set: &RuleSet) -> Regex {
 		let rule_string = convert_rule(rule_set, 0_usize);
-		Regex::new(&format!("^{}$", rule_string)).unwrap()
+		Regex::new(&format!("^{rule_string}$")).unwrap()
 	}
 }
 

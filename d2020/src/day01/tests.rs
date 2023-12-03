@@ -13,14 +13,14 @@ mod find_pair {
 	fn sample_correct() {
 		let list = sample();
 		let target = 2020_i64;
-		assert_eq!(find_pair(&list, &target), Some((299, 1721)))
+		assert_eq!(find_pair(&list, &target), Some((299, 1721)));
 	}
 
 	#[test]
 	fn empty_list_correct() {
 		let list = BTreeSet::new();
 		let target = 2020_i64;
-		assert_eq!(find_pair(&list, &target), None)
+		assert_eq!(find_pair(&list, &target), None);
 	}
 }
 
@@ -33,13 +33,13 @@ mod find_triple {
 	fn sample_correct() {
 		let list = sample();
 		let target = 2020_i64;
-		assert_eq!(find_triple(&list, &target), Some((366, 675, 979)))
+		assert_eq!(find_triple(&list, &target), Some((366, 675, 979)));
 	}
 
 	#[test]
 	fn empty_list_correct() {
 		let list = BTreeSet::new();
 		let target = 2020_i64;
-		assert_eq!(find_triple(&list, &target), None)
+		assert_eq!(find_triple(&list, &target), None);
 	}
 }

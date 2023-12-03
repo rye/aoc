@@ -42,8 +42,8 @@ where
 impl core::fmt::Display for Source {
 	fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
 		match self {
-			Self::Wire(wire) => write!(f, "{}", wire),
-			Self::Signal(signal) => write!(f, "{}", signal),
+			Self::Wire(wire) => write!(f, "{wire}"),
+			Self::Signal(signal) => write!(f, "{signal}"),
 		}
 	}
 }
@@ -69,12 +69,12 @@ impl core::fmt::Display for Connection {
 		let out = &self.output;
 
 		match &self.input {
-			Input::Source(source) => write!(f, "{} -> {}", source, out),
-			Input::And(a, b) => write!(f, "{} AND {} -> {}", a, b, out),
-			Input::Or(a, b) => write!(f, "{} OR {} -> {}", a, b, out),
-			Input::LShift(a, b) => write!(f, "{} LSHIFT {} -> {}", a, b, out),
-			Input::RShift(a, b) => write!(f, "{} RSHIFT {} -> {}", a, b, out),
-			Input::Not(a) => write!(f, "NOT {} -> {}", a, out),
+			Input::Source(source) => write!(f, "{source} -> {out}"),
+			Input::And(a, b) => write!(f, "{a} AND {b} -> {out}"),
+			Input::Or(a, b) => write!(f, "{a} OR {b} -> {out}"),
+			Input::LShift(a, b) => write!(f, "{a} LSHIFT {b} -> {out}"),
+			Input::RShift(a, b) => write!(f, "{a} RSHIFT {b} -> {out}"),
+			Input::Not(a) => write!(f, "NOT {a} -> {out}"),
 		}
 	}
 }
@@ -296,16 +296,16 @@ fn process_connections(connections: VecDeque<Connection>) -> BTreeMap<WireId, Si
 			// Evaluate and place the result.
 			match (&connection.input, &connection.output) {
 				(Input::Source(Source::Wire(wire)), output) => {
-					eval_source(&mut signal_tracker, wire, output)
+					eval_source(&mut signal_tracker, wire, output);
 				}
 				(Input::Source(_), _) => unreachable!(),
 				(Input::And(a, b), output) => eval_and(&mut signal_tracker, a, b, output),
 				(Input::Or(a, b), output) => eval_or(&mut signal_tracker, a, b, output),
 				(Input::LShift(input, value), output) => {
-					eval_lshift(&mut signal_tracker, input, value, output)
+					eval_lshift(&mut signal_tracker, input, value, output);
 				}
 				(Input::RShift(input, value), output) => {
-					eval_rshift(&mut signal_tracker, input, value, output)
+					eval_rshift(&mut signal_tracker, input, value, output);
 				}
 				(Input::Not(input), output) => eval_not(&mut signal_tracker, input, output),
 			}
@@ -359,7 +359,7 @@ mod connection {
 				input: Input::Source(Source::Signal(123)),
 				output: "x".into()
 			})
-		)
+		);
 	}
 
 	#[test]
@@ -371,7 +371,7 @@ mod connection {
 				input: Input::Source(Source::Signal(456)),
 				output: "y".into(),
 			})
-		)
+		);
 	}
 
 	#[test]
@@ -383,7 +383,7 @@ mod connection {
 				input: Input::And("x".into(), "y".into()),
 				output: "d".into(),
 			})
-		)
+		);
 	}
 	#[test]
 	fn connect_xory_e() {
@@ -394,7 +394,7 @@ mod connection {
 				input: Input::Or("x".into(), "y".into()),
 				output: "e".into(),
 			})
-		)
+		);
 	}
 
 	#[test]
@@ -406,7 +406,7 @@ mod connection {
 				input: Input::LShift("x".into(), 2),
 				output: "f".into(),
 			})
-		)
+		);
 	}
 
 	#[test]
@@ -418,7 +418,7 @@ mod connection {
 				input: Input::RShift("y".into(), 2),
 				output: "g".into(),
 			})
-		)
+		);
 	}
 
 	#[test]
@@ -430,7 +430,7 @@ mod connection {
 				input: Input::Not("x".into()),
 				output: "h".into(),
 			})
-		)
+		);
 	}
 
 	#[test]
@@ -442,6 +442,6 @@ mod connection {
 				input: Input::Not("y".into()),
 				output: "i".into(),
 			})
-		)
+		);
 	}
 }

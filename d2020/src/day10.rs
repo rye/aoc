@@ -69,7 +69,7 @@ fn non_removable(init: &Vec<u64>) -> Vec<usize> {
 		}
 	}
 
-	v.sort();
+	v.sort_unstable();
 	v
 }
 

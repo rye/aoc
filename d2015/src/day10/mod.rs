@@ -20,7 +20,7 @@ impl LookAndSay {
 		let mut idx = 0_usize;
 
 		loop {
-			let cur_digit = source[idx..idx + 1].chars().next().unwrap();
+			let cur_digit = source[idx..=idx].chars().next().unwrap();
 			let offset = source[idx..].find(|c| c != cur_digit);
 
 			let slice = if let Some(offset) = offset {

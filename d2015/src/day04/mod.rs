@@ -26,14 +26,14 @@ const RANGE: core::ops::Range<usize> = 1_usize..10_000_000_usize;
 
 pub fn part_one(stub: &Intermediate) -> Option<Solution> {
 	RANGE
-		.map(|n| (n, md5::compute(format!("{}{}", stub, n))))
+		.map(|n| (n, md5::compute(format!("{stub}{n}"))))
 		.find(|n| leading5((n.1).0))
 		.map(|tuple| tuple.0)
 }
 
 pub fn part_two(stub: &Intermediate) -> Option<Solution> {
 	RANGE
-		.map(|n| (n, md5::compute(format!("{}{}", stub, n))))
+		.map(|n| (n, md5::compute(format!("{stub}{n}"))))
 		.find(|n| leading6((n.1).0))
 		.map(|tuple| tuple.0)
 }

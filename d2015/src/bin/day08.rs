@@ -15,6 +15,6 @@ fn main() {
 		.expect("failed to execute day08.py");
 
 	if !status.success() {
-		eprintln!("Subprocess exited with status {}", status);
+		eprintln!("Subprocess exited with status {status}");
 	}
 }
