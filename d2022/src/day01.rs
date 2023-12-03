@@ -27,6 +27,33 @@ impl FromStr for Elf {
 	}
 }
 
+pub type Intermediate = Vec<Elf>;
+pub type Output = u32;
+
+/// Parse the input to the [`Intermediate`] type.
+///
+/// # Errors
+///
+/// Will return `Err` if parsing any of the lines to a `u32` should fail.
+pub fn parse(str: &str) -> anyhow::Result<Intermediate> {
+	Ok(
+		str
+			.split("\n\n")
+			.map(str::parse)
+			.collect::<Result<Vec<Elf>, ParseIntError>>()?,
+	)
+}
+
+pub fn part_one(elves: &Intermediate) -> Option<Output> {
+	let elf_carrying_totals: BTreeSet<u32> = elves.iter().map(Elf::calorie_total).collect();
+	elf_carrying_totals.last().copied()
+}
+
+pub fn part_two(elves: &Intermediate) -> Option<Output> {
+	let elf_carrying_totals: BTreeSet<u32> = elves.iter().map(Elf::calorie_total).collect();
+	Some(elf_carrying_totals.iter().rev().take(3).sum())
+}
+
 #[cfg(test)]
 mod elf {
 	use super::Elf;
@@ -75,31 +102,4 @@ mod elf {
 			assert!(line.parse::<Elf>().is_err());
 		}
 	}
-}
-
-pub type Intermediate = Vec<Elf>;
-pub type Output = u32;
-
-/// Parse the input to the [`Intermediate`] type.
-///
-/// # Errors
-///
-/// Will return `Err` if parsing any of the lines to a `u32` should fail.
-pub fn parse(str: &str) -> anyhow::Result<Intermediate> {
-	Ok(
-		str
-			.split("\n\n")
-			.map(str::parse)
-			.collect::<Result<Vec<Elf>, ParseIntError>>()?,
-	)
-}
-
-pub fn part_one(elves: &Intermediate) -> Option<Output> {
-	let elf_carrying_totals: BTreeSet<u32> = elves.iter().map(Elf::calorie_total).collect();
-	elf_carrying_totals.last().copied()
-}
-
-pub fn part_two(elves: &Intermediate) -> Option<Output> {
-	let elf_carrying_totals: BTreeSet<u32> = elves.iter().map(Elf::calorie_total).collect();
-	Some(elf_carrying_totals.iter().rev().take(3).sum())
 }

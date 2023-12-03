@@ -64,16 +64,12 @@ pub fn parse(points: &str) -> Result<Intermediate, core::convert::Infallible> {
 		.lines()
 		.enumerate()
 		.flat_map(|(y, line)| {
-			line
-				.chars()
-				.enumerate()
-				.map(|(x, c)| (x, c))
-				.map(move |(x, c)| {
-					(
-						(x.try_into().unwrap(), y.try_into().unwrap()),
-						c.to_digit(10).unwrap(),
-					)
-				})
+			line.chars().enumerate().map(move |(x, c)| {
+				(
+					(x.try_into().unwrap(), y.try_into().unwrap()),
+					c.to_digit(10).unwrap(),
+				)
+			})
 		})
 		.collect();
 

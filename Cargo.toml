@@ -15,7 +15,6 @@ members = [
 
 [workspace.lints.clippy]
 all = "deny"
-cargo = "warn"
 pedantic = "warn"
 cognitive_complexity = "warn"
 missing_panics_doc = "allow"

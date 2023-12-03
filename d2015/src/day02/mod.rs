@@ -68,6 +68,26 @@ impl Gift {
 	}
 }
 
+type Intermediate = Vec<Gift>;
+
+pub fn parse(input: &str) -> Intermediate {
+	fn line_to_gift(line: &str) -> Gift {
+		line.parse().unwrap()
+	}
+
+	input.lines().map(line_to_gift).collect()
+}
+
+type Solution = usize;
+
+pub fn part_one(gifts: &Intermediate) -> Option<Solution> {
+	Some(gifts.iter().map(Gift::wrapping_paper_required).sum())
+}
+
+pub fn part_two(gifts: &Intermediate) -> Option<Solution> {
+	Some(gifts.iter().map(Gift::ribbon_required).sum())
+}
+
 #[cfg(test)]
 mod ribbon {
 	use super::Gift;
@@ -97,24 +117,4 @@ mod ribbon {
 		assert_eq!(gift.perimeter_of_smallest_side(), 4);
 		assert_eq!(gift.ribbon_required(), 14);
 	}
-}
-
-type Intermediate = Vec<Gift>;
-
-pub fn parse(input: &str) -> Intermediate {
-	fn line_to_gift(line: &str) -> Gift {
-		line.parse().unwrap()
-	}
-
-	input.lines().map(line_to_gift).collect()
-}
-
-type Solution = usize;
-
-pub fn part_one(gifts: &Intermediate) -> Option<Solution> {
-	Some(gifts.iter().map(Gift::wrapping_paper_required).sum())
-}
-
-pub fn part_two(gifts: &Intermediate) -> Option<Solution> {
-	Some(gifts.iter().map(Gift::ribbon_required).sum())
 }

@@ -147,107 +147,6 @@ impl FromStr for Connection {
 	}
 }
 
-#[cfg(test)]
-mod connection {
-	use core::str::FromStr;
-
-	use super::{Connection, Input, Source};
-
-	#[test]
-	fn connect_123_x() {
-		assert_eq!(
-			Connection::from_str("123 -> x"),
-			Ok(Connection {
-				input: Input::Source(Source::Signal(123)),
-				output: "x".into()
-			})
-		)
-	}
-
-	#[test]
-	fn connect_456_y() {
-		let connection = "456 -> y";
-		assert_eq!(
-			Connection::from_str(connection),
-			Ok(Connection {
-				input: Input::Source(Source::Signal(456)),
-				output: "y".into(),
-			})
-		)
-	}
-
-	#[test]
-	fn connect_xandy_d() {
-		let connection = "x AND y -> d";
-		assert_eq!(
-			Connection::from_str(connection),
-			Ok(Connection {
-				input: Input::And("x".into(), "y".into()),
-				output: "d".into(),
-			})
-		)
-	}
-	#[test]
-	fn connect_xory_e() {
-		let connection = "x OR y -> e";
-		assert_eq!(
-			Connection::from_str(connection),
-			Ok(Connection {
-				input: Input::Or("x".into(), "y".into()),
-				output: "e".into(),
-			})
-		)
-	}
-
-	#[test]
-	fn connect_xlshift2_f() {
-		let connection = "x LSHIFT 2 -> f";
-		assert_eq!(
-			Connection::from_str(connection),
-			Ok(Connection {
-				input: Input::LShift("x".into(), 2),
-				output: "f".into(),
-			})
-		)
-	}
-
-	#[test]
-	fn connect_yrshift2_g() {
-		let connection = "y RSHIFT 2 -> g";
-		assert_eq!(
-			Connection::from_str(connection),
-			Ok(Connection {
-				input: Input::RShift("y".into(), 2),
-				output: "g".into(),
-			})
-		)
-	}
-
-	#[test]
-	fn connect_notx_h() {
-		let connection = "NOT x -> h";
-		assert_eq!(
-			Connection::from_str(connection),
-			Ok(Connection {
-				input: Input::Not("x".into()),
-				output: "h".into(),
-			})
-		)
-	}
-
-	#[test]
-	fn connect_noty_i() {
-		let connection = "NOT y -> i";
-		assert_eq!(
-			Connection::from_str(connection),
-			Ok(Connection {
-				input: Input::Not("y".into()),
-				output: "i".into(),
-			})
-		)
-	}
-}
-
 type Intermediate = VecDeque<Connection>;
 
 pub fn parse(input: &str) -> Intermediate {
@@ -444,4 +343,105 @@ pub fn part_two(connections: &Intermediate) -> Option<Solution> {
 	let result: Option<u16> = signal_tracker.remove(&WireId::from("a"));
 
 	result
+}
+
+#[cfg(test)]
+mod connection {
+	use core::str::FromStr;
+
+	use super::{Connection, Input, Source};
+
+	#[test]
+	fn connect_123_x() {
+		assert_eq!(
+			Connection::from_str("123 -> x"),
+			Ok(Connection {
+				input: Input::Source(Source::Signal(123)),
+				output: "x".into()
+			})
+		)
+	}
+
+	#[test]
+	fn connect_456_y() {
+		let connection = "456 -> y";
+		assert_eq!(
+			Connection::from_str(connection),
+			Ok(Connection {
+				input: Input::Source(Source::Signal(456)),
+				output: "y".into(),
+			})
+		)
+	}
+
+	#[test]
+	fn connect_xandy_d() {
+		let connection = "x AND y -> d";
+		assert_eq!(
+			Connection::from_str(connection),
+			Ok(Connection {
+				input: Input::And("x".into(), "y".into()),
+				output: "d".into(),
+			})
+		)
+	}
+	#[test]
+	fn connect_xory_e() {
+		let connection = "x OR y -> e";
+		assert_eq!(
+			Connection::from_str(connection),
+			Ok(Connection {
+				input: Input::Or("x".into(), "y".into()),
+				output: "e".into(),
+			})
+		)
+	}
+
+	#[test]
+	fn connect_xlshift2_f() {
+		let connection = "x LSHIFT 2 -> f";
+		assert_eq!(
+			Connection::from_str(connection),
+			Ok(Connection {
+				input: Input::LShift("x".into(), 2),
+				output: "f".into(),
+			})
+		)
+	}
+
+	#[test]
+	fn connect_yrshift2_g() {
+		let connection = "y RSHIFT 2 -> g";
+		assert_eq!(
+			Connection::from_str(connection),
+			Ok(Connection {
+				input: Input::RShift("y".into(), 2),
+				output: "g".into(),
+			})
+		)
+	}
+
+	#[test]
+	fn connect_notx_h() {
+		let connection = "NOT x -> h";
+		assert_eq!(
+			Connection::from_str(connection),
+			Ok(Connection {
+				input: Input::Not("x".into()),
+				output: "h".into(),
+			})
+		)
+	}
+
+	#[test]
+	fn connect_noty_i() {
+		let connection = "NOT y -> i";
+		assert_eq!(
+			Connection::from_str(connection),
+			Ok(Connection {
+				input: Input::Not("y".into()),
+				output: "i".into(),
+			})
+		)
+	}
 }

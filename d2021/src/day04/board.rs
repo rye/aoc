@@ -96,6 +96,14 @@ impl Board {
 	}
 }
 
+impl core::str::FromStr for Board {
+	type Err = Error;
+
+	fn from_str(board: &str) -> Result<Self, Self::Err> {
+		parse_board_block(board).map(Board::from_contents)
+	}
+}
+
 #[cfg(test)]
 mod parse_board_line {
 	use super::{parse_board_line, Error};
@@ -113,13 +121,5 @@ mod parse_board_line {
 	#[test]
 	fn line_62_5_77_94_asdf() {
 		assert!(parse_board_line("62  5 77 94 asdf").is_err());
-	}
-}
-
-impl core::str::FromStr for Board {
-	type Err = Error;
-
-	fn from_str(board: &str) -> Result<Self, Self::Err> {
-		parse_board_block(board).map(Board::from_contents)
 	}
 }

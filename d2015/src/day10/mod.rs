@@ -6,7 +6,8 @@ pub struct LookAndSay(String);
 
 pub fn parse(input: &str) -> Intermediate {
 	input
-		.lines().next()
+		.lines()
+		.next()
 		.map(str::to_string)
 		.map(LookAndSay)
 		.unwrap()
@@ -42,6 +43,28 @@ impl LookAndSay {
 	}
 }
 
+type Solution = usize;
+
+pub fn part_one(seed_command: &Intermediate) -> Option<Solution> {
+	let mut current_las: LookAndSay = seed_command.clone();
+
+	for _ in 0..40 {
+		current_las = current_las.say();
+	}
+
+	Some(current_las.0.len())
+}
+
+pub fn part_two(seed_command: &Intermediate) -> Option<Solution> {
+	let mut current_las: LookAndSay = seed_command.clone();
+
+	for _ in 0..50 {
+		current_las = current_las.say();
+	}
+
+	Some(current_las.0.len())
+}
+
 #[cfg(test)]
 mod look_and_say {
 	use super::LookAndSay;
@@ -75,26 +98,4 @@ mod look_and_say {
 		let las = LookAndSay("111221".into());
 		assert_eq!(las.say(), LookAndSay("312211".into()));
 	}
-}
-
-type Solution = usize;
-
-pub fn part_one(seed_command: &Intermediate) -> Option<Solution> {
-	let mut current_las: LookAndSay = seed_command.clone();
-
-	for _ in 0..40 {
-		current_las = current_las.say();
-	}
-
-	Some(current_las.0.len())
-}
-
-pub fn part_two(seed_command: &Intermediate) -> Option<Solution> {
-	let mut current_las: LookAndSay = seed_command.clone();
-
-	for _ in 0..50 {
-		current_las = current_las.say();
-	}
-
-	Some(current_las.0.len())
 }

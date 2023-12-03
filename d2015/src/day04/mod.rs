@@ -22,7 +22,7 @@ const fn leading6(data: [u8; 16]) -> bool {
 
 type Solution = usize;
 
-const RANGE: core::ops::Range<usize> = 1_usize..10000000_usize;
+const RANGE: core::ops::Range<usize> = 1_usize..10_000_000_usize;
 
 pub fn part_one(stub: &Intermediate) -> Option<Solution> {
 	RANGE

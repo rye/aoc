@@ -43,31 +43,6 @@ impl<'a> Rucksack<'a> {
 	}
 }
 
-#[cfg(test)]
-mod rucksack {
-	use super::Rucksack;
-
-	#[test]
-	fn char_priority_a_lc() {
-		assert_eq!(Rucksack::char_priority('a'), Some(1));
-	}
-
-	#[test]
-	fn char_priority_z_lc() {
-		assert_eq!(Rucksack::char_priority('z'), Some(26));
-	}
-
-	#[test]
-	fn char_priority_a_uc() {
-		assert_eq!(Rucksack::char_priority('A'), Some(27));
-	}
-
-	#[test]
-	fn char_priority_z_uc() {
-		assert_eq!(Rucksack::char_priority('Z'), Some(52));
-	}
-}
-
 pub type Intermediate<'a> = Vec<Rucksack<'a>>;
 pub type Output = u32;
 
@@ -110,4 +85,29 @@ pub fn part_two(rucksacks: &Intermediate) -> Option<Output> {
 	}
 
 	Some(sum)
+}
+
+#[cfg(test)]
+mod rucksack {
+	use super::Rucksack;
+
+	#[test]
+	fn char_priority_a_lc() {
+		assert_eq!(Rucksack::char_priority('a'), Some(1));
+	}
+
+	#[test]
+	fn char_priority_z_lc() {
+		assert_eq!(Rucksack::char_priority('z'), Some(26));
+	}
+
+	#[test]
+	fn char_priority_a_uc() {
+		assert_eq!(Rucksack::char_priority('A'), Some(27));
+	}
+
+	#[test]
+	fn char_priority_z_uc() {
+		assert_eq!(Rucksack::char_priority('Z'), Some(52));
+	}
 }
