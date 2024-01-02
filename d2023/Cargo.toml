@@ -8,7 +8,7 @@ rust-version = "1.74"
 workspace = true
 
 [dependencies]
-anyhow = "1.0.76"
+anyhow = "1.0.79"
 daocutil = { version = "0.1.0", path = "../daocutil" }
 itertools = "0.12.0"
 nu-ansi-term = "0.49.0"
