@@ -11,6 +11,6 @@ workspace = true
 [dependencies]
 daocutil = { path = "../daocutil" }
 anyhow = "1.0.79"
-thiserror = "1.0.52"
+thiserror = "1.0.56"
 itertools = "0.12.1"
 nu-ansi-term = "0.50.0"
