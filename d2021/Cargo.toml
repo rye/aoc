@@ -12,7 +12,7 @@ workspace = true
 itertools = "0.12.1"
 md5 = "0.7.0"
 rayon = "1.8.1"
-regex = "1.10.2"
+regex = "1.10.3"
 thiserror = "1.0.52"
 
 daocutil = { path = "../daocutil" }
