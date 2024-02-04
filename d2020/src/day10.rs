@@ -43,7 +43,7 @@ pub fn part_two(differences: &Intermediate) -> Option<usize> {
 	Some(total_count)
 }
 
-fn split_non_overlapping(arrangement: &Vec<u64>) -> Vec<Vec<u64>> {
+fn split_non_overlapping(arrangement: &[u64]) -> Vec<Vec<u64>> {
 	let mut v = vec![];
 	let mut prev_idx = 0;
 
@@ -60,7 +60,7 @@ fn split_non_overlapping(arrangement: &Vec<u64>) -> Vec<Vec<u64>> {
 	v
 }
 
-fn non_removable(init: &Vec<u64>) -> Vec<usize> {
+fn non_removable(init: &[u64]) -> Vec<usize> {
 	let mut v = vec![0, init.len() - 1];
 
 	for (idx, num) in init.iter().enumerate() {

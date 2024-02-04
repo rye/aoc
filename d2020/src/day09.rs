@@ -26,7 +26,7 @@ fn sus(numbers: &[isize]) -> Option<isize> {
 	None
 }
 
-fn find_weakness(numbers: &Vec<isize>, impostor: isize) -> Option<Vec<isize>> {
+fn find_weakness(numbers: &[isize], impostor: isize) -> Option<Vec<isize>> {
 	for start_idx in 0..numbers.len() - 2 {
 		for end_idx in (start_idx + 1)..(numbers.len() - 1) {
 			let mut sum = 0;

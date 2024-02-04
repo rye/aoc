@@ -1,4 +1,4 @@
-pub fn slope(map: &Vec<Vec<char>>, (dx, dy): (usize, usize)) -> usize {
+pub fn slope(map: &[Vec<char>], (dx, dy): (usize, usize)) -> usize {
 	let mut position = (0, 0);
 	let mut hits = 0;
 
