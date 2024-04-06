@@ -1,4 +1,4 @@
-use std::{collections::BTreeMap, ops::Add};
+use std::collections::BTreeMap;
 
 pub type Intermediate = Vec<Move>;
 pub type Output = u32;
@@ -104,7 +104,7 @@ pub fn part_two(moves: &[Move]) -> Option<Output> {
 				return Some(taxicab_distance((0, 0), pos));
 			}
 
-			pos = (pos.0 + direction.0 * 1, pos.1 + direction.1 * 1);
+			pos = (pos.0 + direction.0, pos.1 + direction.1);
 		}
 	}
 
