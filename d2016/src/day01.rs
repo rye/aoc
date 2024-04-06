@@ -1,3 +1,5 @@
+use std::{collections::BTreeMap, ops::Add};
+
 pub type Intermediate = Vec<Move>;
 pub type Output = u32;
 
@@ -69,15 +71,42 @@ pub fn part_one(moves: &[Move]) -> Option<Output> {
 	for m in moves {
 		direction = m.dir.apply_to_tuple(direction);
 		pos = (
-			pos.0 + direction.0 * m.dist as i32,
-			pos.1 + direction.1 * m.dist as i32,
+			pos.0 + direction.0 * i32::from(m.dist),
+			pos.1 + direction.1 * i32::from(m.dist),
 		);
 	}
 
 	Some(taxicab_distance((0, 0), pos))
 }
 
+daocutil::test_example!(
+	part_two_r8_r4_r4_r8,
+	parse,
+	part_two,
+	"R8, R4, R4, R8",
+	Some(4)
+);
+
 #[must_use]
-pub fn part_two(_intermediate: &Intermediate) -> Option<Output> {
+pub fn part_two(moves: &[Move]) -> Option<Output> {
+	let mut direction = (0, 1);
+	let mut pos = (0, 0);
+
+	let mut visit_counts: BTreeMap<(i32, i32), u32> = BTreeMap::new();
+
+	for m in moves {
+		direction = m.dir.apply_to_tuple(direction);
+
+		for _ in 0..m.dist {
+			visit_counts.entry(pos).and_modify(|c| *c += 1).or_insert(1);
+
+			if visit_counts[&pos] == 2 {
+				return Some(taxicab_distance((0, 0), pos));
+			}
+
+			pos = (pos.0 + direction.0 * 1, pos.1 + direction.1 * 1);
+		}
+	}
+
 	None
 }
