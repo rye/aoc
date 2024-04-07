@@ -104,6 +104,76 @@ static PART_ONE_MAP: phf::Map<[u8; 2], char> = phf_map! {
 	[3, 9] => '9',
 };
 
+daocutil::test_example!(
+	part_two_example,
+	parse,
+	part_two,
+	include_str!("examples/day02"),
+	Some("5DB3".to_string())
+);
+
+static PART_TWO_MAP: phf::Map<[u8; 2], char> = phf_map! {
+	// 0 = Up
+	[0, 0x1] => '1',
+	[0, 0x2] => '2',
+	[0, 0x4] => '4',
+	[0, 0x5] => '5',
+	[0, 0x9] => '9',
+	[0, 0x3] => '1',
+	[0, 0x6] => '2',
+	[0, 0x7] => '3',
+	[0, 0x8] => '4',
+	[0, 0xa] => '6',
+	[0, 0xb] => '7',
+	[0, 0xc] => '8',
+	[0, 0xd] => 'b',
+
+	// 1 = Down
+	[1, 0x5] => '5',
+	[1, 0xa] => 'A',
+	[1, 0xd] => 'D',
+	[1, 0xc] => 'C',
+	[1, 0x9] => '9',
+	[1, 0xb] => 'D',
+	[1, 0x6] => 'A',
+	[1, 0x7] => 'B',
+	[1, 0x8] => 'C',
+	[1, 0x2] => '6',
+	[1, 0x3] => '7',
+	[1, 0x4] => '8',
+	[1, 0x1] => '3',
+
+	// 2 = Left
+	[2, 0x1] => '1',
+	[2, 0x2] => '2',
+	[2, 0x5] => '5',
+	[2, 0xa] => 'A',
+	[2, 0xd] => 'D',
+	[2, 0x6] => '5',
+	[2, 0x3] => '2',
+	[2, 0x7] => '6',
+	[2, 0xb] => 'A',
+	[2, 0x4] => '3',
+	[2, 0x8] => '7',
+	[2, 0xc] => 'B',
+	[2, 0x9] => '8',
+
+	// 3 = Right
+	[3, 0x1] => '1',
+	[3, 0x4] => '4',
+	[3, 0x9] => '9',
+	[3, 0xc] => 'C',
+	[3, 0xd] => 'D',
+	[3, 0x8] => '9',
+	[3, 0x3] => '4',
+	[3, 0x7] => '8',
+	[3, 0xb] => 'C',
+	[3, 0x2] => '3',
+	[3, 0x6] => '7',
+	[3, 0xa] => 'B',
+	[3, 0x5] => '6',
+};
+
 fn apply_map_to_number(
 	map: &phf::Map<[u8; 2], char>,
 	instruction: &Instruction,
@@ -136,6 +206,23 @@ pub fn part_one(instructions: &Intermediate) -> Option<Output> {
 }
 
 #[must_use]
-pub fn part_two(_intermediate: &Intermediate) -> Option<Output> {
-	None
+pub fn part_two(instructions: &Intermediate) -> Option<Output> {
+	let result = instructions.iter().fold(
+		(String::new(), None),
+		|(mut code, last_pos): (String, Option<char>), instructions| {
+			let last_pos = instructions
+				.iter()
+				.fold(last_pos, |number, instruction| {
+					let number = number.unwrap_or('5');
+					let new_number = apply_map_to_number(&PART_TWO_MAP, instruction, number);
+					Some(new_number)
+				})
+				.expect("expected to step at least once");
+
+			code.push(last_pos);
+			(code, Some(last_pos))
+		},
+	);
+
+	Some(result.0)
 }
