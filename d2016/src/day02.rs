@@ -1,9 +1,39 @@
-pub type Intermediate = ();
+use anyhow::anyhow;
+
+pub type Intermediate = Vec<Vec<Instruction>>;
 pub type Output = String;
 
+pub enum Instruction {
+	Up,
+	Down,
+	Left,
+	Right,
+}
+
+impl Instruction {
+	fn from_char(char: char) -> Option<Self> {
+		Some(match char {
+			'U' => Self::Up,
+			'D' => Self::Down,
+			'L' => Self::Left,
+			'R' => Self::Right,
+			_ => return None,
+		})
+	}
+}
+
 /// # Errors
-pub fn parse(_data: &str) -> anyhow::Result<Intermediate> {
-	Ok(())
+pub fn parse(input: &str) -> anyhow::Result<Intermediate> {
+	input
+		.lines()
+		.map(|line| {
+			line
+				.chars()
+				.map(Instruction::from_char)
+				.collect::<Option<Vec<Instruction>>>()
+				.ok_or(anyhow!("invalid input"))
+		})
+		.collect::<anyhow::Result<Vec<Vec<_>>>>()
 }
 
 daocutil::test_example!(
