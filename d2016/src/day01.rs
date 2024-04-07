@@ -59,6 +59,7 @@ daocutil::test_example!(
 	Some(12)
 );
 
+#[allow(clippy::cast_sign_loss)]
 fn taxicab_distance((x0, y0): (i32, i32), (x1, y1): (i32, i32)) -> u32 {
 	((x1 - x0).abs() + (y1 - y0).abs()) as u32
 }

@@ -24,6 +24,7 @@ impl Instruction {
 	}
 
 	fn to_key(&self, loc: char) -> [u8; 2] {
+		#[allow(clippy::cast_possible_truncation)]
 		[
 			match self {
 				Self::Up => 0,
