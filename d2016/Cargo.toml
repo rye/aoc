@@ -15,4 +15,4 @@ itertools = "0.12.1"
 nu-ansi-term = "0.50.0"
 phf = { version = "0.11.2", features = ["macros"] }
 regex = "1.10.4"
-thiserror = "1.0.58"
+thiserror = "1.0.59"
