@@ -11,6 +11,7 @@ members = [
 	"d2021",
 	"d2022",
 	"d2023",
+	"d2024",
 ]
 
 [workspace.lints.clippy]
