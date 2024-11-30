@@ -92,14 +92,80 @@ mod funky_range_map {
 }
 
 /// # Errors
-pub fn parse(_data: &str) -> anyhow::Result<Intermediate> {
-	Ok(())
+pub fn parse(data: &str) -> anyhow::Result<Intermediate> {
+	let mut sections = data.split("\n\n");
+
+	let first_line = sections.next().unwrap();
+
+	let seeds: Vec<u64> = first_line
+		.split(':')
+		.last()
+		.unwrap()
+		.trim()
+		.split_ascii_whitespace()
+		.map(|s| s.parse().unwrap())
+		.collect();
+
+	let sections: Vec<FunkyRangeMap> = sections
+		.map(|section| section.parse())
+		.collect::<Result<_, _>>()?;
+
+	Ok((seeds, sections))
+}
+
+#[cfg(test)]
+mod parse {
+	use super::*;
+
+	#[test]
+	fn example() {
+		let example = include_str!("examples/day05");
+
+		let intermediate = parse(example).unwrap();
+		assert_eq!(intermediate.0, vec![79, 14, 55, 13]);
+
+		assert_eq!(intermediate.1.len(), 7);
+
+		assert_eq!(intermediate.1[0].src_cat, "seed");
+		assert_eq!(intermediate.1[0].dst_cat, "soil");
+
+		assert_eq!(intermediate.1[1].src_cat, "soil");
+		assert_eq!(intermediate.1[1].dst_cat, "fertilizer");
+
+		assert_eq!(intermediate.1[2].src_cat, "fertilizer");
+		assert_eq!(intermediate.1[2].dst_cat, "water");
+
+		assert_eq!(intermediate.1[3].src_cat, "water");
+		assert_eq!(intermediate.1[3].dst_cat, "light");
+
+		assert_eq!(intermediate.1[4].src_cat, "light");
+		assert_eq!(intermediate.1[4].dst_cat, "temperature");
+
+		assert_eq!(intermediate.1[5].src_cat, "temperature");
+		assert_eq!(intermediate.1[5].dst_cat, "humidity");
+
+		assert_eq!(intermediate.1[6].src_cat, "humidity");
+		assert_eq!(intermediate.1[6].dst_cat, "location");
+	}
 }
 
 #[must_use]
-pub fn part_one(_intermediate: &Intermediate) -> Option<Output> {
-	None
+pub fn part_one((seeds, maps): &Intermediate) -> Option<Output> {
+	let locations: Vec<u64> = seeds
+		.iter()
+		.map(|seed| maps.iter().fold(*seed, |seed, map| map.apply(seed)))
+		.collect();
+
+	Some(*locations.iter().min().unwrap())
 }
+
+daocutil::test_example!(
+	part_one_example,
+	parse,
+	part_one,
+	include_str!("examples/day05"),
+	Some(35)
+);
 
 #[must_use]
 pub fn part_two(_intermediate: &Intermediate) -> Option<Output> {
