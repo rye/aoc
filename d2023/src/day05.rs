@@ -1,5 +1,7 @@
 use core::ops::Range;
 
+use itertools::Itertools;
+
 pub type Intermediate = (Vec<u64>, Vec<FunkyRangeMap>);
 pub type Output = u64;
 
@@ -124,6 +126,34 @@ daocutil::test_example!(
 );
 
 #[must_use]
-pub fn part_two(_intermediate: &Intermediate) -> Option<Output> {
-	None
+pub fn part_two((seeds, maps): &Intermediate) -> Option<Output> {
+	let seed_ranges: Vec<Range<u64>> = seeds
+		.into_iter()
+		.tuples()
+		.map(|(start, len)| *start..start + len)
+		.collect();
+
+	let min = seed_ranges
+		.into_iter()
+		.map(|range| {
+			(
+				range.clone(),
+				range
+					.map(|seed| maps.iter().fold(seed, |seed, map| map.apply(seed)))
+					.min()
+					.unwrap(),
+			)
+		})
+		.map(|n| n.1)
+		.min();
+
+	min
 }
+
+daocutil::test_example!(
+	part_two_example,
+	parse,
+	part_two,
+	include_str!("examples/day05"),
+	Some(46)
+);
