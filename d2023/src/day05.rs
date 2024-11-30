@@ -1,10 +1,10 @@
+use core::ops::Range;
+
 pub type Intermediate = (Vec<u64>, Vec<FunkyRangeMap>);
 pub type Output = u64;
 
 pub struct FunkyRangeMap {
-	src_cat: String,
-	dst_cat: String,
-	ranges: Vec<(core::ops::Range<u64>, core::ops::Range<u64>)>,
+	ranges: Vec<(Range<u64>, Range<u64>)>,
 }
 
 impl core::str::FromStr for FunkyRangeMap {
@@ -13,24 +13,7 @@ impl core::str::FromStr for FunkyRangeMap {
 	fn from_str(s: &str) -> Result<Self, Self::Err> {
 		let mut lines = s.lines();
 
-		let main_line = lines.next().unwrap();
-
-		let src_cat = main_line
-			.split(' ')
-			.next()
-			.unwrap()
-			.split('-')
-			.next()
-			.unwrap()
-			.to_owned();
-		let dst_cat = main_line
-			.split(' ')
-			.next()
-			.unwrap()
-			.split('-')
-			.last()
-			.unwrap()
-			.to_owned();
+		let _ = lines.next().unwrap();
 
 		let ranges = lines
 			.map(|line| {
@@ -47,11 +30,7 @@ impl core::str::FromStr for FunkyRangeMap {
 			})
 			.collect();
 
-		Ok(Self {
-			src_cat,
-			dst_cat,
-			ranges,
-		})
+		Ok(Self { ranges })
 	}
 }
 
@@ -80,8 +59,6 @@ mod funky_range_map {
 			let example = "seed-to-soil map:\n50 98 2\n52 50 48";
 
 			let map = example.parse::<FunkyRangeMap>().unwrap();
-			assert_eq!(map.src_cat, "seed");
-			assert_eq!(map.dst_cat, "soil");
 
 			assert_eq!(map.apply(98), 50);
 			assert_eq!(map.apply(99), 51);
@@ -125,27 +102,6 @@ mod parse {
 		assert_eq!(intermediate.0, vec![79, 14, 55, 13]);
 
 		assert_eq!(intermediate.1.len(), 7);
-
-		assert_eq!(intermediate.1[0].src_cat, "seed");
-		assert_eq!(intermediate.1[0].dst_cat, "soil");
-
-		assert_eq!(intermediate.1[1].src_cat, "soil");
-		assert_eq!(intermediate.1[1].dst_cat, "fertilizer");
-
-		assert_eq!(intermediate.1[2].src_cat, "fertilizer");
-		assert_eq!(intermediate.1[2].dst_cat, "water");
-
-		assert_eq!(intermediate.1[3].src_cat, "water");
-		assert_eq!(intermediate.1[3].dst_cat, "light");
-
-		assert_eq!(intermediate.1[4].src_cat, "light");
-		assert_eq!(intermediate.1[4].dst_cat, "temperature");
-
-		assert_eq!(intermediate.1[5].src_cat, "temperature");
-		assert_eq!(intermediate.1[5].dst_cat, "humidity");
-
-		assert_eq!(intermediate.1[6].src_cat, "humidity");
-		assert_eq!(intermediate.1[6].dst_cat, "location");
 	}
 }
 
