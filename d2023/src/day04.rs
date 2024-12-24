@@ -1,5 +1,6 @@
 use std::{collections::BTreeSet, ops::ShlAssign};
 
+#[allow(dead_code)]
 #[derive(Clone, Debug)]
 pub struct Card {
 	number: u32,
